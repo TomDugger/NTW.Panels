@@ -1,4 +1,5 @@
-﻿using Example.Locators;
+﻿using Example.Designers;
+using Example.Locators;
 using NTW.Panels;
 using System;
 using System.Collections.Generic;
@@ -38,14 +39,14 @@ namespace Example.Handlers {
 
             stopExecution = false;
 
-            if (locator is ChartLocator chart) {
+            if (locator is IDesign design) {
 
                 if (startTranslatePosition == default(Point))
                     startTranslatePosition = mousePosition;
 
                 var deferent = startTranslatePosition - mousePosition;
 
-                chart.SetTranslation(deferent);
+                design.ExecuteFor<CanvasOffsetDesigner>(control => control.SetTranslation(deferent));
 
                 startTranslatePosition = mousePosition;
             }
@@ -63,10 +64,10 @@ namespace Example.Handlers {
 
         public void WheelExecution(UIElementCollection elements, Point mousePosition, double delta, IItemsLocator locator, Size place, Vector offset, out bool stopExecution) {
             stopExecution = false;
-            if (locator is ChartLocator chart) {
+            if (locator is IDesign design) {
                 double tick = delta / 120.0 / 10.0;
 
-                chart.SetScale(tick);
+                design.ExecuteFor<ZoomDesigner>(control => control.SetScale(tick, tick));
             }
 
         }

@@ -45,10 +45,22 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Adorner\AdornerDrawingPresenter.cs" />
+    <Compile Include="Collections\DesignersCollection.cs" />
     <Compile Include="Collections\HandlersCollection.cs" />
     <Compile Include="Common.cs" />
     <Compile Include="CustomPanel.cs" />
     <Compile Include="Default\Loactors\StackLocator.cs" />
+    <Compile Include="Metadata\Common\Abstract\CustomObject.cs" />
+    <Compile Include="Metadata\Common\ICustom.cs" />
+    <Compile Include="Metadata\Designers\Abstract\CustomDesigner.cs" />
+    <Compile Include="Metadata\Designers\Arrange\IArrangeDesigner.cs" />
+    <Compile Include="Metadata\Designers\IAreaDesigner.cs" />
+    <Compile Include="Metadata\Designers\ICalculatePositionDesigner.cs" />
+    <Compile Include="Metadata\Designers\IDesigner.cs" />
+    <Compile Include="Metadata\Designers\Arrange\IElementArrangeDesigner.cs" />
+    <Compile Include="Metadata\Designers\Transformation\IScaleTransformDesigner.cs" />
+    <Compile Include="Metadata\Designers\Transformation\ITransformDesigner.cs" />
+    <Compile Include="Metadata\Designers\Transformation\ITranslateTransformDesigner.cs" />
     <Compile Include="Metadata\Handlers\Calling\ICallingModifer.cs" />
     <Compile Include="Metadata\Handlers\Custom\Abstract\CustomHandler.cs" />
     <Compile Include="Metadata\Handlers\Custom\ICustomHandler.cs" />
@@ -65,6 +77,7 @@
     <Compile Include="Metadata\Handlers\Mouse\IMouseUpHandler.cs" />
     <Compile Include="Metadata\Handlers\Mouse\IMouseWheelHandler.cs" />
     <Compile Include="Metadata\Handlers\Mouse\Abstract\MouseHandler.cs" />
+    <Compile Include="Metadata\Locator\IDesign.cs" />
     <Compile Include="Metadata\Locator\IItemsLocator.cs" />
     <Compile Include="Metadata\Models\IDragDrapData.cs" />
     <Compile Include="Models\DragDropData.cs" />

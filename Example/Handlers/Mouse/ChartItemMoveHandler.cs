@@ -53,7 +53,7 @@ namespace Example.Handlers {
             stopExecution = false;
             if (locator is ChartLocator chart) {
 
-                Point pos = chart.Transformation(ChartLocator.GetPosition(moveElement));
+                Point pos = chart.ToGlobal(ChartLocator.GetPosition(moveElement));
                 switch (GetMoveType(moveElement)) {
                     case MouseMoveType.XY:
                         pos = mousePosition;
@@ -66,7 +66,7 @@ namespace Example.Handlers {
                         break;
                 }
 
-                ChartLocator.SetPosition(moveElement, chart.Translation(pos));
+                ChartLocator.SetPosition(moveElement, chart.FromGlobal(pos));
             }
         }
 

@@ -23,25 +23,61 @@ namespace NTW.Panels {
 
         public CustomPanel() : base() {
 
+            this.ClipToBounds = true;
+
             this.Focusable = true;
 
             FocusManager.SetIsFocusScope(this, true);
 
-            this.Handlers = new HandlersCollection<CustomHandler>();
+            this.Handlers = new HandlersCollection();
 
             this.Loaded += PanelLoaded;
+        }
+
+        private void PanelUnloaded(object sender, RoutedEventArgs e) {
+            if (upLayer != null) {
+                var adornerLayer = AdornerLayer.GetAdornerLayer(this);
+
+                if (adornerLayer != null)
+                    adornerLayer.Remove(upLayer);
+
+                upLayer = null;
+
+                this.Loaded += PanelLoaded;
+                this.Unloaded -= PanelUnloaded;
+            }
         }
 
         private void PanelLoaded(object sender, RoutedEventArgs e) {
 
             if (upLayer == null) {
 
-                upLayer = new AdornerDrawingPresenter(this);
+                var adornerLayer = AdornerLayer.GetAdornerLayer(this);
+
+                if (adornerLayer != null) {
+                    upLayer = new AdornerDrawingPresenter(this);
+                    adornerLayer.Add(upLayer);
+                } else
+                    this.IsVisibleChanged += PanelIsVisibleChanged;
+
+                this.Loaded -= PanelLoaded;
+                this.Unloaded += PanelUnloaded;
+            }
+        }
+
+        private void PanelIsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e) {
+            if (upLayer == null && IsVisible) {
 
                 var adornerLayer = AdornerLayer.GetAdornerLayer(this);
 
-                if (adornerLayer != null)
+                upLayer = new AdornerDrawingPresenter(this);
+
+                if (adornerLayer != null) {
                     adornerLayer.Add(upLayer);
+                }
+
+                this.Loaded -= PanelLoaded;
+                this.IsVisibleChanged -= PanelIsVisibleChanged;
             }
         }
 
@@ -87,20 +123,20 @@ namespace NTW.Panels {
         /// <summary>
         /// Handlers collection
         /// </summary>
-        public HandlersCollection<CustomHandler> Handlers {
-            get { return (HandlersCollection<CustomHandler>)GetValue(HandlersProperty); }
+        public HandlersCollection Handlers {
+            get { return (HandlersCollection)GetValue(HandlersProperty); }
             set { SetValue(HandlersProperty, value); }
         }
 
         public static readonly DependencyProperty HandlersProperty =
-            DependencyProperty.Register("Handlers", typeof(HandlersCollection<CustomHandler>), typeof(CustomPanel), new FrameworkPropertyMetadata(null, HandlersPropertyChanged));
+            DependencyProperty.Register("Handlers", typeof(HandlersCollection), typeof(CustomPanel), new FrameworkPropertyMetadata(null, HandlersPropertyChanged));
 
         private static void HandlersPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
             var sender = (CustomPanel)d;
 
-            ((HandlersCollection<CustomHandler>)e.OldValue)?.ClearOwner();
+            ((HandlersCollection)e.OldValue)?.ClearOwner();
 
-            ((HandlersCollection<CustomHandler>)e.NewValue)?.SetOwner(sender);
+            ((HandlersCollection)e.NewValue)?.SetOwner(sender);
         }
 
         internal void PanelCalling(Action<CustomPanel> action) {

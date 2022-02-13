@@ -6,6 +6,7 @@
         
         xmlns:locators="clr-namespace:Example.Locators"
         xmlns:handlers="clr-namespace:Example.Handlers"
+        xmlns:designers="clr-namespace:Example.Designers"
         
         mc:Ignorable="d"
         Title="Example" Height="450" Width="800">
@@ -78,15 +79,6 @@
             <Setter Property="Stroke" Value="DarkBlue" />
         </Style>
         
-        <!--BindingLineTo-->
-        <x:Array x:Key="BindingLineToList" Type="{x:Type locators:BindingLineTo}">
-            <locators:BindingLineTo>None</locators:BindingLineTo>
-            <locators:BindingLineTo>Left</locators:BindingLineTo>
-            <locators:BindingLineTo>Top</locators:BindingLineTo>
-            <locators:BindingLineTo>Right</locators:BindingLineTo>
-            <locators:BindingLineTo>Bottom</locators:BindingLineTo>
-        </x:Array>
-
         <x:Array x:Key="MoveTypesList" Type="{x:Type handlers:MouseMoveType}">
             <handlers:MouseMoveType>XY</handlers:MouseMoveType>
             <handlers:MouseMoveType>X</handlers:MouseMoveType>
@@ -361,7 +353,16 @@
                             </Grid.ColumnDefinitions>
                             <CustomPanel >
                                 <CustomPanel.ItemsLocator>
-                                    <locators:ChartLocator x:Name="ChartLocator" />
+                                    <locators:ChartLocator x:Name="ChartLocator" >
+                                        <locators:ChartLocator.Designers>
+                                            <designers:CanvasOffsetDesigner />
+                                            <designers:ZoomDesigner />
+                                            <designers:AreaDesigner x:Name="Area" />
+                                            <designers:ElementsPathLineDesigner x:Name="ElementsPath" />
+                                            <designers:RulersDesigner x:Name="Ruler" AreaDesigner="{Binding ElementName=Area, Path=.}" AreaBorderBrush="Violet" />
+                                            <designers:ShadowsDesigner x:Name="Shadows" />
+                                        </locators:ChartLocator.Designers>
+                                    </locators:ChartLocator>
                                 </CustomPanel.ItemsLocator>
                                 <CustomPanel.Handlers>
                                     <handlers:ChartItemMoveHandler />
@@ -378,37 +379,93 @@
                                     <TextBlock Text="Properties" FontWeight="Bold" Margin="5" HorizontalAlignment="Left" />
                                     <Expander Header="Area">
                                         <StackPanel>
-                                            <CheckBox Margin="5" Content="Show area" IsChecked="{Binding ElementName=ChartLocator, Path=ShowArea, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                                            <CheckBox Margin="5" Content="Show as Ruler" IsChecked="{Binding ElementName=ChartLocator, Path=ShowAreaAsRuler, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                            <CheckBox Margin="5" Content="Show area" IsChecked="{Binding ElementName=Area, Path=ShowArea, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                            
                                             <TextBlock Text="Area fill:" Margin="5" HorizontalAlignment="Left" />
-                                            <TextBox Margin="20, 5, 5, 5" Text="{Binding ElementName=ChartLocator, Path=AreaFill, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                            <TextBox Margin="20, 5, 5, 5" Text="{Binding ElementName=Area, Path=AreaFill, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                                             <TextBlock Text="Area border brush:" Margin="5" HorizontalAlignment="Left" />
-                                            <TextBox Margin="20, 5, 5, 5" Text="{Binding ElementName=ChartLocator, Path=AreaBorderBrush, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                            <TextBox Margin="20, 5, 5, 5" Text="{Binding ElementName=Area, Path=AreaBorderBrush, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                                             <TextBlock Text="Area border thikness:" Margin="5" HorizontalAlignment="Left" />
-                                            <TextBox Margin="20, 5, 5, 5" Text="{Binding ElementName=ChartLocator, Path=AreaBorderThickness, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                            <TextBox Margin="20, 5, 5, 5" Text="{Binding ElementName=Area, Path=AreaBorderThickness, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                            <CheckBox Margin="5" Content="Clip movement" IsChecked="{Binding ElementName=Area, Path=ClipMainArea, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                                         </StackPanel>
                                     </Expander>
                                     <Expander Header="Line">
                                         <StackPanel>
-                                            <CheckBox Margin="5" Content="Show line" IsChecked="{Binding ElementName=ChartLocator, Path=ShowLine, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                                            <CheckBox Margin="5" Content="Close line" IsChecked="{Binding ElementName=ChartLocator, Path=ClosedLine, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                                            <CheckBox Margin="5" Content="Filled line" IsChecked="{Binding ElementName=ChartLocator, Path=FilledLine, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-
-                                            <TextBlock Text="Binding line:" Margin="5" HorizontalAlignment="Left" />
-                                            <ComboBox Margin="20, 5, 5, 5" ItemsSource="{DynamicResource BindingLineToList}" SelectedItem="{Binding ElementName=ChartLocator, Path=BindLine, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                            <CheckBox Margin="5" Content="Show line" IsChecked="{Binding ElementName=ElementsPath, Path=ShowLine, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                            <CheckBox Margin="5" Content="Close line" IsChecked="{Binding ElementName=ElementsPath, Path=ClosedLine, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                            <CheckBox Margin="5" Content="Filled line" IsChecked="{Binding ElementName=ElementsPath, Path=FilledLine, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
                                             <TextBlock Text="Line fill:" Margin="5" HorizontalAlignment="Left" />
-                                            <TextBox Margin="20, 5, 5, 5" Text="{Binding ElementName=ChartLocator, Path=LineFill, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                            <TextBox Margin="20, 5, 5, 5" Text="{Binding ElementName=ElementsPath, Path=LineFill, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                                             <TextBlock Text="Line stroke:" Margin="5" HorizontalAlignment="Left" />
-                                            <TextBox Margin="20, 5, 5, 5" Text="{Binding ElementName=ChartLocator, Path=LineStroke, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                            <TextBox Margin="20, 5, 5, 5" Text="{Binding ElementName=ElementsPath, Path=LineStroke, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                                             <TextBlock Text="Line thikness:" Margin="5" HorizontalAlignment="Left" />
-                                            <TextBox Margin="20, 5, 5, 5" Text="{Binding ElementName=ChartLocator, Path=LineThickness, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                            <TextBox Margin="20, 5, 5, 5" Text="{Binding ElementName=ElementsPath, Path=LineThickness, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                        </StackPanel>
+                                    </Expander>
+                                    <Expander Header="Rulers">
+                                        <StackPanel>
+                                            <CheckBox Margin="5" Content="Show vertical ruler" IsChecked="{Binding ElementName=Ruler, Path=ShowVerticalRuler, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                                            <TextBlock Text="Minimum of Vertical Ruler:" Margin="5" HorizontalAlignment="Left" />
+                                            <TextBox Margin="20, 5, 5, 5" Text="{Binding ElementName=Ruler, Path=MinimumVerticalRuler, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                                            <TextBlock Text="Maximum of Vertical Ruler:" Margin="5" HorizontalAlignment="Left" />
+                                            <TextBox Margin="20, 5, 5, 5" Text="{Binding ElementName=Ruler, Path=MaximumVerticalRuler, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                                            <TextBlock Text="Frequency of Vertical Ruler:" Margin="5" HorizontalAlignment="Left" />
+                                            <TextBox Margin="20, 5, 5, 5" Text="{Binding ElementName=Ruler, Path=FrequencyVerticalRuler, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                                            <CheckBox Margin="5" Content="Show horizontal ruler" IsChecked="{Binding ElementName=Ruler, Path=ShowHorizontalRuler, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                                            <TextBlock Text="Minimum of Horizontal Ruler:" Margin="5" HorizontalAlignment="Left" />
+                                            <TextBox Margin="20, 5, 5, 5" Text="{Binding ElementName=Ruler, Path=MinimumHorizontalRuler, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                                            <TextBlock Text="Maximum of Horizontal Ruler:" Margin="5" HorizontalAlignment="Left" />
+                                            <TextBox Margin="20, 5, 5, 5" Text="{Binding ElementName=Ruler, Path=MaximumHorizontalRuler, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                                            <TextBlock Text="Frequency of Horizontal Ruler:" Margin="5" HorizontalAlignment="Left" />
+                                            <TextBox Margin="20, 5, 5, 5" Text="{Binding ElementName=Ruler, Path=FrequencyHorizontalRuler, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                                            <CheckBox Margin="5" Content="Ruler depends on Area" IsChecked="{Binding ElementName=Ruler, Path=RulerDependsOnArea, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                                            <TextBlock Text="Ruler fill:" Margin="5" HorizontalAlignment="Left" />
+                                            <TextBox Margin="20, 5, 5, 5" Text="{Binding ElementName=Ruler, Path=RulerFill, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                                            <TextBlock Text="Ruler width:" Margin="5" HorizontalAlignment="Left" />
+                                            <TextBox Margin="20, 5, 5, 5" Text="{Binding ElementName=Ruler, Path=RulerWidth, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                                            <TextBlock Text="Ruler small height:" Margin="5" HorizontalAlignment="Left" />
+                                            <TextBox Margin="20, 5, 5, 5" Text="{Binding ElementName=Ruler, Path=RulerSmallHeight, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                                            <TextBlock Text="Ruler height:" Margin="5" HorizontalAlignment="Left" />
+                                            <TextBox Margin="20, 5, 5, 5" Text="{Binding ElementName=Ruler, Path=RulerHeight, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                                            <TextBlock Text="Ruler big frequency:" Margin="5" HorizontalAlignment="Left" />
+                                            <TextBox Margin="20, 5, 5, 5" Text="{Binding ElementName=Ruler, Path=RulerBigFrequency, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                                            <TextBlock Text="Area border brush:" Margin="5" HorizontalAlignment="Left" />
+                                            <TextBox Margin="20, 5, 5, 5" Text="{Binding ElementName=Ruler, Path=AreaBorderBrush, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                        </StackPanel>
+                                    </Expander>
+                                    <Expander Header="Shadows">
+                                        <StackPanel>
+                                            <CheckBox Margin="5" Content="Use shadows:" IsChecked="{Binding ElementName=Shadows, Path=UseShadows, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                                            <TextBlock Text="Shadow fill:" Margin="5" HorizontalAlignment="Left" />
+                                            <TextBox Margin="20, 5, 5, 5" Text="{Binding ElementName=Shadows, Path=ShadowFill, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                                            <TextBlock Text="Shadow stroke:" Margin="5" HorizontalAlignment="Left" />
+                                            <TextBox Margin="20, 5, 5, 5" Text="{Binding ElementName=Shadows, Path=ShadowStroke, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                                            <TextBlock Text="Shadow stroke thickness:" Margin="5" HorizontalAlignment="Left" />
+                                            <TextBox Margin="20, 5, 5, 5" Text="{Binding ElementName=Shadows, Path=ShadowStrokeThickness, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                                         </StackPanel>
                                     </Expander>
 
                                     <TextBlock Text="Points" FontWeight="Bold" Margin="5" HorizontalAlignment="Left" />
 
-                                    <CheckBox Margin="5" Content="Clip movement" IsChecked="{Binding ElementName=ChartLocator, Path=ClipMainArea, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                                     <Expander Header="Point 1">
                                         <StackPanel>
                                             <TextBlock Text="Value:" Margin="5" HorizontalAlignment="Left" />

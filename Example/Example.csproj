@@ -53,6 +53,12 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Designers\AreaDesigner.cs" />
+    <Compile Include="Designers\CanvasOffsetDesigner.cs" />
+    <Compile Include="Designers\ElementsPathLineDesigner.cs" />
+    <Compile Include="Designers\RulersDesigner.cs" />
+    <Compile Include="Designers\ShadowsDesigner.cs" />
+    <Compile Include="Designers\ZoomDesigner.cs" />
     <Compile Include="Handlers\Mouse\ChartItemMoveHandler.cs" />
     <Compile Include="Handlers\Mouse\ChartTranslationHandler.cs" />
     <Compile Include="Handlers\Mouse\MoveItemMouseHandler.cs" />
