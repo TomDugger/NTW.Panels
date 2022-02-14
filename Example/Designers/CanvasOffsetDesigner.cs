@@ -56,14 +56,14 @@ namespace Example.Designers {
 
         public Transform GetTransform() => translateTransform ?? Transform.Identity;
 
-        public void SetTranslation(Vector deferent) {
+        public void SetTranslation(Vector deferent, bool set = false) {
             // Translate X
             if (TranslateX - deferent.X < Bounds.Left)
                 TranslateX = Bounds.Left;
             else if (TranslateX - deferent.X > Bounds.Width)
                 TranslateX = Bounds.Width;
             else
-                TranslateX -= deferent.X;
+                TranslateX = set ? deferent.X : TranslateX - deferent.X;
 
             // Translate Y
             if (TranslateY - deferent.Y < Bounds.Top)
@@ -71,7 +71,7 @@ namespace Example.Designers {
             else if (TranslateY - deferent.Y > Bounds.Height)
                 TranslateY = Bounds.Height;
             else
-                TranslateY -= deferent.Y;
+                TranslateY = set ? deferent.Y: TranslateY - deferent.Y;
         }
         #endregion
 

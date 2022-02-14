@@ -7,7 +7,7 @@ using System.Windows;
 using System.Windows.Media;
 
 namespace Example.Designers {
-    public class ShadowsDesigner : CustomDesigner, IElementArrangeDesigner, IArrangeDesigner, IDrawingPresenter {
+    public class ShadowsDesigner : CustomDesigner, IElementArrangeDesigner, IArrangeDesigner, IDrawingPresenter, IChildrenContainer {
 
         private DrawingGroup shadowsDrawing;
         private readonly Geometry defaultShadowItemGeometry;
@@ -67,6 +67,55 @@ namespace Example.Designers {
             DependencyProperty.Register("ShadowStrokeThickness", typeof(double), typeof(ShadowsDesigner), new PropertyMetadata(0.0));
         #endregion
 
+        #region Attached properties
+        public static Geometry GetItemGeometry(DependencyObject obj) {
+            return (Geometry)obj.GetValue(ItemGeometryProperty);
+        }
+
+        public static void SetItemGeometry(DependencyObject obj, Geometry value) {
+            obj.SetValue(ItemGeometryProperty, value);
+        }
+
+        public static readonly DependencyProperty ItemGeometryProperty =
+            DependencyProperty.RegisterAttached("ItemGeometry", typeof(Geometry), typeof(ShadowsDesigner), new PropertyMetadata(null));
+
+
+        public static Brush GetFill(DependencyObject obj) {
+            return (Brush)obj.GetValue(FillProperty);
+        }
+
+        public static void SetFill(DependencyObject obj, Brush value) {
+            obj.SetValue(FillProperty, value);
+        }
+
+        public static readonly DependencyProperty FillProperty =
+            DependencyProperty.RegisterAttached("Fill", typeof(Brush), typeof(ShadowsDesigner), new PropertyMetadata(null));
+
+
+        public static Brush GetStroke(DependencyObject obj) {
+            return (Brush)obj.GetValue(StrokeProperty);
+        }
+
+        public static void SetStroke(DependencyObject obj, Brush value) {
+            obj.SetValue(StrokeProperty, value);
+        }
+
+        public static readonly DependencyProperty StrokeProperty =
+            DependencyProperty.RegisterAttached("Stroke", typeof(Brush), typeof(ShadowsDesigner), new PropertyMetadata(null));
+
+
+        public static double? GetStrokeThickness(DependencyObject obj) {
+            return (double?)obj.GetValue(StrokeThicknessProperty);
+        }
+
+        public static void SetStrokeThickness(DependencyObject obj, double? value) {
+            obj.SetValue(StrokeThicknessProperty, value);
+        }
+
+        public static readonly DependencyProperty StrokeThicknessProperty =
+            DependencyProperty.RegisterAttached("StrokeThickness", typeof(double?), typeof(ShadowsDesigner), new PropertyMetadata(null));
+        #endregion
+
         #region IElementArrangeDesigner
         public void AfterElementArrange(Rect elementRect, Size containerSize, UIElement element, Transform global = null) {
             if (UseShadows)
@@ -92,6 +141,18 @@ namespace Example.Designers {
         public Drawing FrontDrawing => frontDrawing;
         #endregion
 
+        #region IChildrenContainer
+        public UIElement GetChild(Point position) {
+
+            var shadow = shadowsPositions.FirstOrDefault(x => x.Value.Contains(position));
+
+            if (shadow.Key != null)
+                return shadow.Key;
+            else
+                return null;
+        }
+        #endregion
+
         #region Helps
         private void ClearShadowsOfElements() {
             shadowsDrawing.Children.Clear();
@@ -102,7 +163,7 @@ namespace Example.Designers {
 
             if (!arrange.IntersectsWith(new Rect(originalSize)) & originalSize != default) {
 
-                Geometry shadowItemGeometry = (this.ShadowItemGeometry ?? defaultShadowItemGeometry).Clone();
+                Geometry shadowItemGeometry = (GetItemGeometry(element) ?? this.ShadowItemGeometry ?? defaultShadowItemGeometry).Clone();
 
                 Transform transform = Transform.Identity;
 
@@ -129,20 +190,10 @@ namespace Example.Designers {
                 if (transform != Transform.Identity) {
                     shadowItemGeometry.Transform = transform;
 
-                    shadowsDrawing.Children.Add(new GeometryDrawing(ShadowFill, new Pen(ShadowStroke, ShadowStrokeThickness), shadowItemGeometry));
+                    shadowsDrawing.Children.Add(new GeometryDrawing(GetFill(element) ?? ShadowFill, new Pen(GetStroke(element) ?? ShadowStroke, GetStrokeThickness(element) ?? ShadowStrokeThickness), shadowItemGeometry));
                     shadowsPositions.Add(element, transform.TransformBounds(geoRect));
                 }
             }
-        }
-
-        public UIElement GetChild(Point mousePosition) {
-
-            var shadow = shadowsPositions.FirstOrDefault(x => x.Value.Contains(mousePosition));
-            
-            if (shadow.Key != null) 
-                return shadow.Key;
-             else
-                return null;
         }
         #endregion
 

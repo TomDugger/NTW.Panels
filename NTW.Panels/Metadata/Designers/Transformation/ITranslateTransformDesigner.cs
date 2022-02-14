@@ -20,6 +20,7 @@ namespace NTW.Panels {
         /// Special method for set values of translate 
         /// </summary>
         /// <param name="deferent">Vector of translate</param>
-        void SetTranslation(Vector deferent);
+        /// /// <param name="set">Set values</param>
+        void SetTranslation(Vector deferent, bool set = false);
     }
 }

@@ -355,7 +355,7 @@
                                 <CustomPanel.ItemsLocator>
                                     <locators:ChartLocator x:Name="ChartLocator" >
                                         <locators:ChartLocator.Designers>
-                                            <designers:CanvasOffsetDesigner />
+                                            <designers:CanvasOffsetDesigner Bounds="-200,-200,200,200" />
                                             <designers:ZoomDesigner />
                                             <designers:AreaDesigner x:Name="Area" />
                                             <designers:ElementsPathLineDesigner x:Name="ElementsPath" />
@@ -367,6 +367,7 @@
                                 <CustomPanel.Handlers>
                                     <handlers:ChartItemMoveHandler />
                                     <handlers:ChartTranslationHandler />
+                                    <handlers:ShadowSelectingHandler ChildrenContainer="{Binding ElementName=Shadows, Path=.}" />
                                 </CustomPanel.Handlers>
                                 <Ellipse Name="el1" Style="{DynamicResource ChartPointStyle}" locators:ChartLocator.Position="0.25, 0.25" />
                                 <Ellipse Name="el2" Style="{DynamicResource ChartPointStyle}" Fill="Orange" locators:ChartLocator.Position="0.75, 0.25"  />

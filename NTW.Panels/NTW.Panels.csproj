@@ -51,6 +51,7 @@
     <Compile Include="CustomPanel.cs" />
     <Compile Include="Default\Loactors\StackLocator.cs" />
     <Compile Include="Metadata\Common\Abstract\CustomObject.cs" />
+    <Compile Include="Metadata\Common\IChildrenContainer.cs" />
     <Compile Include="Metadata\Common\ICustom.cs" />
     <Compile Include="Metadata\Designers\Abstract\CustomDesigner.cs" />
     <Compile Include="Metadata\Designers\Arrange\IArrangeDesigner.cs" />

@@ -9,6 +9,7 @@ namespace Example.Locators {
     public class ChartLocator : Freezable, IItemsLocator, IDrawingPresenter, IDesign {
 
         private Point center;
+        private Size size;
 
         private TransformGroup transform;
 
@@ -69,6 +70,7 @@ namespace Example.Locators {
 
             verifySize = default(Size); // ignore ScrollView
             center = CalculateCenter(originalSize);
+            size = originalSize;
 
             // begin of Element Arrange Designers
             ExecuteFor<IArrangeDesigner>(designer => designer.BeginElementArrange(originalSize, this.transform));
@@ -168,14 +170,16 @@ namespace Example.Locators {
 
         public void SetMoveToChildPosition(Point childPosition) {
 
-            ExecuteFor<ITranslateTransformDesigner>(translate => translate.SetTranslation(default));
+            ExecuteFor<ITranslateTransformDesigner>(translate => translate.SetTranslation(default, true));
 
             Point position = ToGlobal(childPosition);
 
-            // translate to move position
-            var result = center - position;
+            Point renderCenter = new Point(size.Width / 2, size.Height / 2);
 
-            ExecuteFor<ITranslateTransformDesigner>(translate => translate.SetTranslation(result));
+            // translate to move position
+            var result = renderCenter - position;
+
+            ExecuteFor<ITranslateTransformDesigner>(translate => translate.SetTranslation(result, true));
         }
 
         private Point CalculateCenter(Size originalSize) {

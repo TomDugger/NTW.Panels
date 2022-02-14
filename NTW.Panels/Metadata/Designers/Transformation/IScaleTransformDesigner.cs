@@ -20,7 +20,8 @@ namespace NTW.Panels {
         /// </summary>
         /// <param name="x">Scale X</param>
         /// <param name="y">Scale Y</param>
-        void SetScale(double x, double y);
+        /// <param name="set">Set values</param>
+        void SetScale(double x, double y, bool set = false);
 
         /// <summary>
         /// Special method for set center of scale

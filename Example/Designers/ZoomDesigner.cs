@@ -65,14 +65,14 @@ namespace Example.Designers {
 
         public Transform GetTransform() => scaleTransform ?? Transform.Identity;
 
-        public void SetScale(double x, double y) {
+        public void SetScale(double x, double y, bool set = false) {
             // Scale X
             if (ScaleX + x < MinimumLimit.Width)
                 ScaleX = MinimumLimit.Width;
             else if (ScaleX + x > MaximumLimit.Width)
                 ScaleX = MaximumLimit.Width;
             else
-                ScaleX += x;
+                ScaleX = set ? x: ScaleX + x;
 
             // Scale Y
             if (ScaleY + y < MinimumLimit.Height)
@@ -80,7 +80,7 @@ namespace Example.Designers {
             else if (ScaleY + y > MaximumLimit.Height)
                 ScaleY = MaximumLimit.Height;
             else
-                ScaleY += y;
+                ScaleY = set ? y: ScaleY + y;
         } 
 
         public void SetScaleCenter(double x, double y) {

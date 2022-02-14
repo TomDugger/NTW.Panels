@@ -62,6 +62,7 @@
     <Compile Include="Handlers\Mouse\ChartItemMoveHandler.cs" />
     <Compile Include="Handlers\Mouse\ChartTranslationHandler.cs" />
     <Compile Include="Handlers\Mouse\MoveItemMouseHandler.cs" />
+    <Compile Include="Handlers\Mouse\ShadowSelectingHandler.cs" />
     <Compile Include="Handlers\Mouse\SelectRangeMouseHandler.cs" />
     <Compile Include="Locators\ChartLocator.cs" />
     <Compile Include="Locators\Diagram\DiagramHelper.cs" />
