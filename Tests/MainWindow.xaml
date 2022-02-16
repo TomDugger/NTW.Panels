@@ -1,0 +1,637 @@
+﻿<Window x:Class="Tests.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:s="clr-namespace:System;assembly=mscorlib"
+        
+        xmlns:locators="clr-namespace:Examples.Locators;assembly=Examples"
+        xmlns:handlers="clr-namespace:Examples.Handlers;assembly=Examples"
+        xmlns:designers="clr-namespace:Examples.Designers;assembly=Examples" 
+        
+        xmlns:converters="clr-namespace:Tests.Converters"
+        
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Window.Resources>
+        <!--Converters-->
+        <converters:LastSimbolConverter x:Key="LastSimbolConverter" />
+
+        <!--Scrolling style for ItemsControl-->
+        <Style TargetType="{x:Type ItemsControl}">
+            <Setter Property="OverridesDefaultStyle" Value="True" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="VerticalContentAlignment" Value="Stretch" />
+            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto" />
+            <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
+            <Setter Property="ScrollViewer.CanContentScroll" Value="True" />
+            <Setter Property="Margin" Value="3" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ItemsControl}">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="DimGray" BorderThickness="1">
+                            <ScrollViewer HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
+                                  VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}"
+                                  CanContentScroll="{TemplateBinding ScrollViewer.CanContentScroll}">
+                                <ItemsPresenter />
+                            </ScrollViewer>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!--Chart ellpse style-->
+        <Style x:Key="ChartEllipseStyle" TargetType="{x:Type Ellipse}">
+            <Setter Property="Width" Value="12" />
+            <Setter Property="Height" Value="12" />
+            <Setter Property="Stroke" Value="Black" />
+            <Setter Property="StrokeThickness" Value="1" />
+        </Style>
+        
+        <!--Orientation-->
+        <x:Array x:Key="OrientationList" Type="{x:Type Orientation}">
+            <Orientation>Horizontal</Orientation>
+            <Orientation>Vertical</Orientation>
+        </x:Array>
+
+        <!--Items list-->
+        <x:Array x:Key="ItemsList" Type="{x:Type s:String}">
+            <s:String>Item 0</s:String>
+            <s:String>Item 1</s:String>
+            <s:String>Item 2</s:String>
+            <s:String>Item 3</s:String>
+            <s:String>Item 4</s:String>
+            <s:String>Item 5</s:String>
+            <s:String>Item 6</s:String>
+            <s:String>Item 7</s:String>
+            <s:String>Item 8</s:String>
+            <s:String>Item 9</s:String>
+
+            <s:String>Item 10</s:String>
+            <s:String>Item 11</s:String>
+            <s:String>Item 12</s:String>
+            <s:String>Item 13</s:String>
+            <s:String>Item 14</s:String>
+            <s:String>Item 15</s:String>
+            <s:String>Item 16</s:String>
+            <s:String>Item 17</s:String>
+            <s:String>Item 18</s:String>
+            <s:String>Item 19</s:String>
+
+            <s:String>Item 20</s:String>
+            <s:String>Item 21</s:String>
+            <s:String>Item 22</s:String>
+            <s:String>Item 23</s:String>
+            <s:String>Item 24</s:String>
+            <s:String>Item 25</s:String>
+            <s:String>Item 26</s:String>
+            <s:String>Item 27</s:String>
+            <s:String>Item 28</s:String>
+            <s:String>Item 29</s:String>
+        </x:Array>
+
+        <x:Array x:Key="PointsList" Type="{x:Type Point}">
+            <Point X="0.0" Y="0.0" />
+            <Point X="1.0" Y="0.0" />
+            <Point X="1.0" Y="1.0" />
+            <Point X="0.0" Y="1.0" />
+        </x:Array>
+
+        <!--Group View-->
+        <CollectionViewSource x:Key="ItemsView" Source="{DynamicResource ItemsList}">
+            <CollectionViewSource.GroupDescriptions>
+                <PropertyGroupDescription  PropertyName="." Converter="{StaticResource LastSimbolConverter}" />
+            </CollectionViewSource.GroupDescriptions>
+        </CollectionViewSource>
+
+        <!--Path geometry-->
+        <PathGeometry x:Key="PathGeometry">
+            <PathFigure StartPoint="40, 0" >
+                <PolyLineSegment Points="40,90 0,100" />
+            </PathFigure>
+        </PathGeometry>
+        
+        <!--Binding resources-->
+        <RelativeSource x:Key="ChartSource" Mode="FindAncestor" AncestorType="{x:Type locators:ChartLocator}" />
+        <RelativeSource x:Key="PanelSource" Mode="FindAncestor" AncestorType="{x:Type CustomPanel}" />
+    </Window.Resources>
+    <Grid>
+        <TabControl>
+            <!--Stack locator-->
+            <TabItem Header="Stack locator">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="Auto" MinWidth="120" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="30" />
+                        <RowDefinition />
+
+                        <RowDefinition Height="30" />
+                        <RowDefinition />
+
+                        <RowDefinition Height="30" />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    
+                    <!--Simple presentation-->
+                    <TextBlock Text="Simple presentation" Margin="5" />
+                    <CustomPanel Grid.Row="1" Margin="3">
+                        <CustomPanel.ItemsLocator>
+                            <locators:StackLocator Orientation="{Binding ElementName=StackOrientationBox, Path=SelectedItem, Mode=TwoWay}" />
+                        </CustomPanel.ItemsLocator>
+                        
+                        <!--Items-->
+                        <TextBlock Text="Simple text" />
+                        <Button Content="Simple button" />
+                        <TextBlock Text="Simple text" />
+                    </CustomPanel>
+                    
+                    <!--Simple ItemsControl presentation-->
+                    <TextBlock Grid.Row="2" Text="Simple ItemsControl presentation" Margin="5" />
+                    <ItemsControl Grid.Row="3" ItemsSource="{DynamicResource ItemsList}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <CustomPanel >
+                                    <CustomPanel.ItemsLocator>
+                                        <locators:StackLocator Orientation="{Binding ElementName=StackOrientationBox, Path=SelectedItem, Mode=TwoWay}" />
+                                    </CustomPanel.ItemsLocator>
+                                </CustomPanel>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+                    
+                    <!--Group ItemsControl presentation-->
+                    <TextBlock Grid.Row="4" Text="Group ItemsControl presentation" Margin="5" />
+                    <ItemsControl Grid.Row="5" ItemsSource="{Binding Source={StaticResource ItemsView}}">
+                        <ItemsControl.GroupStyle>
+                            <GroupStyle>
+                                <GroupStyle.ContainerStyle>
+                                    <Style TargetType="{x:Type GroupItem}">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate>
+                                                    <Expander IsExpanded="False">
+                                                        <Expander.Header>
+                                                            <TextBlock Text="{Binding Path=Name}" Margin="5" />
+                                                        </Expander.Header>
+
+                                                        <ItemsPresenter />
+                                                    </Expander>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </GroupStyle.ContainerStyle>
+                            </GroupStyle>
+                        </ItemsControl.GroupStyle>
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <CustomPanel >
+                                    <CustomPanel.ItemsLocator>
+                                        <locators:StackLocator Orientation="{Binding ElementName=StackOrientationBox, Path=SelectedItem, Mode=TwoWay}" />
+                                    </CustomPanel.ItemsLocator>
+                                </CustomPanel>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+                    
+                    <!--Settings-->
+                    <ScrollViewer Grid.Column="1" Grid.RowSpan="6">
+                        <StackPanel Margin="3">
+                            <TextBlock Text="Orientation" Margin="3" />
+
+                            <ComboBox Name="StackOrientationBox" Margin="15, 0, 0, 0" ItemsSource="{DynamicResource OrientationList}" SelectedIndex="0" />
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+            
+            <!--Wrap locator-->
+            <TabItem Header="Wrap locator">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="Auto" MinWidth="120" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="30" />
+                        <RowDefinition />
+
+                        <RowDefinition Height="30" />
+                        <RowDefinition />
+
+                        <RowDefinition Height="30" />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+
+                    <!--Simple presentation-->
+                    <TextBlock Text="Simple presentation" Margin="5" />
+                    <CustomPanel Grid.Row="1" Margin="3">
+                        <CustomPanel.ItemsLocator>
+                            <locators:WrapLocator Orientation="{Binding ElementName=WrapOrientationBox, Path=SelectedItem, Mode=TwoWay}" />
+                        </CustomPanel.ItemsLocator>
+
+                        <!--Items-->
+                        <TextBlock Text="Simple text" />
+                        <Button Content="Simple button" />
+                        <TextBlock Text="Simple text" />
+                    </CustomPanel>
+
+                    <!--Simple ItemsControl presentation-->
+                    <TextBlock Grid.Row="2" Text="Simple ItemsControl presentation" Margin="5" />
+                    <ItemsControl Grid.Row="3" ItemsSource="{DynamicResource ItemsList}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <CustomPanel >
+                                    <CustomPanel.ItemsLocator>
+                                        <locators:WrapLocator Orientation="{Binding ElementName=WrapOrientationBox, Path=SelectedItem, Mode=TwoWay}" />
+                                    </CustomPanel.ItemsLocator>
+                                </CustomPanel>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+
+                    <!--Group ItemsControl presentation-->
+                    <TextBlock Grid.Row="4" Text="Group ItemsControl presentation" Margin="5" />
+                    <ItemsControl Grid.Row="5" ItemsSource="{Binding Source={StaticResource ItemsView}}">
+                        <ItemsControl.GroupStyle>
+                            <GroupStyle>
+                                <GroupStyle.ContainerStyle>
+                                    <Style TargetType="{x:Type GroupItem}">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate>
+                                                    <Expander IsExpanded="False" Height="80">
+                                                        <Expander.Header>
+                                                            <TextBlock Text="{Binding Path=Name}" Margin="5" />
+                                                        </Expander.Header>
+
+                                                        <ItemsPresenter />
+                                                    </Expander>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </GroupStyle.ContainerStyle>
+                            </GroupStyle>
+                        </ItemsControl.GroupStyle>
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <CustomPanel >
+                                    <CustomPanel.ItemsLocator>
+                                        <locators:WrapLocator Orientation="{Binding ElementName=WrapOrientationBox, Path=SelectedItem, Mode=TwoWay}" />
+                                    </CustomPanel.ItemsLocator>
+                                </CustomPanel>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+
+                    <!--Settings-->
+                    <ScrollViewer Grid.Column="1" Grid.RowSpan="6">
+                        <StackPanel Margin="3">
+                            <TextBlock Text="Orientation" Margin="3" />
+
+                            <ComboBox Name="WrapOrientationBox" Margin="15, 0, 0, 0" ItemsSource="{DynamicResource OrientationList}" SelectedIndex="0" />
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+
+            <!--Geometry path locator-->
+            <TabItem Header="Path locator">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="Auto" MinWidth="120" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="30" />
+                        <RowDefinition />
+
+                        <RowDefinition Height="30" />
+                        <RowDefinition />
+
+                        <RowDefinition Height="30" />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+
+                    <!--Simple presentation-->
+                    <TextBlock Text="Simple presentation" Margin="5" />
+                    <CustomPanel Grid.Row="1" Margin="3">
+                        <CustomPanel.ItemsLocator>
+                            <locators:PathLocator Orientation="{Binding ElementName=PathOrientationBox, Path=SelectedItem, Mode=TwoWay}"
+                                                  GeometryPath="{DynamicResource PathGeometry}"/>
+                        </CustomPanel.ItemsLocator>
+
+                        <!--Items-->
+                        <TextBlock Text="Simple text" />
+                        <Button Content="Simple button" />
+                        <TextBlock Text="Simple text" />
+                    </CustomPanel>
+
+                    <!--Simple ItemsControl presentation-->
+                    <TextBlock Grid.Row="2" Text="Simple ItemsControl presentation" Margin="5" />
+                    <ItemsControl Grid.Row="3" ItemsSource="{DynamicResource ItemsList}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <CustomPanel >
+                                    <CustomPanel.ItemsLocator>
+                                        <locators:PathLocator Orientation="{Binding ElementName=PathOrientationBox, Path=SelectedItem, Mode=TwoWay}" 
+                                                              GeometryPath="{DynamicResource PathGeometry}" />
+                                    </CustomPanel.ItemsLocator>
+                                </CustomPanel>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+
+                    <!--Group ItemsControl presentation-->
+                    <TextBlock Grid.Row="4" Text="Group ItemsControl presentation" Margin="5" />
+                    <ItemsControl Grid.Row="5" ItemsSource="{Binding Source={StaticResource ItemsView}}">
+                        <ItemsControl.GroupStyle>
+                            <GroupStyle>
+                                <GroupStyle.ContainerStyle>
+                                    <Style TargetType="{x:Type GroupItem}">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate>
+                                                    <Expander IsExpanded="False" Height="80">
+                                                        <Expander.Header>
+                                                            <TextBlock Text="{Binding Path=Name}" Margin="5" />
+                                                        </Expander.Header>
+
+                                                        <ItemsPresenter />
+                                                    </Expander>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </GroupStyle.ContainerStyle>
+                            </GroupStyle>
+                        </ItemsControl.GroupStyle>
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <CustomPanel >
+                                    <CustomPanel.ItemsLocator>
+                                        <locators:PathLocator Orientation="{Binding ElementName=PathOrientationBox, Path=SelectedItem, Mode=TwoWay}"
+                                                              GeometryPath="{DynamicResource PathGeometry}" />
+                                    </CustomPanel.ItemsLocator>
+                                </CustomPanel>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+
+                    <!--Settings-->
+                    <ScrollViewer Grid.Column="1" Grid.RowSpan="6">
+                        <StackPanel Margin="3">
+                            <TextBlock Text="Orientation" Margin="3" />
+
+                            <ComboBox Name="PathOrientationBox" Margin="15, 0, 0, 0" ItemsSource="{DynamicResource OrientationList}" SelectedIndex="0" />
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+
+            <!--Chart locator-->
+            <TabItem Header="Chart locator">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="Auto" MinWidth="120" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="30" />
+                        <RowDefinition />
+
+                        <RowDefinition Height="30" />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+
+                    <!--Simple presentation-->
+                    <TextBlock Text="Simple presentation" Margin="5" />
+                    <CustomPanel Grid.Row="1" Margin="3">
+                        <CustomPanel.ItemsLocator>
+                            <locators:ChartLocator >
+                                <locators:ChartLocator.Designers>
+                                    <designers:CanvasOffsetDesigner Bounds="{Binding ElementName=TranslateBox, Path=Text, Mode=TwoWay}" />
+                                    <designers:ZoomDesigner MinimumLimit="{Binding ElementName=MinimumLimitBox, Path=Text, Mode=TwoWay}"
+                                                            MaximumLimit="{Binding ElementName=MaximumLimitBox, Path=Text, Mode=TwoWay}"/>
+                                    <designers:AreaDesigner x:Name="Area" 
+                                                            AreaFill="{Binding ElementName=AreaFillBox, Path=Text, Mode=TwoWay}"
+                                                            AreaBorderBrush="{Binding ElementName=AreaContainerBorderBrushBox, Path=Text, Mode=TwoWay}"
+                                                            AreaBorderThickness="{Binding ElementName=AreaBorderThicknessBox, Path=Text, Mode=TwoWay}"
+                                                            ShowArea="{Binding ElementName=ShowAreaBox, Path=IsChecked, Mode=TwoWay}"
+                                                            ClipMainArea="{Binding ElementName=ClipMainAreaBox, Path=IsChecked, Mode=TwoWay}" />
+                                    <designers:ElementsPathLineDesigner x:Name="ElementsPath" ShowLine="{Binding ElementName=ShowLineBox, Path=IsChecked, Mode=TwoWay}"
+                                                                        ClosedLine="{Binding ElementName=ClosedLineBox, Path=IsChecked, Mode=TwoWay}"
+                                                                        FilledLine="{Binding ElementName=FilledLineBox, Path=IsChecked, Mode=TwoWay}"
+                                                                        LineFill="{Binding ElementName=LineFillBox, Path=Text, Mode=TwoWay}"
+                                                                        LineStroke="{Binding ElementName=LineStrokeBox, Path=Text, Mode=TwoWay}"
+                                                                        LineThickness="{Binding ElementName=LineThicknessBox, Path=Text, Mode=TwoWay}" />
+                                    <designers:RulersDesigner x:Name="Ruler" AreaDesigner="{Binding ElementName=Area, Path=.}" 
+                                                              ShowVerticalRuler="{Binding ElementName=ShowVerticalRulerBox, Path=IsChecked, Mode=TwoWay}"
+                                                              MinimumVerticalRuler="{Binding ElementName=MinimumVerticalRulerBox, Path=Text, Mode=TwoWay}"
+                                                              MaximumVerticalRuler="{Binding ElementName=MaximumVerticalRulerBox, Path=Text, Mode=TwoWay}"
+                                                              FrequencyVerticalRuler="{Binding ElementName=FrequencyVerticalRulerBox, Path=Text, Mode=TwoWay}"
+                                                              ShowHorizontalRuler="{Binding ElementName=ShowHorizontalRulerBox, Path=IsChecked, Mode=TwoWay}"
+                                                              MinimumHorizontalRuler="{Binding ElementName=MinimumHorizontalRulerBox, Path=Text, Mode=TwoWay}"
+                                                              MaximumHorizontalRuler="{Binding ElementName=MaximumHorizontalRulerBox, Path=Text, Mode=TwoWay}"
+                                                              FrequencyHorizontalRuler="{Binding ElementName=FrequencyHorizontalRulerBox, Path=Text, Mode=TwoWay}"
+                                                              RulerFill="{Binding ElementName=RulerFillBox, Path=Text, Mode=TwoWay}"
+                                                              RulerWidth="{Binding ElementName=RulerWidthBox, Path=Text, Mode=TwoWay}"
+                                                              RulerSmallHeight="{Binding ElementName=RulerSmallHeightBox, Path=Text, Mode=TwoWay}"
+                                                              RulerHeight="{Binding ElementName=RulerHeightBox, Path=Text, Mode=TwoWay}"
+                                                              RulerBigFrequency="{Binding ElementName=RulerBigFrequencyBox, Path=Text, Mode=TwoWay}"
+                                                              RulerDependsOnArea="{Binding ElementName=RulerDependsOnAreaBox, Path=IsChecked, Mode=TwoWay}"                                                              
+                                                              AreaBorderBrush="{Binding ElementName=AreaBorderBrushBox, Path=Text, Mode=TwoWay}" />
+                                    <designers:ShadowsDesigner x:Name="Shadows" 
+                                                               UseShadows="{Binding ElementName=UseShadowsBox, Path=IsChecked, Mode=TwoWay}"
+                                                               ShadowFill="{Binding ElementName=ShadowFillBox, Path=Text, Mode=TwoWay}"
+                                                               ShadowStroke="{Binding ElementName=ShadowStrokeBox, Path=Text, Mode=TwoWay}"
+                                                               ShadowStrokeThickness="{Binding ElementName=ShadowStrokeThicknessBox, Path=Text, Mode=TwoWay}"/>
+                                </locators:ChartLocator.Designers>
+                            </locators:ChartLocator>
+                        </CustomPanel.ItemsLocator>
+                        <CustomPanel.Handlers>
+                            <handlers:ChartItemMoveHandler />
+                            <handlers:ChartTranslationHandler />
+                            <handlers:ShadowSelectingHandler ChildrenContainer="{Binding ElementName=Shadows, Path=.}" />
+                        </CustomPanel.Handlers>
+
+                        <!--Items-->
+                        <Ellipse Style="{DynamicResource ChartEllipseStyle}" Fill="Orange" locators:ChartLocator.Position="0.0 0.0" />
+                        <Ellipse Style="{DynamicResource ChartEllipseStyle}" Fill="LightGreen" locators:ChartLocator.Position="1.0 0.0" />
+                        <Ellipse Style="{DynamicResource ChartEllipseStyle}" Fill="LightBlue" locators:ChartLocator.Position="1.0 1.0" />
+                        <Ellipse Style="{DynamicResource ChartEllipseStyle}" Fill="Pink" locators:ChartLocator.Position="0.0 1.0" />
+                    </CustomPanel>
+
+                    <!--Simple ItemsControl presentation-->
+                    <TextBlock Grid.Row="2" Text="Simple ItemsControl presentation" Margin="5" />
+                    <ItemsControl Grid.Row="3" ItemsSource="{DynamicResource PointsList}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Ellipse Style="{DynamicResource ChartEllipseStyle}" Fill="Red" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                        <ItemsControl.ItemContainerStyle>
+                            <Style>
+                                <Setter Property="locators:ChartLocator.Position" Value="{Binding Path=.}" />
+                            </Style>
+                        </ItemsControl.ItemContainerStyle>
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <CustomPanel >
+                                    <CustomPanel.ItemsLocator>
+                                        <locators:ChartLocator >
+                                            <locators:ChartLocator.Designers>
+                                                <designers:CanvasOffsetDesigner Bounds="-200,-200,200,200" />
+                                                <designers:ZoomDesigner />
+                                                <designers:AreaDesigner />
+                                                <designers:ElementsPathLineDesigner />
+                                                <designers:RulersDesigner AreaBorderBrush="Violet"
+                                                                          AreaDesigner="{Binding RelativeSource={StaticResource ChartSource}, Path=Designers[2]}" />
+                                                <designers:ShadowsDesigner />
+                                            </locators:ChartLocator.Designers>
+                                        </locators:ChartLocator>
+                                    </CustomPanel.ItemsLocator>
+                                    <CustomPanel.Handlers>
+                                        <handlers:ChartItemMoveHandler />
+                                        <handlers:ChartTranslationHandler />
+                                        <handlers:ShadowSelectingHandler ChildrenContainer="{Binding RelativeSource={StaticResource PanelSource}, Path=ItemsLocator.Designers[5]}" />
+                                    </CustomPanel.Handlers>
+                                </CustomPanel>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+
+                    <!--Settings-->
+                    <ScrollViewer Grid.Column="1" Grid.RowSpan="6">
+                        <StackPanel Margin="3">
+                            <!--CanvasOffsetDesigner-->
+                            <Expander Header="Canvas offset designer">
+                                <StackPanel>
+                                    <TextBlock Grid.Row="4" Text="Translatation bounds" Margin="5" />
+                                    <TextBox Name="TranslateBox" Margin="15, 0, 0, 0" Text="-200, -200, 200, 200" />
+                                </StackPanel>
+                            </Expander>
+
+                            <!--Zoom designer-->
+                            <Expander Header="Zoom designer">
+                                <StackPanel>
+                                    <TextBlock Grid.Row="4" Text="Minimum Limit" Margin="5" />
+                                    <TextBox Name="MinimumLimitBox" Margin="15, 0, 0, 0" Text="0.5, 0.5" />
+
+                                    <TextBlock Grid.Row="4" Text="Maximum Limit" Margin="5" />
+                                    <TextBox Name="MaximumLimitBox" Margin="15, 0, 0, 0" Text="3, 3" />
+                                </StackPanel>
+                            </Expander>
+
+                            <!--Area designer-->
+                            <Expander Header="Area designer">
+                                <StackPanel>
+                                    <TextBlock Grid.Row="4" Text="Area fill" Margin="5" />
+                                    <TextBox Name="AreaFillBox" Margin="15, 0, 0, 0" />
+
+                                    <TextBlock Grid.Row="4" Text="Area border brush" Margin="5" />
+                                    <TextBox Name="AreaContainerBorderBrushBox" Margin="15, 0, 0, 0" />
+
+                                    <TextBlock Grid.Row="4" Text="Area border thickness" Margin="5" />
+                                    <TextBox Name="AreaBorderThicknessBox" Margin="15, 0, 0, 0" />
+
+                                    <CheckBox Name="ShowAreaBox" Content="Show area" Margin="15, 5, 5, 5" IsChecked="True" />
+
+                                    <CheckBox Name="ClipMainAreaBox" Content="Clip main area" Margin="15, 5, 5, 5" IsChecked="True" />
+                                </StackPanel>
+                            </Expander>
+
+                            <!--Elements path line designer-->
+                            <Expander Header="Elements path line designer">
+                                <StackPanel>
+                                    <CheckBox Name="ShowLineBox" Content="Show line" Margin="15, 5, 5, 5" IsChecked="True" />
+                                    <CheckBox Name="ClosedLineBox" Content="Closed line" Margin="15, 5, 5, 5" IsChecked="False" />
+                                    <CheckBox Name="FilledLineBox" Content="Closed line" Margin="15, 5, 5, 5" IsChecked="False" />
+
+                                    <TextBlock Grid.Row="4" Text="Line fill" Margin="5" />
+                                    <TextBox Name="LineFillBox" Margin="15, 0, 0, 0" Text="DodgerBlue" />
+
+                                    <TextBlock Grid.Row="4" Text="Line stroke" Margin="5" />
+                                    <TextBox Name="LineStrokeBox" Margin="15, 0, 0, 0" Text="DarkBlue" />
+
+                                    <TextBlock Grid.Row="4" Text="Line thickness" Margin="5" />
+                                    <TextBox Name="LineThicknessBox" Margin="15, 0, 0, 0" Text="0.1" />
+                                </StackPanel>
+                            </Expander>
+
+                            <!--Rulers designer-->
+                            <Expander Header="Rulers designer">
+                                <StackPanel>
+                                    <CheckBox Name="ShowVerticalRulerBox" Content="Show vertical ruler" Margin="15, 5, 5, 5" IsChecked="False" />
+
+                                    <TextBlock Grid.Row="4" Text="Minimum vertical ruler" Margin="5" />
+                                    <TextBox Name="MinimumVerticalRulerBox" Margin="15, 0, 0, 0" Text="0.0" />
+
+                                    <TextBlock Grid.Row="4" Text="Maximum vertical ruler" Margin="5" />
+                                    <TextBox Name="MaximumVerticalRulerBox" Margin="15, 0, 0, 0" Text="10.0" />
+
+                                    <TextBlock Grid.Row="4" Text="Frequency vertical ruler" Margin="5" />
+                                    <TextBox Name="FrequencyVerticalRulerBox" Margin="15, 0, 0, 0" Text="1.0" />
+
+                                    
+                                    <CheckBox Name="ShowHorizontalRulerBox" Content="Show horizontal ruler" Margin="15, 5, 5, 5" IsChecked="False" />
+
+                                    <TextBlock Grid.Row="4" Text="Minimum horizontal ruler" Margin="5" />
+                                    <TextBox Name="MinimumHorizontalRulerBox" Margin="15, 0, 0, 0" Text="0.0" />
+
+                                    <TextBlock Grid.Row="4" Text="Maximum horizontal ruler" Margin="5" />
+                                    <TextBox Name="MaximumHorizontalRulerBox" Margin="15, 0, 0, 0" Text="10.0" />
+
+                                    <TextBlock Grid.Row="4" Text="Frequency horizontal ruler" Margin="5" />
+                                    <TextBox Name="FrequencyHorizontalRulerBox" Margin="15, 0, 0, 0" Text="1.0" />
+
+
+                                    <TextBlock Grid.Row="4" Text="Ruler fill" Margin="5" />
+                                    <TextBox Name="RulerFillBox" Margin="15, 0, 0, 0" Text="Black" />
+
+                                    <TextBlock Grid.Row="4" Text="Ruler width" Margin="5" />
+                                    <TextBox Name="RulerWidthBox" Margin="15, 0, 0, 0" Text="2.0" />
+
+                                    <TextBlock Grid.Row="4" Text="Ruler small height" Margin="5" />
+                                    <TextBox Name="RulerSmallHeightBox" Margin="15, 0, 0, 0" Text="5.0" />
+
+                                    <TextBlock Grid.Row="4" Text="Ruler height" Margin="5" />
+                                    <TextBox Name="RulerHeightBox" Margin="15, 0, 0, 0" Text="10.0" />
+
+                                    <TextBlock Grid.Row="4" Text="Ruler big frequency" Margin="5" />
+                                    <TextBox Name="RulerBigFrequencyBox" Margin="15, 0, 0, 0" Text="2" />
+
+                                    <CheckBox Name="RulerDependsOnAreaBox" Content="Ruler depends on area" Margin="15, 5, 5, 5" IsChecked="False" />
+
+                                    <TextBlock Grid.Row="4" Text="Area border brush" Margin="5" />
+                                    <TextBox Name="AreaBorderBrushBox" Margin="15, 0, 0, 0" Text="Black" />
+                                </StackPanel>
+                            </Expander>
+
+                            <!--Shadows designer-->
+                            <Expander Header="Shadows designer">
+                                <StackPanel>
+                                    <CheckBox Name="UseShadowsBox" Content="Show Shadows" Margin="15, 5, 5, 5" IsChecked="False" />
+
+                                    <TextBlock Grid.Row="4" Text="Shadow fill" Margin="5" />
+                                    <TextBox Name="ShadowFillBox" Margin="15, 0, 0, 0" Text="Red" />
+
+                                    <TextBlock Grid.Row="4" Text="Shadow stroke" Margin="5" />
+                                    <TextBox Name="ShadowStrokeBox" Margin="15, 0, 0, 0" Text="{x:Null}" />
+
+                                    <TextBlock Grid.Row="4" Text="Shadow stroke thickness" Margin="5" />
+                                    <TextBox Name="ShadowStrokeThicknessBox" Margin="15, 0, 0, 0" Text="0.0" />
+                                </StackPanel>
+                            </Expander>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Window>

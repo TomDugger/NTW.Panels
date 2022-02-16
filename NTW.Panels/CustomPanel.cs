@@ -104,20 +104,7 @@ namespace NTW.Panels {
             if (e.NewValue is ICallingModifer callNew)
                 callNew.PanelCalling += sender.PanelCalling;
 
-
-            if (e.OldValue is Freezable freezableOld)
-                freezableOld.Changed -= sender.UpdateMeasure;
-
-            if (e.NewValue is Freezable freezableNew)
-                freezableNew.Changed += sender.UpdateMeasure;
-
             sender?.InvalidateMeasure();
-        }
-
-        private void UpdateMeasure(object sender, EventArgs e) {
-            this.InvalidateMeasure();
-            this.InvalidateArrange();
-            this.InvalidateVisual();
         }
 
         /// <summary>

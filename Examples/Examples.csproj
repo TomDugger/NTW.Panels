@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{5A176EBF-AE0F-4B47-9761-7A2DC57DE5E3}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Examples</RootNamespace>
+    <AssemblyName>Examples</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Designers\AreaDesigner.cs" />
+    <Compile Include="Designers\CanvasOffsetDesigner.cs" />
+    <Compile Include="Designers\ElementsPathLineDesigner.cs" />
+    <Compile Include="Designers\RulersDesigner.cs" />
+    <Compile Include="Designers\ShadowsDesigner.cs" />
+    <Compile Include="Designers\ZoomDesigner.cs" />
+    <Compile Include="Handlers\ChartItemMoveHandler.cs" />
+    <Compile Include="Handlers\ChartTranslationHandler.cs" />
+    <Compile Include="Handlers\MoveItemMouseHandler.cs" />
+    <Compile Include="Handlers\SelectRangeMouseHandler.cs" />
+    <Compile Include="Handlers\ShadowSelectingHandler.cs" />
+    <Compile Include="Helpers\DiagramHelper.cs" />
+    <Compile Include="Locators\ChartLocator.cs" />
+    <Compile Include="Locators\DiagramLocator.cs" />
+    <Compile Include="Locators\ExcludeLocator.cs" />
+    <Compile Include="Locators\HeirarhicalLocator.cs" />
+    <Compile Include="Locators\PathLocator.cs" />
+    <Compile Include="Locators\StackLocator.cs" />
+    <Compile Include="Locators\WrapLocator.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\NTW.Panels\NTW.Panels.csproj">
+      <Project>{5482c95b-3358-4740-bbf0-e5ec44898016}</Project>
+      <Name>NTW.Panels</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

@@ -71,6 +71,7 @@
     <Compile Include="Metadata\Handlers\DragDrop\IDragEnterHandler.cs" />
     <Compile Include="Metadata\Handlers\Drawing\IDrawingPresenter.cs" />
     <Compile Include="Metadata\Handlers\Keys\IKeyHandler.cs" />
+    <Compile Include="Metadata\Handlers\Mouse\Abstract\OnlyMouseUpHandler.cs" />
     <Compile Include="Metadata\Handlers\Mouse\IMouseDownHandler.cs" />
     <Compile Include="Metadata\Handlers\Mouse\IMouseEnterHandler.cs" />
     <Compile Include="Metadata\Handlers\Mouse\IMouseLeaveHandler.cs" />
