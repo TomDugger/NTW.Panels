@@ -1,12 +1,10 @@
 ﻿using NTW.Panels;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 
 namespace Examples.Locators {
-    public class ChartLocator : Freezable, IItemsLocator, IDrawingPresenter, IDesign {
+    public class ChartLocator : DesignedLocator, IDrawingPresenter {
 
         private Point center;
         private Size size;
@@ -33,19 +31,38 @@ namespace Examples.Locators {
         }
 
         public static readonly DependencyProperty PositionProperty =
-            DependencyProperty.RegisterAttached("Position", typeof(Point), typeof(ChartLocator), new FrameworkPropertyMetadata(default(Point), FrameworkPropertyMetadataOptions.AffectsParentArrange));
+            DependencyProperty.RegisterAttached("Position", typeof(Point), typeof(ChartLocator), new PropertyMetadata(default(Point), PositionChanged));
 
-
-        private static bool GetIsChartItem(DependencyObject obj) {
-            return (bool)obj.GetValue(IsChartItemProperty);
+        private static void PositionChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
+            if (sender is UIElement ui && GetRebuildArrangeChild(sender) is Action<UIElement> rebuild)
+                rebuild(ui);
         }
 
-        private static void SetIsChartItem(DependencyObject obj, bool value) {
-            obj.SetValue(IsChartItemProperty, value);
+
+
+        private static int GetChildIndex(DependencyObject obj) {
+            return (int)obj.GetValue(ChildIndexProperty);
         }
 
-        private static readonly DependencyProperty IsChartItemProperty =
-            DependencyProperty.RegisterAttached("IsChartItem", typeof(bool), typeof(ChartLocator), new PropertyMetadata(false));
+        private static void SetChildIndex(DependencyObject obj, int value) {
+            obj.SetValue(ChildIndexProperty, value);
+        }
+
+        private static readonly DependencyProperty ChildIndexProperty =
+            DependencyProperty.RegisterAttached("ChildIndex", typeof(int), typeof(ChartLocator), new PropertyMetadata(-1));
+
+
+
+        private static Action<UIElement> GetRebuildArrangeChild(DependencyObject obj) {
+            return (Action<UIElement>)obj.GetValue(RebuildArrangeChildProperty);
+        }
+
+        private static void SetRebuildArrangeChild(DependencyObject obj, Action<UIElement> value) {
+            obj.SetValue(RebuildArrangeChildProperty, value);
+        }
+
+        private static readonly DependencyProperty RebuildArrangeChildProperty =
+            DependencyProperty.RegisterAttached("RebuildArrangeChild", typeof(Action<UIElement>), typeof(ChartLocator), new PropertyMetadata(null));
         #endregion
 
         #region IDrawingPresenter
@@ -57,7 +74,7 @@ namespace Examples.Locators {
         #endregion
 
         #region IItemsLocator
-        public Size Measure(Size originalSize, params UIElement[] elements) {
+        public override Size Measure(Size originalSize, params UIElement[] elements) {
 
             foreach (UIElement child in elements) {
                 child.Measure(originalSize);
@@ -66,7 +83,7 @@ namespace Examples.Locators {
             return originalSize;
         }
 
-        public Size Arrange(Size originalSize, Vector offset, Vector itemsOffset, out Size verifySize, bool checkSize = false, params UIElement[] elements) {
+        public override Size Arrange(Size originalSize, Vector offset, Vector itemsOffset, out Size verifySize, bool checkSize = false, params UIElement[] elements) {
 
             verifySize = default(Size); // ignore ScrollView
             center = CalculateCenter(originalSize);
@@ -75,18 +92,13 @@ namespace Examples.Locators {
             // begin of Element Arrange Designers
             ExecuteFor<IArrangeDesigner>(designer => designer.BeginElementArrange(originalSize, this.transform));
 
-            foreach (UIElement child in elements) {
-                Point position = ToGlobal(GetPosition(child));
+            int index = -1;
+            foreach (UIElement child in elements) { 
+                ArrangeChild(child);
 
-                Point childPos = new Point(position.X - child.DesiredSize.Width / 2, position.Y - child.DesiredSize.Height / 2);
+                SetChildIndex(child, ++index);
 
-                Rect childRect = new Rect(childPos, child.DesiredSize);
-
-                child.Arrange(childRect);
-                SetIsChartItem(child, true);
-
-                // elementArrange designers
-                ExecuteFor<IElementArrangeDesigner>(designer => designer.AfterElementArrange(childRect, originalSize, child, this.transform));
+                SetRebuildArrangeChild(child, ArrageChildWithCallingElementDesigners);
             }
 
             // end of Element Arrange Designers
@@ -98,50 +110,12 @@ namespace Examples.Locators {
             return originalSize;
         }
 
-        public Vector CalculateOffset(Size originalSize, Vector offset, UIElement element, bool asNext, params UIElement[] elements) {
+        public override Vector CalculateOffset(Size originalSize, Vector offset, UIElement element, bool asNext, params UIElement[] elements) {
             return default(Vector);
         }
 
-        public Rect GetOriginalBounds(UIElement element, Vector offset = default) {
+        public override Rect GetOriginalBounds(UIElement element, Vector offset = default) {
             return default(Rect);
-        }
-        #endregion
-
-        #region IDesign
-        public DesignersCollection Designers {
-            get { return (DesignersCollection)GetValue(DesignersProperty); }
-            set { SetValue(DesignersProperty, value); }
-        }
-
-        public static readonly DependencyProperty DesignersProperty =
-            DependencyProperty.Register("Designers", typeof(DesignersCollection), typeof(ChartLocator), new UIPropertyMetadata(null));
-
-        public T GetDesigner<T>()
-            where T : IDesigner {
-            return (T)Designers.Where(x => x is T).Cast<IDesigner>().FirstOrDefault();
-        }
-
-        public IEnumerable<T> GetDesigners<T>()
-            where T : IDesigner {
-            return Designers.Where(x => x is T).Cast<T>();
-        }
-
-        public void Execute<T>(IEnumerable<T> designers, Action<T> action)
-            where T : IDesigner {
-
-            if (designers == null || action == null) return;
-
-            foreach (T designer in designers)
-                action(designer);
-        }
-
-        public void ExecuteFor<T>(Action<T> action)
-            where T : IDesigner {
-
-            if (action == null) return;
-
-            foreach (T designer in GetDesigners<T>())
-                action(designer);
         }
         #endregion
 
@@ -163,7 +137,7 @@ namespace Examples.Locators {
             if (GetDesigner<ICalculatePositionDesigner>() is ICalculatePositionDesigner designer)
                 result = designer.FromGlobal(position, center, transform);
             else
-                result = new Point(result.X - center.X, result.Y - center.Y);
+                result = new Point(position.X - center.X, position.Y - center.Y);
 
             return result;
         }
@@ -190,6 +164,33 @@ namespace Examples.Locators {
                 result = new Point(originalSize.Width / 2, originalSize.Height / 2);
 
             return result;
+        }
+
+        private void ArrangeChild(UIElement child) {
+            Point position = ToGlobal(GetPosition(child));
+
+            Point childPos = new Point(position.X - child.DesiredSize.Width / 2, position.Y - child.DesiredSize.Height / 2);
+
+            Rect childRect = new Rect(childPos, child.DesiredSize);
+
+            child.Arrange(childRect);
+
+            // elementArrange designers (setting)
+            ExecuteFor<IElementArrangeDesigner>(designer => designer.AfterElementArrange(childRect, size, child, this.transform));
+        }
+
+        private void ArrageChildWithCallingElementDesigners(UIElement child) {
+
+            Point position = ToGlobal(GetPosition(child));
+
+            Point childPos = new Point(position.X - child.DesiredSize.Width / 2, position.Y - child.DesiredSize.Height / 2);
+
+            Rect childRect = new Rect(childPos, child.DesiredSize);
+
+            child.Arrange(childRect);
+
+            // elementArrange designers (Updating)
+            ExecuteFor<IElementArrangeDesigner>(designer => designer.UpdateElementArrage(childRect, size, GetChildIndex(child), child, this.transform));
         }
         #endregion
 

@@ -8,23 +8,27 @@ namespace NTW.Panels {
     /// <summary>
     /// Designers collection (is freezable Collection)
     /// </summary>
-    public class DesignersCollection: FreezableCollection<CustomDesigner>, IDrawingPresenter {
+    public class DesignersCollection: CustomCollection<CustomDesigner>, IDrawingPresenter {
 
-        public DesignersCollection() : base(new List<CustomDesigner>()) {
+        public DesignersCollection() : base() {
             transformGroup = new TransformGroup();
 
-            ((INotifyCollectionChanged)this).CollectionChanged += MouseHandlerCollection_CollectionChanged;
+            ((INotifyCollectionChanged)this).CollectionChanged += Collection_CollectionChanged;
         }
 
-        private void MouseHandlerCollection_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
+        private void Collection_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
             switch (e.Action) {
                 case NotifyCollectionChangedAction.Add:
                     foreach (var designer in e.NewItems?.Cast<CustomDesigner>()) {
+
                         if (designer is ITransformDesigner transformDesigner)
                             AddWithSorting(transformDesigner);
 
                         if (designer is IDrawingPresenter presenter)
                             AddDrawing(presenter);
+
+                        if(designer is INotifyOption option)
+                            option.OptionCalling += OptionCalled;
                     }
 
                     break;
@@ -40,6 +44,9 @@ namespace NTW.Panels {
                             if (presenter.FrontDrawing != null)
                                 frontDrawing.Children.Remove(presenter.FrontDrawing);
                         }
+
+                        if (designer is INotifyOption option)
+                            option.OptionCalling -= OptionCalled;
                     }
                     break;
                 case NotifyCollectionChangedAction.Reset:
@@ -50,6 +57,10 @@ namespace NTW.Panels {
             }
         }
 
+        private void OptionCalled(CustomObject sender, UpdateOptions option) {
+            this.SetUpdateOption(sender, option);
+        }
+
         private TransformGroup transformGroup;
         public Transform Transformation => transformGroup;
 
@@ -58,9 +69,8 @@ namespace NTW.Panels {
         public Drawing BackDrawing => backDrawing;
 
         private DrawingGroup frontDrawing = new DrawingGroup();
-        public Drawing FrontDrawing => frontDrawing; 
+        public Drawing FrontDrawing => frontDrawing;
         #endregion
-
 
         private void AddWithSorting(ITransformDesigner transform) {
 
@@ -78,6 +88,10 @@ namespace NTW.Panels {
 
             if (presenter.FrontDrawing != null)
                 frontDrawing.Children.Add(presenter.FrontDrawing);
+        }
+
+        protected override void OnChanged() {
+            base.OnChanged();
         }
     }
 }

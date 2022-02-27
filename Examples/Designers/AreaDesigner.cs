@@ -9,6 +9,9 @@ namespace Examples.Designers {
         , ICalculatePositionDesigner
         , IAreaDesigner {
 
+        private Size containerSize = default(Size);
+        private Transform transformation = Transform.Identity;
+
         private GeometryDrawing areaDrawing;
 
         public AreaDesigner() {
@@ -26,7 +29,6 @@ namespace Examples.Designers {
             DependencyProperty.Register("AreaFill", typeof(Brush), typeof(AreaDesigner), new PropertyMetadata(null, AreaFillChanged));
 
         private static void AreaFillChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
-
             if (sender is AreaDesigner designer)
                 designer.areaDrawing.Brush = (Brush)e.NewValue;
         }
@@ -41,7 +43,6 @@ namespace Examples.Designers {
             DependencyProperty.Register("AreaBorderBrush", typeof(Brush), typeof(AreaDesigner), new PropertyMetadata(Brushes.Black, AreaBorderBrushChanged));
 
         private static void AreaBorderBrushChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
-
             if (sender is AreaDesigner designer)
                 designer.areaDrawing.Pen.Brush = (Brush)e.NewValue;
         }
@@ -56,7 +57,6 @@ namespace Examples.Designers {
             DependencyProperty.Register("AreaBorderThickness", typeof(double), typeof(AreaDesigner), new PropertyMetadata(1.0, AreaBorderThicknessChanged));
 
         private static void AreaBorderThicknessChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
-
             if (sender is AreaDesigner designer)
                 designer.areaDrawing.Pen.Thickness = (double)e.NewValue;
         }
@@ -68,7 +68,18 @@ namespace Examples.Designers {
         }
 
         public static readonly DependencyProperty ShowAreaProperty =
-            DependencyProperty.Register("ShowArea", typeof(bool), typeof(AreaDesigner), new PropertyMetadata(true));
+            DependencyProperty.Register("ShowArea", typeof(bool), typeof(AreaDesigner), new PropertyMetadata(true, ShowAreaUpdated));
+
+        private static void ShowAreaUpdated(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
+            if (sender is AreaDesigner designer) {
+                if (e.NewValue is bool visibility)
+                    if (visibility)
+                        designer.backDrawing.Children.Add(designer.areaDrawing);
+                    else
+                        designer.backDrawing.Children.Remove(designer.areaDrawing);
+
+            }
+        }
 
 
         public bool ClipMainArea {
@@ -87,9 +98,12 @@ namespace Examples.Designers {
 
         public void EndElementArrange(Size containerSize, Transform global = null) {
 
+            this.containerSize = containerSize;
+            transformation = global;
+
             backDrawing.ClipGeometry = new RectangleGeometry(new Rect(containerSize));
 
-            BuildArea(containerSize, global);
+            BuildArea();
         }
         #endregion
 
@@ -169,26 +183,33 @@ namespace Examples.Designers {
         #endregion
 
         #region Helps
-        private void BuildArea(Size containerSize, Transform global) {
+        private void BuildArea() {
 
-            global = global ?? Transform.Identity;
+            transformation = transformation ?? Transform.Identity;
 
             if (!ShowArea) {
                 areaDrawing.Geometry = null;
                 return;
             }
 
+            areaDrawing.Brush = AreaFill;
+            areaDrawing.Pen = new Pen(AreaBorderBrush, AreaBorderThickness);
+
             Rect result = new Rect((containerSize.Width - this.Area.Width) / 2, (containerSize.Height - this.Area.Height) / 2, this.Area.Width, this.Area.Height);
 
             GeometryGroup areaGeometry = new GeometryGroup();
 
-            areaGeometry.Children.Add(new RectangleGeometry(global.TransformBounds(result)));
+            areaGeometry.Children.Add(new RectangleGeometry(transformation.TransformBounds(result)));
             areaDrawing.Geometry = areaGeometry;
         }
         #endregion
 
+        protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e) {
+            base.OnPropertyChanged(e);
+        }
+
         protected override Freezable CreateInstanceCore() {
-            return new AreaDesigner();
+            return this;
         }
     }
 }

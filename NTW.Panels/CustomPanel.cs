@@ -2,7 +2,6 @@
 using System.ComponentModel;
 using System.Linq;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -84,27 +83,50 @@ namespace NTW.Panels {
         /// <summary>
         /// Panel items locator
         /// </summary>
-        public IItemsLocator ItemsLocator {
-            get { return (IItemsLocator)GetValue(ItemsLocatorProperty); }
+        public CustomLocator ItemsLocator {
+            get { return (CustomLocator)GetValue(ItemsLocatorProperty); }
             set { SetValue(ItemsLocatorProperty, value); }
         }
 
         public static readonly DependencyProperty ItemsLocatorProperty =
-            DependencyProperty.Register("ItemsLocator", typeof(Freezable), typeof(CustomPanel), new FrameworkPropertyMetadata(null,
+            DependencyProperty.Register("ItemsLocator", typeof(CustomLocator), typeof(CustomPanel), new FrameworkPropertyMetadata(null,
                 FrameworkPropertyMetadataOptions.Inherits,
                 ItemsLocatorPropertyChanged));
 
         private static void ItemsLocatorPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
 
-            var sender = (CustomPanel)d;
+            if (d is CustomPanel sender && e.OldValue != e.NewValue) {
 
-            if (e.OldValue is ICallingModifer callOld)
-                callOld.PanelCalling -= sender.PanelCalling;
+                if (e.OldValue is ICallingModifer callOld)
+                    callOld.PanelCalling -= sender.PanelCalling;
 
-            if (e.NewValue is ICallingModifer callNew)
-                callNew.PanelCalling += sender.PanelCalling;
+                if(e.OldValue is INotifyOption optionOld)
+                    optionOld.OptionCalling -= sender.UpdateOptionCalling;
 
-            sender?.InvalidateMeasure();
+
+                if (e.NewValue is ICallingModifer callNew)
+                    callNew.PanelCalling += sender.PanelCalling;
+
+                if (e.NewValue is INotifyOption optionNew)
+                    optionNew.OptionCalling += sender.UpdateOptionCalling;
+            }
+        }
+
+        internal void UpdateOptionCalling(CustomObject sender, UpdateOptions option) {
+            switch (option) {
+                case UpdateOptions.Arrange:
+                case UpdateOptions.ParentArrange:
+                    this.InvalidateArrange();
+                    break;
+                case UpdateOptions.Measure:
+                case UpdateOptions.ParentMeasure:
+                    this.InvalidateMeasure();
+                    break;
+            }
+        }
+
+        internal void PanelCalling(Action<CustomPanel> action) {
+            action?.Invoke(this);
         }
 
         /// <summary>
@@ -118,16 +140,19 @@ namespace NTW.Panels {
         public static readonly DependencyProperty HandlersProperty =
             DependencyProperty.Register("Handlers", typeof(HandlersCollection), typeof(CustomPanel), new FrameworkPropertyMetadata(null, HandlersPropertyChanged));
 
-        private static void HandlersPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-            var sender = (CustomPanel)d;
+        private static void HandlersPropertyChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
 
-            ((HandlersCollection)e.OldValue)?.ClearOwner();
+            if (sender is CustomPanel panel) {
+                if (e.OldValue is HandlersCollection o) {
+                    o.ClearOwner();
+                    o.OptionCalling -= panel.UpdateOptionCalling;
+                }
 
-            ((HandlersCollection)e.NewValue)?.SetOwner(sender);
-        }
-
-        internal void PanelCalling(Action<CustomPanel> action) {
-            action?.Invoke(this);
+                if (e.NewValue is HandlersCollection n) {
+                    n.OptionCalling += panel.UpdateOptionCalling;
+                    n.SetOwner(panel);
+                }
+            }
         }
 
 
@@ -141,7 +166,6 @@ namespace NTW.Panels {
         }
 
         protected override Size ArrangeOverride(Size finalSize) {
-
 
             if (DesignerProperties.GetIsInDesignMode(this) || !this.IsVisible) return new Size();
 
@@ -339,5 +363,10 @@ namespace NTW.Panels {
             base.OnPreviewDrop(e);
         }
 
+        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo) {
+            base.OnRenderSizeChanged(sizeInfo);
+
+            this.InvalidateMeasure();
+        }
     }
 }

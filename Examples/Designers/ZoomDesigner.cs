@@ -37,7 +37,7 @@ namespace Examples.Designers {
         }
 
         public static readonly DependencyProperty ScaleXProperty =
-            DependencyProperty.Register("ScaleX", typeof(double), typeof(ZoomDesigner), new FrameworkPropertyMetadata(1.0, FrameworkPropertyMetadataOptions.AffectsParentArrange, ScaleXChanged));
+            DependencyProperty.Register("ScaleX", typeof(double), typeof(ZoomDesigner), new PropertyMetadata(1.0,  ScaleXChanged));
 
         private static void ScaleXChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
             if (sender is ZoomDesigner designer && e.NewValue is double value)
@@ -51,7 +51,7 @@ namespace Examples.Designers {
         }
 
         public static readonly DependencyProperty ScaleYProperty =
-            DependencyProperty.Register("ScaleY", typeof(double), typeof(ZoomDesigner), new FrameworkPropertyMetadata(1.0, FrameworkPropertyMetadataOptions.AffectsParentArrange, ScaleYChanged));
+            DependencyProperty.Register("ScaleY", typeof(double), typeof(ZoomDesigner), new PropertyMetadata(1.0, ScaleYChanged));
 
         private static void ScaleYChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
             if (sender is ZoomDesigner designer && e.NewValue is double value)
@@ -77,6 +77,8 @@ namespace Examples.Designers {
                 ScaleY = MaximumLimit.Height;
             else
                 ScaleY = set ? y : ScaleY + y;
+
+            this.SetUpdateOption(this, UpdateOptions.Measure);
         }
 
         public void SetScaleCenter(double x, double y) {

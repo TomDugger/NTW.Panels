@@ -28,7 +28,7 @@ namespace Examples.Designers {
         }
 
         public static readonly DependencyProperty TranslateXProperty =
-            DependencyProperty.Register("TranslateX", typeof(double), typeof(CanvasOffsetDesigner), new FrameworkPropertyMetadata(0.0, FrameworkPropertyMetadataOptions.AffectsParentArrange, TranslateXChanged));
+            DependencyProperty.Register("TranslateX", typeof(double), typeof(CanvasOffsetDesigner), new PropertyMetadata(0.0,  TranslateXChanged));
 
         private static void TranslateXChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
             if (sender is CanvasOffsetDesigner designer && e.NewValue is double value)
@@ -42,7 +42,7 @@ namespace Examples.Designers {
         }
 
         public static readonly DependencyProperty TranslateYProperty =
-            DependencyProperty.Register("TranslateY", typeof(double), typeof(CanvasOffsetDesigner), new FrameworkPropertyMetadata(0.0, FrameworkPropertyMetadataOptions.AffectsParentArrange, TranslateYChanged));
+            DependencyProperty.Register("TranslateY", typeof(double), typeof(CanvasOffsetDesigner), new PropertyMetadata(0.0, TranslateYChanged));
 
         private static void TranslateYChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
             if (sender is CanvasOffsetDesigner designer && e.NewValue is double value)
@@ -68,6 +68,8 @@ namespace Examples.Designers {
                 TranslateY = Bounds.Height;
             else
                 TranslateY = set ? deferent.Y : TranslateY - deferent.Y;
+
+            this.SetUpdateOption(this, UpdateOptions.Measure);
         }
         #endregion
 

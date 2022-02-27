@@ -4,7 +4,8 @@ using System.Windows;
 using System.Windows.Controls;
 
 namespace Examples.Locators {
-    public class ExcludeLocator : Freezable, IItemsLocator {
+    public class ExcludeLocator : CustomLocator {
+
         #region Properties
         public Orientation Orientation {
             get { return (Orientation)GetValue(OrientationProperty); }
@@ -25,7 +26,7 @@ namespace Examples.Locators {
         #endregion
 
         #region IItemsLocator
-        public Size Measure(Size originalSize, params UIElement[] elements) {
+        public override Size Measure(Size originalSize, params UIElement[] elements) {
             foreach (UIElement child in elements) {
                 child.Measure(originalSize);
             }
@@ -33,7 +34,7 @@ namespace Examples.Locators {
             return originalSize;
         }
 
-        public Size Arrange(Size originalSize, Vector offset, Vector itemsOffset, out Size verifySize, bool checkSize = false, params UIElement[] elements) {
+        public override Size Arrange(Size originalSize, Vector offset, Vector itemsOffset, out Size verifySize, bool checkSize = false, params UIElement[] elements) {
             if (elements.Length <= 1) {
                 if (elements.Length > 0)
                     elements[0].Visibility = Visibility.Hidden;
@@ -87,11 +88,11 @@ namespace Examples.Locators {
             return verifySize = originalSize;
         }
 
-        public Vector CalculateOffset(Size originalSize, Vector offset, UIElement element, bool asNext, params UIElement[] elements) {
+        public override Vector CalculateOffset(Size originalSize, Vector offset, UIElement element, bool asNext, params UIElement[] elements) {
             return default(Vector);
         }
 
-        public Rect GetOriginalBounds(UIElement element, Vector offset = default) {
+        public override Rect GetOriginalBounds(UIElement element, Vector offset = default) {
             return default(Rect);
         }
         #endregion

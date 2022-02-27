@@ -14,14 +14,15 @@ namespace Examples.Designers {
         private DrawingGroup shadowsDrawing;
         private readonly Geometry defaultShadowItemGeometry;
         private readonly Dictionary<UIElement, Rect> shadowsPositions;
+        private readonly Dictionary<UIElement, GeometryDrawing> shadowsDrawings;
 
         public ShadowsDesigner() {
             shadowsPositions = new Dictionary<UIElement, Rect>();
+            shadowsDrawings = new Dictionary<UIElement, GeometryDrawing>();
 
             defaultShadowItemGeometry = new EllipseGeometry(new Rect(0, 0, 12, 12));
 
             shadowsDrawing = new DrawingGroup();
-            frontDrawing.Children.Add(shadowsDrawing);
         }
 
         #region Properties
@@ -31,7 +32,16 @@ namespace Examples.Designers {
         }
 
         public static readonly DependencyProperty UseShadowsProperty =
-            DependencyProperty.Register("UseShadows", typeof(bool), typeof(ShadowsDesigner), new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.AffectsParentArrange));
+            DependencyProperty.Register("UseShadows", typeof(bool), typeof(ShadowsDesigner), new PropertyMetadata(false, UseShadowsChanged));
+
+        private static void UseShadowsChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
+            if (sender is ShadowsDesigner designer)
+                if (e.NewValue is bool visibility)
+                    if (visibility)
+                        designer.frontDrawing.Children.Add(designer.shadowsDrawing);
+                    else
+                        designer.frontDrawing.Children.Remove(designer.shadowsDrawing);
+        }
 
 
         public Geometry ShadowItemGeometry {
@@ -40,7 +50,12 @@ namespace Examples.Designers {
         }
 
         public static readonly DependencyProperty ShadowItemGeometryProperty =
-            DependencyProperty.Register("ShadowItemGeometry", typeof(Geometry), typeof(ShadowsDesigner), new PropertyMetadata(null));
+            DependencyProperty.Register("ShadowItemGeometry", typeof(Geometry), typeof(ShadowsDesigner), new PropertyMetadata(null, ShadowItemGeometryChanged));
+
+        private static void ShadowItemGeometryChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
+            if (sender is ShadowsDesigner designer)
+                designer.UpdateShadowsGeometry();
+        }
 
 
         public Brush ShadowFill {
@@ -48,8 +63,12 @@ namespace Examples.Designers {
             set { SetValue(ShadowFillProperty, value); }
         }
         public static readonly DependencyProperty ShadowFillProperty =
-            DependencyProperty.Register("ShadowFill", typeof(Brush), typeof(ShadowsDesigner), new PropertyMetadata(Brushes.Red));
+            DependencyProperty.Register("ShadowFill", typeof(Brush), typeof(ShadowsDesigner), new PropertyMetadata(Brushes.Red, ShadowFillChanged));
 
+        private static void ShadowFillChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
+            if (sender is ShadowsDesigner designer)
+                designer.UpdateShadowsFill();
+        }
 
         public Brush ShadowStroke {
             get { return (Brush)GetValue(ShadowStrokeProperty); }
@@ -57,7 +76,12 @@ namespace Examples.Designers {
         }
 
         public static readonly DependencyProperty ShadowStrokeProperty =
-            DependencyProperty.Register("ShadowStroke", typeof(Brush), typeof(ShadowsDesigner), new PropertyMetadata(null));
+            DependencyProperty.Register("ShadowStroke", typeof(Brush), typeof(ShadowsDesigner), new PropertyMetadata(null, ShadowStrokeChanged));
+
+        private static void ShadowStrokeChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
+            if (sender is ShadowsDesigner designer)
+                designer.UpdateShadowsStroke();
+        }
 
 
         public double ShadowStrokeThickness {
@@ -66,10 +90,28 @@ namespace Examples.Designers {
         }
 
         public static readonly DependencyProperty ShadowStrokeThicknessProperty =
-            DependencyProperty.Register("ShadowStrokeThickness", typeof(double), typeof(ShadowsDesigner), new PropertyMetadata(0.0));
+            DependencyProperty.Register("ShadowStrokeThickness", typeof(double), typeof(ShadowsDesigner), new PropertyMetadata(0.0, ShadowStrokeThicknessChanged));
+
+        private static void ShadowStrokeThicknessChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
+            if (sender is ShadowsDesigner designer)
+                designer.UpdateShadowsStrokeThickness();
+        }
+
         #endregion
 
         #region Attached properties
+        private static ShadowsDesigner GetParentShadowDesigner(DependencyObject obj) {
+            return (ShadowsDesigner)obj.GetValue(ParentShadowDesignerProperty);
+        }
+
+        private static void SetParentShadowDesigner(DependencyObject obj, ShadowsDesigner value) {
+            obj.SetValue(ParentShadowDesignerProperty, value);
+        }
+
+        private static readonly DependencyProperty ParentShadowDesignerProperty =
+            DependencyProperty.RegisterAttached("ParentShadowDesigner", typeof(ShadowsDesigner), typeof(ShadowsDesigner), new PropertyMetadata(null));
+
+
         public static Geometry GetItemGeometry(DependencyObject obj) {
             return (Geometry)obj.GetValue(ItemGeometryProperty);
         }
@@ -79,7 +121,12 @@ namespace Examples.Designers {
         }
 
         public static readonly DependencyProperty ItemGeometryProperty =
-            DependencyProperty.RegisterAttached("ItemGeometry", typeof(Geometry), typeof(ShadowsDesigner), new PropertyMetadata(null));
+            DependencyProperty.RegisterAttached("ItemGeometry", typeof(Geometry), typeof(ShadowsDesigner), new PropertyMetadata(null, ItemGeometryChanged));
+
+        private static void ItemGeometryChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
+            if (GetParentShadowDesigner(sender) is ShadowsDesigner designer)
+                designer.UpdateShadowsGeometry(sender as UIElement);
+        }
 
 
         public static Brush GetFill(DependencyObject obj) {
@@ -91,7 +138,12 @@ namespace Examples.Designers {
         }
 
         public static readonly DependencyProperty FillProperty =
-            DependencyProperty.RegisterAttached("Fill", typeof(Brush), typeof(ShadowsDesigner), new PropertyMetadata(null));
+            DependencyProperty.RegisterAttached("Fill", typeof(Brush), typeof(ShadowsDesigner), new PropertyMetadata(null, FillChanged));
+
+        private static void FillChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
+            if (GetParentShadowDesigner(sender) is ShadowsDesigner designer)
+                designer.UpdateShadowsFill(sender as UIElement);
+        }
 
 
         public static Brush GetStroke(DependencyObject obj) {
@@ -103,7 +155,12 @@ namespace Examples.Designers {
         }
 
         public static readonly DependencyProperty StrokeProperty =
-            DependencyProperty.RegisterAttached("Stroke", typeof(Brush), typeof(ShadowsDesigner), new PropertyMetadata(null));
+            DependencyProperty.RegisterAttached("Stroke", typeof(Brush), typeof(ShadowsDesigner), new PropertyMetadata(null, StrokeChanged));
+
+        private static void StrokeChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
+            if (GetParentShadowDesigner(sender) is ShadowsDesigner designer)
+                designer.UpdateShadowsStroke(sender as UIElement);
+        }
 
 
         public static double? GetStrokeThickness(DependencyObject obj) {
@@ -115,14 +172,20 @@ namespace Examples.Designers {
         }
 
         public static readonly DependencyProperty StrokeThicknessProperty =
-            DependencyProperty.RegisterAttached("StrokeThickness", typeof(double?), typeof(ShadowsDesigner), new PropertyMetadata(null));
+            DependencyProperty.RegisterAttached("StrokeThickness", typeof(double?), typeof(ShadowsDesigner), new PropertyMetadata(null, StrokeThicknessChanged));
+
+        private static void StrokeThicknessChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
+            if (GetParentShadowDesigner(sender) is ShadowsDesigner designer)
+                designer.UpdateShadowsStrokeThickness(sender as UIElement);
+        }
         #endregion
 
         #region IElementArrangeDesigner
         public void AfterElementArrange(Rect elementRect, Size containerSize, UIElement element, Transform global = null) {
-            if (UseShadows)
-                BuildShadowOfElement(containerSize, elementRect, element);
+            BuildShadowOfElement(containerSize, elementRect, element);
         }
+
+        public void UpdateElementArrage(Rect elementRect, Size containerSize, int index, UIElement element, Transform global = null) { }
         #endregion
 
         #region IArrangeDesigner
@@ -131,9 +194,7 @@ namespace Examples.Designers {
             frontDrawing.ClipGeometry = new RectangleGeometry(new Rect(containerSize));
         }
 
-        public void EndElementArrange(Size containerSize, Transform global = null) {
-
-        }
+        public void EndElementArrange(Size containerSize, Transform global = null) { }
         #endregion
 
         #region IDrawingPresenter
@@ -157,8 +218,14 @@ namespace Examples.Designers {
 
         #region Helps
         private void ClearShadowsOfElements() {
+            // clear ShadowsDesigner for all elements in the collections
+            foreach (var it in shadowsPositions.Keys)
+                SetParentShadowDesigner(it, null);
+
+            // clear other collections and dictionaries
             shadowsDrawing.Children.Clear();
             shadowsPositions.Clear();
+            shadowsDrawings.Clear();
         }
 
         private void BuildShadowOfElement(Size originalSize, Rect arrange, UIElement element) {
@@ -192,10 +259,55 @@ namespace Examples.Designers {
                 if (transform != Transform.Identity) {
                     shadowItemGeometry.Transform = transform;
 
-                    shadowsDrawing.Children.Add(new GeometryDrawing(GetFill(element) ?? ShadowFill, new Pen(GetStroke(element) ?? ShadowStroke, GetStrokeThickness(element) ?? ShadowStrokeThickness), shadowItemGeometry));
-                    shadowsPositions.Add(element, transform.TransformBounds(geoRect));
+                    shadowsDrawings[element] = new GeometryDrawing(GetFill(element) ?? ShadowFill, new Pen(GetStroke(element) ?? ShadowStroke, GetStrokeThickness(element) ?? ShadowStrokeThickness), shadowItemGeometry);
+                    shadowsDrawing.Children.Add(shadowsDrawings[element]);
+                    shadowsPositions[element] = transform.TransformBounds(geoRect);
+                    SetParentShadowDesigner(element, this);
                 }
             }
+        }
+
+        private void UpdateShadowsGeometry(UIElement element = null) {
+
+            if (element != null) {
+                if (shadowsDrawings.ContainsKey(element)) {
+                    Geometry shadowItemGeometry = (GetItemGeometry(element) ?? this.ShadowItemGeometry ?? defaultShadowItemGeometry).Clone();
+
+                    shadowsDrawings[element].Geometry = shadowItemGeometry;
+                }
+            } else
+                foreach (var it in shadowsDrawings) {
+                    Geometry shadowItemGeometry = (GetItemGeometry(it.Key) ?? this.ShadowItemGeometry ?? defaultShadowItemGeometry).Clone();
+
+                    it.Value.Geometry = shadowItemGeometry;
+                }
+        }
+
+        private void UpdateShadowsFill(UIElement element = null) {
+            if (element != null) {
+                if (shadowsDrawings.ContainsKey(element))
+                    shadowsDrawings[element].Brush = GetFill(element) ?? ShadowFill;
+            } else
+                foreach (var it in shadowsDrawings) 
+                    it.Value.Brush = GetFill(it.Key) ?? ShadowFill;
+        }
+
+        private void UpdateShadowsStroke(UIElement element = null) {
+            if (element != null) {
+                if (shadowsDrawings.ContainsKey(element))
+                    shadowsDrawings[element].Pen.Brush = GetStroke(element) ?? ShadowStroke;
+            } else
+                foreach (var it in shadowsDrawings)
+                    it.Value.Pen.Brush = GetStroke(it.Key) ?? ShadowStroke;
+        }
+
+        private void UpdateShadowsStrokeThickness(UIElement element = null) {
+            if (element != null) {
+                if (shadowsDrawings.ContainsKey(element))
+                    shadowsDrawings[element].Pen.Thickness = GetStrokeThickness(element) ?? ShadowStrokeThickness;
+            } else
+                foreach (var it in shadowsDrawings)
+                    it.Value.Pen.Thickness = GetStrokeThickness(it.Key) ?? ShadowStrokeThickness;
         }
         #endregion
 

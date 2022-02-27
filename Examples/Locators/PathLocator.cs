@@ -2,26 +2,26 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
 namespace Examples.Locators {
-    public class PathLocator : Freezable, IItemsLocator {
+    public class PathLocator : CustomLocator {
 
         private Dictionary<UIElement, Rect> rects = new Dictionary<UIElement, Rect>();
         private PathGeometry pg;
         private double pathLength;
 
 
+        #region Properties
         public PathGeometry GeometryPath {
             get { return (PathGeometry)GetValue(GeometryPathProperty); }
             set { SetValue(GeometryPathProperty, value); }
         }
 
         public static readonly DependencyProperty GeometryPathProperty =
-            DependencyProperty.Register("GeometryPath", typeof(PathGeometry), typeof(PathLocator), new PropertyMetadata(null));
+            DependencyProperty.Register("GeometryPath", typeof(PathGeometry), typeof(PathLocator), new OptionPropertyMetadata(null, UpdateOptions.Measure));
 
 
         public Orientation Orientation {
@@ -30,10 +30,11 @@ namespace Examples.Locators {
         }
 
         public static readonly DependencyProperty OrientationProperty =
-            DependencyProperty.Register("Orientation", typeof(Orientation), typeof(PathLocator), new PropertyMetadata(Orientation.Horizontal));
+            DependencyProperty.Register("Orientation", typeof(Orientation), typeof(PathLocator), new OptionPropertyMetadata(Orientation.Horizontal, UpdateOptions.Measure));
+        #endregion
 
-
-        public Size Measure(Size originalSize, params UIElement[] elements) {
+        #region IItemsLocator
+        public override Size Measure(Size originalSize, params UIElement[] elements) {
 
             Size panelDesiredSize = originalSize;
 
@@ -55,7 +56,7 @@ namespace Examples.Locators {
             return SizeHelper.CheckInfinity(originalSize, panelDesiredSize);
         }
 
-        public Size Arrange(Size originalSize, Vector offset, Vector itemsOffset, out Size verifySize, bool checkSize = false, params UIElement[] elements) {
+        public override Size Arrange(Size originalSize, Vector offset, Vector itemsOffset, out Size verifySize, bool checkSize = false, params UIElement[] elements) {
 
             double pos = 0;
             double max = 0;
@@ -172,7 +173,7 @@ namespace Examples.Locators {
             return originalSize;
         }
 
-        public Vector CalculateOffset(Size originalSize, Vector offset, UIElement element, bool asNext, params UIElement[] elements) {
+        public override Vector CalculateOffset(Size originalSize, Vector offset, UIElement element, bool asNext, params UIElement[] elements) {
             Vector result = offset;
 
             if (!asNext) return (Vector)rects[element].TopLeft; ;
@@ -190,7 +191,8 @@ namespace Examples.Locators {
             return result;
         }
 
-        public Rect GetOriginalBounds(UIElement element, Vector offset = default(Vector)) => rects != null && rects.ContainsKey(element) ? Rect.Offset(rects[element], -offset) : default(Rect);
+        public override Rect GetOriginalBounds(UIElement element, Vector offset = default(Vector)) => rects != null && rects.ContainsKey(element) ? Rect.Offset(rects[element], -offset) : default(Rect); 
+        #endregion
 
         #region Helps
         private double GetPathLength(PathGeometry path, double steps = 100) {

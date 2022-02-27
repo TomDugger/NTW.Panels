@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Adorner\AdornerDrawingPresenter.cs" />
+    <Compile Include="Collections\CustomCollection.cs" />
     <Compile Include="Collections\DesignersCollection.cs" />
     <Compile Include="Collections\HandlersCollection.cs" />
     <Compile Include="Common.cs" />
@@ -53,6 +54,7 @@
     <Compile Include="Metadata\Common\Abstract\CustomObject.cs" />
     <Compile Include="Metadata\Common\IChildrenContainer.cs" />
     <Compile Include="Metadata\Common\ICustom.cs" />
+    <Compile Include="Metadata\Common\INotifyOption.cs" />
     <Compile Include="Metadata\Designers\Abstract\CustomDesigner.cs" />
     <Compile Include="Metadata\Designers\Arrange\IArrangeDesigner.cs" />
     <Compile Include="Metadata\Designers\IAreaDesigner.cs" />
@@ -79,11 +81,15 @@
     <Compile Include="Metadata\Handlers\Mouse\IMouseUpHandler.cs" />
     <Compile Include="Metadata\Handlers\Mouse\IMouseWheelHandler.cs" />
     <Compile Include="Metadata\Handlers\Mouse\Abstract\MouseHandler.cs" />
+    <Compile Include="Metadata\Locator\Abstract\CustomLocator.cs" />
+    <Compile Include="Metadata\Locator\Abstract\DesignedLocator.cs" />
     <Compile Include="Metadata\Locator\IDesign.cs" />
     <Compile Include="Metadata\Locator\IItemsLocator.cs" />
     <Compile Include="Metadata\Models\IDragDrapData.cs" />
     <Compile Include="Models\DragDropData.cs" />
+    <Compile Include="Models\MetadataOptions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="MetadataProperties\OptionPropertyMetadata.cs" />
     <Compile Include="ScrollInfoPanel.cs" />
   </ItemGroup>
   <ItemGroup />

@@ -11,6 +11,8 @@
         
         xmlns:converters="clr-namespace:Tests.Converters"
         
+        xmlns:models="clr-namespace:Tests.Models"
+        
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Window.Resources>
@@ -55,6 +57,24 @@
             <Orientation>Vertical</Orientation>
         </x:Array>
 
+        <!--Models-->
+        <models:DataContainer x:Key="DataContainer" />
+
+        <!--Model template-->
+        <DataTemplate DataType="{x:Type models:DataItem}">
+            <Border Name="Back" BorderThickness="1" BorderBrush="Transparent">
+                <TextBlock Text="{Binding Path=Content}" Margin="3" />
+            </Border>
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding Path=IsSelected, UpdateSourceTrigger=PropertyChanged}" Value="True">
+                    <Setter TargetName="Back" Property="BorderBrush" Value="Olive" />
+                </DataTrigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter TargetName="Back" Property="Background" Value="LightGray" />
+                </Trigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>
+        
         <!--Items list-->
         <x:Array x:Key="ItemsList" Type="{x:Type s:String}">
             <s:String>Item 0</s:String>
@@ -91,13 +111,6 @@
             <s:String>Item 29</s:String>
         </x:Array>
 
-        <x:Array x:Key="PointsList" Type="{x:Type Point}">
-            <Point X="0.0" Y="0.0" />
-            <Point X="1.0" Y="0.0" />
-            <Point X="1.0" Y="1.0" />
-            <Point X="0.0" Y="1.0" />
-        </x:Array>
-
         <!--Group View-->
         <CollectionViewSource x:Key="ItemsView" Source="{DynamicResource ItemsList}">
             <CollectionViewSource.GroupDescriptions>
@@ -115,6 +128,8 @@
         <!--Binding resources-->
         <RelativeSource x:Key="ChartSource" Mode="FindAncestor" AncestorType="{x:Type locators:ChartLocator}" />
         <RelativeSource x:Key="PanelSource" Mode="FindAncestor" AncestorType="{x:Type CustomPanel}" />
+
+        <RectangleGeometry x:Key="SpecialShadowOfFirstElement" Rect="0, 0, 12, 12" />
     </Window.Resources>
     <Grid>
         <TabControl>
@@ -151,13 +166,20 @@
                     
                     <!--Simple ItemsControl presentation-->
                     <TextBlock Grid.Row="2" Text="Simple ItemsControl presentation" Margin="5" />
-                    <ItemsControl Grid.Row="3" ItemsSource="{DynamicResource ItemsList}">
+                    <ItemsControl Grid.Row="3" DataContext="{Binding Source={StaticResource DataContainer}}" 
+                                  ItemsSource="{Binding Path=ItemsView}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <CustomPanel >
                                     <CustomPanel.ItemsLocator>
                                         <locators:StackLocator Orientation="{Binding ElementName=StackOrientationBox, Path=SelectedItem, Mode=TwoWay}" />
                                     </CustomPanel.ItemsLocator>
+                                    <CustomPanel.Handlers>
+                                        <handlers:SelectRangeMouseHandler Selecting="{Binding Path=SelectingItems}"
+                                                                          Contains="{Binding ElementName=StackContinsRectBox, Path=IsChecked, Mode=TwoWay}" />
+                                        <handlers:MoveItemMouseHandler MoveUp="{Binding Path=MoveUpItems}" 
+                                                                       StopOnMouseLeave="{Binding ElementName=StackStopMoveLeave, Path=IsChecked, Mode=TwoWay}" />
+                                    </CustomPanel.Handlers>
                                 </CustomPanel>
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
@@ -204,6 +226,18 @@
                             <TextBlock Text="Orientation" Margin="3" />
 
                             <ComboBox Name="StackOrientationBox" Margin="15, 0, 0, 0" ItemsSource="{DynamicResource OrientationList}" SelectedIndex="0" />
+                            
+                            <!--Handlers-->
+                            <Expander Header="Select Range handler">
+                                <StackPanel Orientation="Vertical">
+                                    <CheckBox Name="StackContinsRectBox" Content="Selecting Rect must contain an element" Margin="3" />
+                                </StackPanel>
+                            </Expander>
+                            <Expander Header="Move the item handler">
+                                <StackPanel Orientation="Vertical">
+                                    <CheckBox Name="StackStopMoveLeave" Content="Stop moving the element on mouse leave bounds" Margin="3" />
+                                </StackPanel>
+                            </Expander>
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>
@@ -242,13 +276,20 @@
 
                     <!--Simple ItemsControl presentation-->
                     <TextBlock Grid.Row="2" Text="Simple ItemsControl presentation" Margin="5" />
-                    <ItemsControl Grid.Row="3" ItemsSource="{DynamicResource ItemsList}">
+                    <ItemsControl Grid.Row="3" DataContext="{Binding Source={StaticResource DataContainer}}" 
+                                  ItemsSource="{Binding Path=ItemsView}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <CustomPanel >
                                     <CustomPanel.ItemsLocator>
                                         <locators:WrapLocator Orientation="{Binding ElementName=WrapOrientationBox, Path=SelectedItem, Mode=TwoWay}" />
                                     </CustomPanel.ItemsLocator>
+                                    <CustomPanel.Handlers>
+                                        <handlers:SelectRangeMouseHandler Selecting="{Binding Path=SelectingItems}"
+                                                                          Contains="{Binding ElementName=WrapContinsRectBox, Path=IsChecked, Mode=TwoWay}" />
+                                        <handlers:MoveItemMouseHandler MoveUp="{Binding Path=MoveUpItems}" 
+                                                                       StopOnMouseLeave="{Binding ElementName=WrapStopMoveLeave, Path=IsChecked, Mode=TwoWay}" />
+                                    </CustomPanel.Handlers>
                                 </CustomPanel>
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
@@ -295,6 +336,18 @@
                             <TextBlock Text="Orientation" Margin="3" />
 
                             <ComboBox Name="WrapOrientationBox" Margin="15, 0, 0, 0" ItemsSource="{DynamicResource OrientationList}" SelectedIndex="0" />
+
+                            <!--Handlers-->
+                            <Expander Header="Select Range handler">
+                                <StackPanel Orientation="Vertical">
+                                    <CheckBox Name="WrapContinsRectBox" Content="Selecting Rect must contain an element" Margin="3" />
+                                </StackPanel>
+                            </Expander>
+                            <Expander Header="Move the item handler">
+                                <StackPanel Orientation="Vertical">
+                                    <CheckBox Name="WrapStopMoveLeave" Content="Stop moving the element on mouse leave bounds" Margin="3" />
+                                </StackPanel>
+                            </Expander>
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>
@@ -334,7 +387,8 @@
 
                     <!--Simple ItemsControl presentation-->
                     <TextBlock Grid.Row="2" Text="Simple ItemsControl presentation" Margin="5" />
-                    <ItemsControl Grid.Row="3" ItemsSource="{DynamicResource ItemsList}">
+                    <ItemsControl Grid.Row="3" DataContext="{Binding Source={StaticResource DataContainer}}" 
+                                  ItemsSource="{Binding Path=ItemsView}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <CustomPanel >
@@ -342,6 +396,12 @@
                                         <locators:PathLocator Orientation="{Binding ElementName=PathOrientationBox, Path=SelectedItem, Mode=TwoWay}" 
                                                               GeometryPath="{DynamicResource PathGeometry}" />
                                     </CustomPanel.ItemsLocator>
+                                    <CustomPanel.Handlers>
+                                        <handlers:SelectRangeMouseHandler Selecting="{Binding Path=SelectingItems}"
+                                                                          Contains="{Binding ElementName=PathContinsRectBox, Path=IsChecked, Mode=TwoWay}" />
+                                        <handlers:MoveItemMouseHandler MoveUp="{Binding Path=MoveUpItems}" 
+                                                                       StopOnMouseLeave="{Binding ElementName=PathStopMoveLeave, Path=IsChecked, Mode=TwoWay}" />
+                                    </CustomPanel.Handlers>
                                 </CustomPanel>
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
@@ -389,6 +449,18 @@
                             <TextBlock Text="Orientation" Margin="3" />
 
                             <ComboBox Name="PathOrientationBox" Margin="15, 0, 0, 0" ItemsSource="{DynamicResource OrientationList}" SelectedIndex="0" />
+
+                            <!--Handlers-->
+                            <Expander Header="Select Range handler">
+                                <StackPanel Orientation="Vertical">
+                                    <CheckBox Name="PathContinsRectBox" Content="Selecting Rect must contain an element" Margin="3" />
+                                </StackPanel>
+                            </Expander>
+                            <Expander Header="Move the item handler">
+                                <StackPanel Orientation="Vertical">
+                                    <CheckBox Name="PathStopMoveLeave" Content="Stop moving the element on mouse leave bounds" Margin="3" />
+                                </StackPanel>
+                            </Expander>
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>
@@ -461,7 +533,9 @@
                         </CustomPanel.Handlers>
 
                         <!--Items-->
-                        <Ellipse Style="{DynamicResource ChartEllipseStyle}" Fill="Orange" locators:ChartLocator.Position="0.0 0.0" />
+                        <Ellipse Style="{DynamicResource ChartEllipseStyle}" Fill="Orange" locators:ChartLocator.Position="0.0 0.0" 
+                                 designers:ShadowsDesigner.ItemGeometry="{DynamicResource SpecialShadowOfFirstElement}"
+                                 designers:ShadowsDesigner.Fill="Orange" />
                         <Ellipse Style="{DynamicResource ChartEllipseStyle}" Fill="LightGreen" locators:ChartLocator.Position="1.0 0.0" />
                         <Ellipse Style="{DynamicResource ChartEllipseStyle}" Fill="LightBlue" locators:ChartLocator.Position="1.0 1.0" />
                         <Ellipse Style="{DynamicResource ChartEllipseStyle}" Fill="Pink" locators:ChartLocator.Position="0.0 1.0" />
@@ -469,10 +543,10 @@
 
                     <!--Simple ItemsControl presentation-->
                     <TextBlock Grid.Row="2" Text="Simple ItemsControl presentation" Margin="5" />
-                    <ItemsControl Grid.Row="3" ItemsSource="{DynamicResource PointsList}">
+                    <ItemsControl Grid.Row="3" ItemsSource="{Binding Source={StaticResource DataContainer}, Path=PointsList}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Ellipse Style="{DynamicResource ChartEllipseStyle}" Fill="Red" />
+                                <Ellipse Style="{DynamicResource ChartEllipseStyle}" Fill="Blue" />
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                         <ItemsControl.ItemContainerStyle>
@@ -486,13 +560,40 @@
                                     <CustomPanel.ItemsLocator>
                                         <locators:ChartLocator >
                                             <locators:ChartLocator.Designers>
-                                                <designers:CanvasOffsetDesigner Bounds="-200,-200,200,200" />
-                                                <designers:ZoomDesigner />
-                                                <designers:AreaDesigner />
-                                                <designers:ElementsPathLineDesigner />
-                                                <designers:RulersDesigner AreaBorderBrush="Violet"
-                                                                          AreaDesigner="{Binding RelativeSource={StaticResource ChartSource}, Path=Designers[2]}" />
-                                                <designers:ShadowsDesigner />
+                                                <designers:CanvasOffsetDesigner Bounds="{Binding ElementName=TranslateBox, Path=Text, Mode=TwoWay}" />
+                                                <designers:ZoomDesigner MinimumLimit="{Binding ElementName=MinimumLimitBox, Path=Text, Mode=TwoWay}"
+                                                                        MaximumLimit="{Binding ElementName=MaximumLimitBox, Path=Text, Mode=TwoWay}" />
+                                                <designers:AreaDesigner AreaFill="{Binding ElementName=AreaFillBox, Path=Text, Mode=TwoWay}"
+                                                                        AreaBorderBrush="{Binding ElementName=AreaContainerBorderBrushBox, Path=Text, Mode=TwoWay}"
+                                                                        AreaBorderThickness="{Binding ElementName=AreaBorderThicknessBox, Path=Text, Mode=TwoWay}"
+                                                                        ShowArea="{Binding ElementName=ShowAreaBox, Path=IsChecked, Mode=TwoWay}"
+                                                                        ClipMainArea="{Binding ElementName=ClipMainAreaBox, Path=IsChecked, Mode=TwoWay}" />
+                                                <designers:ElementsPathLineDesigner ShowLine="{Binding ElementName=ShowLineBox, Path=IsChecked, Mode=TwoWay}"
+                                                                                    ClosedLine="{Binding ElementName=ClosedLineBox, Path=IsChecked, Mode=TwoWay}"
+                                                                                    FilledLine="{Binding ElementName=FilledLineBox, Path=IsChecked, Mode=TwoWay}"
+                                                                                    LineFill="{Binding ElementName=LineFillBox, Path=Text, Mode=TwoWay}"
+                                                                                    LineStroke="{Binding ElementName=LineStrokeBox, Path=Text, Mode=TwoWay}"
+                                                                                    LineThickness="{Binding ElementName=LineThicknessBox, Path=Text, Mode=TwoWay}" />
+                                                <designers:RulersDesigner AreaDesigner="{Binding RelativeSource={StaticResource ChartSource}, Path=Designers[2]}"
+                                                                          ShowVerticalRuler="{Binding ElementName=ShowVerticalRulerBox, Path=IsChecked, Mode=TwoWay}"
+                                                                          MinimumVerticalRuler="{Binding ElementName=MinimumVerticalRulerBox, Path=Text, Mode=TwoWay}"
+                                                                          MaximumVerticalRuler="{Binding ElementName=MaximumVerticalRulerBox, Path=Text, Mode=TwoWay}"
+                                                                          FrequencyVerticalRuler="{Binding ElementName=FrequencyVerticalRulerBox, Path=Text, Mode=TwoWay}"
+                                                                          ShowHorizontalRuler="{Binding ElementName=ShowHorizontalRulerBox, Path=IsChecked, Mode=TwoWay}"
+                                                                          MinimumHorizontalRuler="{Binding ElementName=MinimumHorizontalRulerBox, Path=Text, Mode=TwoWay}"
+                                                                          MaximumHorizontalRuler="{Binding ElementName=MaximumHorizontalRulerBox, Path=Text, Mode=TwoWay}"
+                                                                          FrequencyHorizontalRuler="{Binding ElementName=FrequencyHorizontalRulerBox, Path=Text, Mode=TwoWay}"
+                                                                          RulerFill="{Binding ElementName=RulerFillBox, Path=Text, Mode=TwoWay}"
+                                                                          RulerWidth="{Binding ElementName=RulerWidthBox, Path=Text, Mode=TwoWay}"
+                                                                          RulerSmallHeight="{Binding ElementName=RulerSmallHeightBox, Path=Text, Mode=TwoWay}"
+                                                                          RulerHeight="{Binding ElementName=RulerHeightBox, Path=Text, Mode=TwoWay}"
+                                                                          RulerBigFrequency="{Binding ElementName=RulerBigFrequencyBox, Path=Text, Mode=TwoWay}"
+                                                                          RulerDependsOnArea="{Binding ElementName=RulerDependsOnAreaBox, Path=IsChecked, Mode=TwoWay}"                                                              
+                                                                          AreaBorderBrush="{Binding ElementName=AreaBorderBrushBox, Path=Text, Mode=TwoWay}"/>
+                                                <designers:ShadowsDesigner UseShadows="{Binding ElementName=UseShadowsBox, Path=IsChecked, Mode=TwoWay}"
+                                                                           ShadowFill="{Binding ElementName=ShadowFillBox, Path=Text, Mode=TwoWay}"
+                                                                           ShadowStroke="{Binding ElementName=ShadowStrokeBox, Path=Text, Mode=TwoWay}"
+                                                                           ShadowStrokeThickness="{Binding ElementName=ShadowStrokeThicknessBox, Path=Text, Mode=TwoWay}" />
                                             </locators:ChartLocator.Designers>
                                         </locators:ChartLocator>
                                     </CustomPanel.ItemsLocator>
@@ -551,7 +652,7 @@
                                 <StackPanel>
                                     <CheckBox Name="ShowLineBox" Content="Show line" Margin="15, 5, 5, 5" IsChecked="True" />
                                     <CheckBox Name="ClosedLineBox" Content="Closed line" Margin="15, 5, 5, 5" IsChecked="False" />
-                                    <CheckBox Name="FilledLineBox" Content="Closed line" Margin="15, 5, 5, 5" IsChecked="False" />
+                                    <CheckBox Name="FilledLineBox" Content="Filled line" Margin="15, 5, 5, 5" IsChecked="False" />
 
                                     <TextBlock Grid.Row="4" Text="Line fill" Margin="5" />
                                     <TextBox Name="LineFillBox" Margin="15, 0, 0, 0" Text="DodgerBlue" />
@@ -560,7 +661,7 @@
                                     <TextBox Name="LineStrokeBox" Margin="15, 0, 0, 0" Text="DarkBlue" />
 
                                     <TextBlock Grid.Row="4" Text="Line thickness" Margin="5" />
-                                    <TextBox Name="LineThicknessBox" Margin="15, 0, 0, 0" Text="0.1" />
+                                    <TextBox Name="LineThicknessBox" Margin="15, 0, 0, 0" Text="1.0" />
                                 </StackPanel>
                             </Expander>
 

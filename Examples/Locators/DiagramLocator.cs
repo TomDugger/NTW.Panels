@@ -3,12 +3,11 @@ using NTW.Panels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Media;
 
 namespace Examples.Locators {
-    public class DiagramLocator : Freezable, IItemsLocator, IDrawingPresenter {
+    public class DiagramLocator : CustomLocator, IDrawingPresenter {
 
         private Size place;
         private IEnumerable<UIElement> elements;
@@ -116,7 +115,7 @@ namespace Examples.Locators {
         #endregion
 
         #region IItemsLocator
-        public Size Measure(Size originalSize, params UIElement[] elements) {
+        public override Size Measure(Size originalSize, params UIElement[] elements) {
             foreach (UIElement child in elements) {
                 child.Measure(originalSize);
             }
@@ -124,7 +123,7 @@ namespace Examples.Locators {
             return originalSize;
         }
 
-        public Size Arrange(Size originalSize, Vector offset, Vector itemsOffset, out Size verifySize, bool checkSize = false, params UIElement[] elements) {
+        public override Size Arrange(Size originalSize, Vector offset, Vector itemsOffset, out Size verifySize, bool checkSize = false, params UIElement[] elements) {
 
             verifySize = originalSize;
 
@@ -158,11 +157,11 @@ namespace Examples.Locators {
             return originalSize;
         }
 
-        public Vector CalculateOffset(Size originalSize, Vector offset, UIElement element, bool asNext, params UIElement[] elements) {
+        public override Vector CalculateOffset(Size originalSize, Vector offset, UIElement element, bool asNext, params UIElement[] elements) {
             return default(Vector);
         }
 
-        public Rect GetOriginalBounds(UIElement element, Vector offset = default) {
+        public override Rect GetOriginalBounds(UIElement element, Vector offset = default) {
             return default(Rect);
         }
         #endregion

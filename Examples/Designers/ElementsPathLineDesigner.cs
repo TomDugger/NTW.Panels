@@ -29,7 +29,16 @@ namespace Examples.Designers {
         }
 
         public static readonly DependencyProperty ShowLineProperty =
-            DependencyProperty.Register("ShowLine", typeof(bool), typeof(ElementsPathLineDesigner), new FrameworkPropertyMetadata(true, FrameworkPropertyMetadataOptions.AffectsParentArrange));
+            DependencyProperty.Register("ShowLine", typeof(bool), typeof(ElementsPathLineDesigner), new PropertyMetadata(true, ShowLineChanged));
+
+        private static void ShowLineChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
+            if (sender is ElementsPathLineDesigner designer)
+                if (e.NewValue is bool visiblity)
+                    if (visiblity)
+                        designer.backDrawing.Children.Add(designer.lineDrawing);
+                    else
+                        designer.backDrawing.Children.Remove(designer.lineDrawing);
+        }
 
         public bool ClosedLine {
             get { return (bool)GetValue(ClosedLineProperty); }
@@ -37,7 +46,13 @@ namespace Examples.Designers {
         }
 
         public static readonly DependencyProperty ClosedLineProperty =
-            DependencyProperty.Register("ClosedLine", typeof(bool), typeof(ElementsPathLineDesigner), new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.AffectsParentArrange));
+            DependencyProperty.Register("ClosedLine", typeof(bool), typeof(ElementsPathLineDesigner), new PropertyMetadata(false, ClosedLineChanged));
+
+        private static void ClosedLineChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
+            if (sender is ElementsPathLineDesigner designer)
+                if(e.NewValue is bool isClosed)
+                    designer.lineFigure.IsClosed = isClosed;
+        }
 
 
         public bool FilledLine {
@@ -46,7 +61,13 @@ namespace Examples.Designers {
         }
 
         public static readonly DependencyProperty FilledLineProperty =
-            DependencyProperty.Register("FilledLine", typeof(bool), typeof(ElementsPathLineDesigner), new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.AffectsParentArrange));
+            DependencyProperty.Register("FilledLine", typeof(bool), typeof(ElementsPathLineDesigner), new PropertyMetadata(false, FilledLineChanged));
+
+        private static void FilledLineChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
+            if (sender is ElementsPathLineDesigner designer)
+                if (e.NewValue is bool isFilled)
+                    designer.lineFigure.IsFilled = isFilled;
+        }
 
         #region Visual properties
         public Brush LineFill {
@@ -96,12 +117,22 @@ namespace Examples.Designers {
         #region IElementArrangeDesigner
         public void AfterElementArrange(Rect elementRect, Size containerSize, UIElement element, Transform global = null) {
             // calculate the points
-            if (ShowLine) {
-                var x = elementRect.X + elementRect.Width / 2;
-                var y = elementRect.Y + elementRect.Height / 2;
+            var x = elementRect.X + elementRect.Width / 2;
+            var y = elementRect.Y + elementRect.Height / 2;
 
-                linePoints.Add(new Point(x, y));
-            }
+            linePoints.Add(new Point(x, y));
+        }
+
+        public void UpdateElementArrage(Rect elementRect, Size containerSize, int index, UIElement element, Transform global = null) {
+            var x = elementRect.X + elementRect.Width / 2;
+            var y = elementRect.Y + elementRect.Height / 2;
+
+            if (index >= 0 && index < linePoints.Count)
+                linePoints[index] = new Point(x, y);
+
+            lineFigure.Segments.Clear();
+            lineFigure.Segments.Add(new PolyLineSegment { Points = new PointCollection(linePoints) });
+            lineFigure.StartPoint = linePoints.FirstOrDefault();
         }
         #endregion
 
@@ -115,12 +146,10 @@ namespace Examples.Designers {
             // build the line
             lineFigure.Segments.Clear();
 
-            if (ShowLine) {
-                lineFigure.Segments.Add(new PolyLineSegment { Points = new PointCollection(linePoints) });
-                lineFigure.StartPoint = linePoints.FirstOrDefault();
-                lineFigure.IsClosed = ClosedLine;
-                lineFigure.IsFilled = FilledLine;
-            }
+            lineFigure.Segments.Add(new PolyLineSegment { Points = new PointCollection(linePoints) });
+            lineFigure.StartPoint = linePoints.FirstOrDefault();
+            lineFigure.IsClosed = ClosedLine;
+            lineFigure.IsFilled = FilledLine;
         }
         #endregion
 

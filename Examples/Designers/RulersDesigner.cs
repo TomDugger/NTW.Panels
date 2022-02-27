@@ -16,10 +16,8 @@ namespace Examples.Designers {
 
         public RulersDesigner() {
             verticalRulerDrawing = new DrawingGroup();
-            frontDrawing.Children.Add(verticalRulerDrawing); verticalRulerDrawing.Transform = Transform.Identity;
 
             horizontalRulerDrawing = new DrawingGroup();
-            frontDrawing.Children.Add(horizontalRulerDrawing);
         }
 
         #region Properties
@@ -29,7 +27,16 @@ namespace Examples.Designers {
         }
 
         public static readonly DependencyProperty ShowVerticalRulerProperty =
-            DependencyProperty.Register("ShowVerticalRuler", typeof(bool), typeof(RulersDesigner), new PropertyMetadata(false, UpdateVerticalRuler));
+            DependencyProperty.Register("ShowVerticalRuler", typeof(bool), typeof(RulersDesigner), new PropertyMetadata(false, ShowVerticalRulerChanged));
+
+        private static void ShowVerticalRulerChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
+            if (sender is RulersDesigner designer)
+                if (e.NewValue is bool visibility)
+                    if (visibility)
+                        designer.frontDrawing.Children.Add(designer.verticalRulerDrawing);
+                    else
+                        designer.frontDrawing.Children.Remove(designer.verticalRulerDrawing);
+        }
 
 
         public double MinimumVerticalRuler {
@@ -70,7 +77,16 @@ namespace Examples.Designers {
         }
 
         public static readonly DependencyProperty ShowHorizontalRulerProperty =
-            DependencyProperty.Register("ShowHorizontalRuler", typeof(bool), typeof(RulersDesigner), new PropertyMetadata(false));
+            DependencyProperty.Register("ShowHorizontalRuler", typeof(bool), typeof(RulersDesigner), new PropertyMetadata(false, ShowHorizontalRulerChanged));
+
+        private static void ShowHorizontalRulerChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
+            if (sender is RulersDesigner designer)
+                if (e.NewValue is bool visibility)
+                    if (visibility)
+                        designer.frontDrawing.Children.Add(designer.horizontalRulerDrawing);
+                    else
+                        designer.frontDrawing.Children.Remove(designer.horizontalRulerDrawing);
+        }
 
 
         public double MinimumHorizontalRuler {
@@ -218,16 +234,15 @@ namespace Examples.Designers {
         #region Helps
         private void BuildVerticalRuler() {
 
-            if (ShowVerticalRuler) {
-
-                if (RulerDependsOnArea && AreaDesigner != null)
-                    BuildVerticalRulerByArea(containerSize);
-                else
-                    BuildVerticalRulerStandart(containerSize);
-            }
+            if (RulerDependsOnArea && AreaDesigner != null)
+                BuildVerticalRulerByArea(containerSize);
+            else
+                BuildVerticalRulerStandart(containerSize);
         }
 
         private void BuildVerticalRulerStandart(Size originalSize) {
+
+            verticalRulerDrawing.Children.Clear();
 
             double ScaleY = GetScale().Height;
             double TranslateY = GetTranslate().Y;
@@ -262,6 +277,8 @@ namespace Examples.Designers {
         }
 
         private void BuildVerticalRulerByArea(Size originalSize) {
+
+            verticalRulerDrawing.Children.Clear();
 
             TransformGroup scale = new TransformGroup();
             foreach (var sc in RecursiveFinder<ScaleTransform>(global))
@@ -315,16 +332,16 @@ namespace Examples.Designers {
 
         private void BuildHorizontalRuler() {
 
-            if (ShowHorizontalRuler) {
+            if (RulerDependsOnArea && AreaDesigner != null)
+                BuildHorizontalRulerByArea(containerSize);
+            else
+                BuildHorizontalRulerStandart(containerSize);
 
-                if (RulerDependsOnArea && AreaDesigner != null)
-                    BuildHorizontalRulerByArea(containerSize);
-                else
-                    BuildHorizontalRulerStandart(containerSize);
-            }
         }
 
         private void BuildHorizontalRulerStandart(Size originalSize) {
+
+            horizontalRulerDrawing.Children.Clear();
 
             double ScaleX = GetScale().Width;
             double TranslateX = GetTranslate().X;
@@ -359,6 +376,8 @@ namespace Examples.Designers {
         }
 
         private void BuildHorizontalRulerByArea(Size originalSize) {
+
+            horizontalRulerDrawing.Children.Clear();
 
             TransformGroup scale = new TransformGroup();
             foreach (var sc in RecursiveFinder<ScaleTransform>(global))

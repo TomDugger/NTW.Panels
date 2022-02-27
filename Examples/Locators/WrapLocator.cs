@@ -6,7 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 
 namespace Examples.Locators {
-    public class WrapLocator : Freezable, IItemsLocator {
+    public class WrapLocator : CustomLocator {
 
         private Dictionary<UIElement, Rect> rects = new Dictionary<UIElement, Rect>();
 
@@ -16,10 +16,11 @@ namespace Examples.Locators {
         }
 
         public static readonly DependencyProperty OrientationProperty =
-            DependencyProperty.Register("Orientation", typeof(Orientation), typeof(WrapLocator), new UIPropertyMetadata(Orientation.Horizontal));
+            DependencyProperty.Register("Orientation", typeof(Orientation), typeof(WrapLocator), new OptionPropertyMetadata(Orientation.Horizontal, UpdateOptions.Measure));
 
 
-        public Size Measure(Size originalSize, params UIElement[] elements) {
+        #region IItemsLocator
+        public override Size Measure(Size originalSize, params UIElement[] elements) {
 
             Size panelDesiredSize = originalSize;
 
@@ -41,7 +42,7 @@ namespace Examples.Locators {
             return SizeHelper.CheckInfinity(originalSize, panelDesiredSize);
         }
 
-        public Size Arrange(Size originalSize, Vector offset, Vector itemsOffset, out Size verifySize, bool checkSize = false, params UIElement[] elements) {
+        public override Size Arrange(Size originalSize, Vector offset, Vector itemsOffset, out Size verifySize, bool checkSize = false, params UIElement[] elements) {
 
             double posX = 0;
             double posY = 0;
@@ -104,7 +105,7 @@ namespace Examples.Locators {
         }
 
 
-        public Vector CalculateOffset(Size originalSize, Vector offset, UIElement element, bool asNext, params UIElement[] elements) {
+        public override Vector CalculateOffset(Size originalSize, Vector offset, UIElement element, bool asNext, params UIElement[] elements) {
             Vector result = offset;
 
             if (!asNext) return new Vector();
@@ -122,7 +123,8 @@ namespace Examples.Locators {
             return result;
         }
 
-        public Rect GetOriginalBounds(UIElement element, Vector offset = default(Vector)) => rects != null && rects.ContainsKey(element) ? Rect.Offset(rects[element], -offset) : default(Rect);
+        public override Rect GetOriginalBounds(UIElement element, Vector offset = default(Vector)) => rects != null && rects.ContainsKey(element) ? Rect.Offset(rects[element], -offset) : default(Rect); 
+        #endregion
 
         #region Helps
         private bool IsPositiveVector(Vector vector) => vector.X >= 0 && vector.Y >= 0;

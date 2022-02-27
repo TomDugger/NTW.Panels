@@ -8,11 +8,11 @@ namespace NTW.Panels {
     /// <summary>
     /// Handlers collection (is freezable Collection)
     /// </summary>
-    public class HandlersCollection : FreezableCollection<CustomHandler> {
+    public class HandlersCollection : CustomCollection<CustomHandler> {
 
         private CustomPanel owner;
 
-        internal HandlersCollection() : base(new List<CustomHandler>()) {
+        internal HandlersCollection() : base() {
             ((INotifyCollectionChanged)this).CollectionChanged += MouseHandlerCollection_CollectionChanged;
         }
 
