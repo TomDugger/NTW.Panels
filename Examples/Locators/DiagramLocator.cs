@@ -1,5 +1,4 @@
-﻿using Examples.Helpers;
-using NTW.Panels;
+﻿using NTW.Panels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,20 +6,34 @@ using System.Windows;
 using System.Windows.Media;
 
 namespace Examples.Locators {
-    public class DiagramLocator : CustomLocator, IDrawingPresenter {
+    public class DiagramLocator : DesignedLocator, IDrawingPresenter {
 
-        private Size place;
-        private IEnumerable<UIElement> elements;
+        private Size size;
+        private DrawingGroup backGroup;
+        private GeometryDrawing background;
+        private GeometryDrawing middleStroke;
+
+        public DiagramLocator() : base() {
+
+            backGroup = new DrawingGroup();
+            background = new GeometryDrawing { Brush = this.Fill, Pen = new Pen(this.Stroke, this.StrokeThickness) };
+            backGroup.Children.Add(background);
+
+            middleStroke = new GeometryDrawing { Pen = new Pen(this.Stroke, this.StrokeThickness) };
+
+            backDrawing.Children.Add(backGroup);
+
+            backDrawing.Children.Add(this.Designers.BackDrawing);
+        }
 
         #region Depdendency properties
-
         public double InnerRadius {
             get { return (double)GetValue(InnerRadiusProperty); }
             set { SetValue(InnerRadiusProperty, value); }
         }
 
         public static readonly DependencyProperty InnerRadiusProperty =
-            DependencyProperty.Register("InnerRadius", typeof(double), typeof(DiagramLocator), new PropertyMetadata(0.0));
+            DependencyProperty.Register("InnerRadius", typeof(double), typeof(DiagramLocator), new OptionPropertyMetadata(0.0, UpdateOptions.Arrange));
 
 
         public double OuterRadius {
@@ -29,7 +42,7 @@ namespace Examples.Locators {
         }
 
         public static readonly DependencyProperty OuterRadiusProperty =
-            DependencyProperty.Register("OuterRadius", typeof(double), typeof(DiagramLocator), new PropertyMetadata(50.0));
+            DependencyProperty.Register("OuterRadius", typeof(double), typeof(DiagramLocator), new OptionPropertyMetadata(50.0, UpdateOptions.Arrange));
 
 
         public Brush Fill {
@@ -38,7 +51,12 @@ namespace Examples.Locators {
         }
 
         public static readonly DependencyProperty FillProperty =
-            DependencyProperty.Register("Fill", typeof(Brush), typeof(DiagramLocator), new PropertyMetadata(null));
+            DependencyProperty.Register("Fill", typeof(Brush), typeof(DiagramLocator), new PropertyMetadata(Brushes.Yellow, FillChanged));
+
+        private static void FillChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
+            if (sender is DiagramLocator locator)
+                locator.background.Brush = (Brush)e.NewValue;
+        }
 
 
         public Brush Stroke {
@@ -47,7 +65,14 @@ namespace Examples.Locators {
         }
 
         public static readonly DependencyProperty StrokeProperty =
-            DependencyProperty.Register("Stroke", typeof(Brush), typeof(DiagramLocator), new PropertyMetadata(Brushes.Black));
+            DependencyProperty.Register("Stroke", typeof(Brush), typeof(DiagramLocator), new PropertyMetadata(Brushes.Black, StrokeChanged));
+
+        private static void StrokeChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
+            if (sender is DiagramLocator locator) {
+                locator.background.Pen.Brush = (Brush)e.NewValue;
+                locator.middleStroke.Pen.Brush = (Brush)e.NewValue;
+            }
+        }
 
 
         public double StrokeThickness {
@@ -56,8 +81,14 @@ namespace Examples.Locators {
         }
 
         public static readonly DependencyProperty StrokeThicknessProperty =
-            DependencyProperty.Register("StrokeThickness", typeof(double), typeof(DiagramLocator), new PropertyMetadata(1.0));
+            DependencyProperty.Register("StrokeThickness", typeof(double), typeof(DiagramLocator), new PropertyMetadata(1.0, StrokeThicknessChanged));
 
+        private static void StrokeThicknessChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
+            if (sender is DiagramLocator locator) {
+                locator.background.Pen.Thickness = (double)e.NewValue;
+                locator.middleStroke.Pen.Thickness = (double)e.NewValue;
+            }
+        }
 
 
         public bool ShowMiddleLine {
@@ -66,45 +97,154 @@ namespace Examples.Locators {
         }
 
         public static readonly DependencyProperty ShowMiddleLineProperty =
-            DependencyProperty.Register("ShowMiddleLine", typeof(bool), typeof(DiagramLocator), new PropertyMetadata(false));
+            DependencyProperty.Register("ShowMiddleLine", typeof(bool), typeof(DiagramLocator), new PropertyMetadata(false, ShowMiddleLineChanged));
 
+        private static void ShowMiddleLineChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
+            if (sender is DiagramLocator locator && e.NewValue is bool visibility)
+                if (visibility)
+                    locator.backGroup.Children.Add(locator.middleStroke);
+                else
+                    locator.backGroup.Children.Remove(locator.middleStroke);
+        }
+        #endregion
 
-
-
-        public Brush DiagramFill {
-            get { return (Brush)GetValue(DiagramFillProperty); }
-            set { SetValue(DiagramFillProperty, value); }
+        #region Attached properties
+        public static string GetLegend(DependencyObject obj) {
+            return (string)obj.GetValue(LegendProperty);
         }
 
-        public static readonly DependencyProperty DiagramFillProperty =
-            DependencyProperty.Register("DiagramFill", typeof(Brush), typeof(DiagramLocator), new PropertyMetadata(Brushes.DodgerBlue));
-
-
-        public Brush DiagramStroke {
-            get { return (Brush)GetValue(DiagramStrokeProperty); }
-            set { SetValue(DiagramStrokeProperty, value); }
+        public static void SetLegend(DependencyObject obj, string value) {
+            obj.SetValue(LegendProperty, value);
         }
 
-        public static readonly DependencyProperty DiagramStrokeProperty =
-            DependencyProperty.Register("DiagramStroke", typeof(Brush), typeof(DiagramLocator), new PropertyMetadata(Brushes.Violet));
+        public static readonly DependencyProperty LegendProperty =
+            DependencyProperty.RegisterAttached("Legend", typeof(string), typeof(DiagramLocator), new PropertyMetadata(null));
 
 
-        public double DiagramStrokeThickness {
-            get { return (double)GetValue(DiagramStrokeThicknessProperty); }
-            set { SetValue(DiagramStrokeThicknessProperty, value); }
+        public static double GetAngle(DependencyObject obj) {
+            return (double)obj.GetValue(AngleProperty);
         }
 
-        public static readonly DependencyProperty DiagramStrokeThicknessProperty =
-            DependencyProperty.Register("DiagramStrokeThickness", typeof(double), typeof(DiagramLocator), new PropertyMetadata(1.0));
+        public static readonly DependencyProperty AngleProperty =
+            DependencyProperty.RegisterAttached("Angle", typeof(double), typeof(DiagramLocator), new PropertyMetadata(0.0, AngleChanged));
 
+        private static void AngleChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
+            double angle = (double)e.NewValue;
 
-        public double DiagramOpacity {
-            get { return (double)GetValue(DiagramOpacityProperty); }
-            set { SetValue(DiagramOpacityProperty, value); }
+            sender.SetValue(ReverseAngleProperty, -angle);
+
+            sender.SetValue(LessThan90Property, false);
+            sender.SetValue(LessThan180Property, false);
+            sender.SetValue(LessThan270Property, false);
+            sender.SetValue(LessThan360Property, false);
+
+            if (angle < 90)
+                sender.SetValue(LessThan90Property, true);
+            else if (angle < 180)
+                sender.SetValue(LessThan180Property, true);
+            else if (angle < 270)
+                sender.SetValue(LessThan270Property, true);
+            else if (angle < 360)
+                sender.SetValue(LessThan360Property, true);
         }
 
-        public static readonly DependencyProperty DiagramOpacityProperty =
-            DependencyProperty.Register("DiagramOpacity", typeof(double), typeof(DiagramLocator), new PropertyMetadata(1.0));
+
+        public static double GetReverseAngle(DependencyObject obj) {
+            return (double)obj.GetValue(ReverseAngleProperty);
+        }
+
+        public static readonly DependencyProperty ReverseAngleProperty =
+            DependencyProperty.RegisterAttached("ReverseAngle", typeof(double), typeof(DiagramLocator), new PropertyMetadata(0.0));
+
+
+        public static bool GetLessThan90(DependencyObject obj) {
+            return (bool)obj.GetValue(LessThan90Property);
+        }
+
+        private static void SetLessThan90(DependencyObject obj, bool value) {
+            obj.SetValue(LessThan90Property, value);
+        }
+
+        public static readonly DependencyProperty LessThan90Property =
+            DependencyProperty.RegisterAttached("LessThan90", typeof(bool), typeof(DiagramLocator), new PropertyMetadata(false));
+
+
+        public static bool GetLessThan180(DependencyObject obj) {
+            return (bool)obj.GetValue(LessThan180Property);
+        }
+
+        private static void SetLessThan180(DependencyObject obj, bool value) {
+            obj.SetValue(LessThan180Property, value);
+        }
+
+        public static readonly DependencyProperty LessThan180Property =
+            DependencyProperty.RegisterAttached("LessThan180", typeof(bool), typeof(DiagramLocator), new PropertyMetadata(false));
+
+
+        public static bool GetLessThan270(DependencyObject obj) {
+            return (bool)obj.GetValue(LessThan270Property);
+        }
+
+        private static void SetLessThan270(DependencyObject obj, bool value) {
+            obj.SetValue(LessThan270Property, value);
+        }
+
+        public static readonly DependencyProperty LessThan270Property =
+            DependencyProperty.RegisterAttached("LessThan270", typeof(bool), typeof(DiagramLocator), new PropertyMetadata(false));
+
+
+        public static bool GetLessThan360(DependencyObject obj) {
+            return (bool)obj.GetValue(LessThan360Property);
+        }
+
+        private static void SetLessThan360(DependencyObject obj, bool value) {
+            obj.SetValue(LessThan360Property, value);
+        }
+
+        public static readonly DependencyProperty LessThan360Property =
+            DependencyProperty.RegisterAttached("LessThan360", typeof(bool), typeof(DiagramLocator), new PropertyMetadata(false));
+
+
+        public static double GetValue(DependencyObject obj) {
+            return (double)obj.GetValue(ValueProperty);
+        }
+
+        public static void SetValue(DependencyObject obj, double value) {
+            obj.SetValue(ValueProperty, value);
+        }
+
+        public static readonly DependencyProperty ValueProperty =
+            DependencyProperty.RegisterAttached("Value", typeof(double), typeof(DiagramLocator), new PropertyMetadata(0.0, UpdateGeneralProperties));
+
+
+        public static double GetMinimum(DependencyObject obj) {
+            return (double)obj.GetValue(MinimumProperty);
+        }
+
+        public static void SetMinimum(DependencyObject obj, double value) {
+            obj.SetValue(MinimumProperty, value);
+        }
+
+        public static readonly DependencyProperty MinimumProperty =
+            DependencyProperty.RegisterAttached("Minimum", typeof(double), typeof(DiagramLocator), new PropertyMetadata(0.0, UpdateGeneralProperties));
+
+
+        public static double GetMaximum(DependencyObject obj) {
+            return (double)obj.GetValue(MaximumProperty);
+        }
+
+        public static void SetMaximum(DependencyObject obj, double value) {
+            obj.SetValue(MaximumProperty, value);
+        }
+
+        public static readonly DependencyProperty MaximumProperty =
+            DependencyProperty.RegisterAttached("Maximum", typeof(double), typeof(DiagramLocator), new PropertyMetadata(0.0, UpdateGeneralProperties));
+
+        private static void UpdateGeneralProperties(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
+            if (sender is UIElement ui && GetRebuildArrangeChild(sender) is Action<UIElement> rebuild)
+                rebuild(ui);
+        }
+
         #endregion
 
         #region IDrawingPresenter
@@ -127,32 +267,53 @@ namespace Examples.Locators {
 
             verifySize = originalSize;
 
+            size = originalSize;
+
             int number = 0;
             double angle = 360d / elements.Length;
+            List<Point> outerPoints = new List<Point>();
+            List<Point> innerPoints = new List<Point>();
+            List<Point> middlegroundPoints = new List<Point>();
+
+            // begin of Element Arrange Designers
+            ExecuteFor<IArrangeDesigner>(designer => designer.BeginElementArrange(originalSize));
+
             foreach (UIElement element in elements) {
-                element.Arrange(new Rect(new Point(originalSize.Width / 2, this.InnerRadius * 2 + this.OuterRadius - element.DesiredSize.Height / 2), new Size(this.OuterRadius, element.DesiredSize.Height)));
+                element.Arrange(new Rect(new Point(originalSize.Width / 2, this.InnerRadius + this.OuterRadius - element.DesiredSize.Height / 2), new Size(this.OuterRadius, element.DesiredSize.Height)));
 
                 #region set transform position of the element
                 TransformGroup group = new TransformGroup();
 
-                TranslateTransform translation = new TranslateTransform() { X = this.InnerRadius };
+                TranslateTransform translation = new TranslateTransform { X = this.InnerRadius };
+                group.Children.Add(translation);
                 #endregion
 
-                group.Children.Add(translation);
-
-                element.SetValue(DiagramHelper.AngleProperty, angle * number);
+                element.SetValue(DiagramLocator.AngleProperty, angle * number);
                 group.Children.Add(new RotateTransform(angle * number));
                 element.RenderTransformOrigin = new Point(0, 0.5);
                 element.RenderTransform = group;
 
+                // elementArrange designers (setting)
+                ExecuteFor<IElementArrangeDesigner>(designer => designer.AfterElementArrange(new Rect(GenerateElementPoint(element, originalSize, angle * number, DiagramLocator.GetValue(element)), new Size(1, 1)), originalSize, element));
+
+                SetChildIndex(element, number);
+
+                SetRebuildArrangeChild(element, ArrageChildWithCallingElementDesigners);
+
+                // calculate maximum/middle point
+                outerPoints.Add(GenerateElementPoint(element, originalSize, angle * number, DiagramLocator.GetMaximum(element)));
+                innerPoints.Add(GenerateElementPoint(element, originalSize, angle * number, DiagramLocator.GetMinimum(element)));
+                middlegroundPoints.Add(GenerateElementPoint(element, originalSize, angle * number, (DiagramLocator.GetMaximum(element) - DiagramLocator.GetMinimum(element)) / 2));
+
                 number++;
             }
 
-            this.place = originalSize;
-            this.elements = elements;
+            // generate background
+            SetBackgroundPoints(outerPoints, innerPoints);
+            SetMiddlegroundPoints(middlegroundPoints);
 
-            // first update back drawing
-            this.RebuildDiagram();
+            // end of Element Arrange Designers
+            ExecuteFor<IArrangeDesigner>(designer => designer.EndElementArrange(originalSize));
 
             return originalSize;
         }
@@ -167,109 +328,59 @@ namespace Examples.Locators {
         #endregion
 
         #region Helps
-        public void RebuildDiagram() {
-            backDrawing.Children.Clear();
-            backDrawing.Children.Add(GetBackground());
-            backDrawing.Children.Add(GetDiagram());
-        }
+        private Point GenerateElementPoint(Visual visual, Size originalSize, double angle, double value) {
+            if (visual == null) return default(Point);
 
-        private Drawing GetBackground() {
-            DrawingGroup drawing = new DrawingGroup();
+            var minimum = DiagramLocator.GetMinimum(visual);
+            var maximum = DiagramLocator.GetMaximum(visual);
 
-            if (elements == null) return drawing;
-
-            double angleOne = 360d / elements.Count();
             TransformGroup group = new TransformGroup();
-            RotateTransform rotate = new RotateTransform(0, place.Width / 2, this.InnerRadius * 2 + this.OuterRadius);
             group.Children.Add(new TranslateTransform { X = this.InnerRadius });
-            group.Children.Add(rotate);
+            group.Children.Add(new RotateTransform(angle, originalSize.Width / 2, this.InnerRadius + this.OuterRadius));
 
-            var background = new PathGeometry();
+            var distance = (value - minimum) * this.OuterRadius / (maximum - minimum) - this.InnerRadius;
 
-            #region Outher ring
-            Point start = new Point(place.Width / 2 + this.OuterRadius, this.InnerRadius * 2 + this.OuterRadius);
+            var linePoint = new Point(originalSize.Width / 2 + this.InnerRadius + distance, this.InnerRadius + this.OuterRadius);
 
-            background.Figures.Add(GetFigureByStartPoint(x => { rotate.Angle = x * angleOne; return group.Transform(start); }));
-            #endregion
+            var result = group.Transform(linePoint);
 
-            #region Inner ring
-            start = new Point(place.Width / 2 + this.InnerRadius, this.InnerRadius * 2 + this.OuterRadius);
-
-            background.Figures.Add(GetFigureByStartPoint(x => { rotate.Angle = x * angleOne; return group.Transform(start); }));
-
-            drawing.Children.Add(new GeometryDrawing(this.Fill, new Pen(this.Stroke, this.StrokeThickness), background));
-            #endregion
-
-            #region  meddle line
-            if (ShowMiddleLine) {
-                var middleLine = new PathGeometry();
-
-                start = new Point(place.Width / 2 + this.OuterRadius / 2, this.InnerRadius * 2 + this.OuterRadius);
-
-                middleLine.Figures.Add(GetFigureByStartPoint(x => { rotate.Angle = x * angleOne; return group.Transform(start); }));
-
-                drawing.Children.Add(new GeometryDrawing(null, new Pen(this.Stroke, this.StrokeThickness), middleLine));
-            }
-            #endregion
-
-            return drawing;
+            return result;
         }
 
-        private Drawing GetDiagram() {
-            DrawingGroup drawing = new DrawingGroup();
-            drawing.Opacity = this.DiagramOpacity;
+        private void ArrageChildWithCallingElementDesigners(UIElement child) {
 
-            if (elements == null) return drawing;
+            Rect childBounds = new Rect(GenerateElementPoint(child, size, GetAngle(child), DiagramLocator.GetValue(child)), new Size(1, 1));
 
-            double angleOne = 360d / elements.Count();
-            TransformGroup group = new TransformGroup();
-            RotateTransform rotate = new RotateTransform(0, place.Width / 2, this.InnerRadius * 2 + this.OuterRadius);
-            group.Children.Add(new TranslateTransform { X = this.InnerRadius });
-            group.Children.Add(rotate);
-
-            var line = new PathGeometry();
-
-            #region Outher ring
-            line.Figures.Add(GetFigureByStartPoint(x => { rotate.Angle = x * angleOne; return group.Transform(GenerateElementPoint(x)); }));
-            #endregion
-
-            #region Inner ring
-            Point start = new Point(place.Width / 2 + this.InnerRadius, this.InnerRadius * 2 + this.OuterRadius);
-
-            line.Figures.Add(GetFigureByStartPoint(x => { rotate.Angle = x * angleOne; return group.Transform(start); }));
-            #endregion
-
-            drawing.Children.Add(new GeometryDrawing(this.DiagramFill, new Pen(this.DiagramStroke, this.DiagramStrokeThickness), line));
-            return drawing;
+            // elementArrange designers (Updating)
+            ExecuteFor<IElementArrangeDesigner>(designer => designer.UpdateElementArrage(childBounds, default(Size), GetChildIndex(child), child));
         }
 
-        private PathFigure GetFigureByStartPoint(Func<int, Point> func) {
-            if (elements == null) return new PathFigure();
 
-            var points = Enumerable.Range(0, elements.Count()).Select(x => func(x));
-            var pathFigure = new PathFigure {
-                IsClosed = true,
-                StartPoint = points.First()
-            };
+        private void SetBackgroundPoints(IEnumerable<Point> outerPoints, IEnumerable<Point> innerPoints) {
+            PathGeometry outerPathGeometry = GetGeometryByPoints(outerPoints);
+            PathGeometry innerPathGeometry = GetGeometryByPoints(innerPoints);
 
-            var polyline = new PolyLineSegment();
-            polyline.Points = new PointCollection(points.Skip(1));
-
-            pathFigure.Segments.Add(polyline);
-
-            return pathFigure;
+            background.Geometry = CombinedGeometry.Combine(outerPathGeometry, innerPathGeometry, GeometryCombineMode.Exclude, Transform.Identity);
         }
 
-        private Point GenerateElementPoint(int index) {
-            if (elements == null) return default(Point);
+        private void SetMiddlegroundPoints(IEnumerable<Point> points) {
+            PathGeometry pathGeometry = new PathGeometry();
+            PathFigure figure = new PathFigure { IsFilled = true, IsClosed = true };
+            figure.StartPoint = points.FirstOrDefault();
+            figure.Segments.Add(new PolyLineSegment { Points = new PointCollection(points) });
+            pathGeometry.Figures.Add(figure);
 
-            Visual visual = elements.ToList()[index];
+            middleStroke.Geometry = pathGeometry;
+        }
 
-            var value = DiagramHelper.GetValue(visual);
-            var minimum = DiagramHelper.GetMinimum(visual);
-            var maximum = DiagramHelper.GetMaximum(visual);
+        private PathGeometry GetGeometryByPoints(IEnumerable<Point> points) {
+            PathGeometry pathGeometry = new PathGeometry();
+            PathFigure figure = new PathFigure { IsFilled = true, IsClosed = true };
+            figure.StartPoint = points.FirstOrDefault();
+            figure.Segments.Add(new PolyLineSegment { Points = new PointCollection(points) });
+            pathGeometry.Figures.Add(figure);
 
-            return new Point(place.Width / 2 + this.InnerRadius + (value - minimum) * (this.OuterRadius - this.InnerRadius) / (maximum - minimum), this.InnerRadius * 2 + this.OuterRadius);
+            return pathGeometry;
         }
         #endregion
 

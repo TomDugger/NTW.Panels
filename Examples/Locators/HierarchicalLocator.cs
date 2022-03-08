@@ -1,9 +1,10 @@
 ﻿using NTW.Panels;
+using System;
 using System.Linq;
 using System.Windows;
 
 namespace Examples.Locators {
-    public class HeirarhicalLocator : CustomLocator {
+    public class HierarchicalLocator : CustomLocator {
 
         #region Propeties
         public static double GetOffset(DependencyObject obj) {
@@ -15,8 +16,12 @@ namespace Examples.Locators {
         }
 
         public static readonly DependencyProperty OffsetProperty =
-            DependencyProperty.RegisterAttached("Offset", typeof(double), typeof(HeirarhicalLocator), new PropertyMetadata(0.0));
+            DependencyProperty.RegisterAttached("Offset", typeof(double), typeof(HierarchicalLocator), new PropertyMetadata(0.0, OffsetChanged));
 
+        private static void OffsetChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
+            if (sender is UIElement ui && GetRebuildArrangeChild(sender) is Action<UIElement> rebuild)
+                rebuild(ui);
+        }
 
         public Size ItemSize {
             get { return (Size)GetValue(ItemSizeProperty); }
@@ -24,7 +29,7 @@ namespace Examples.Locators {
         }
 
         public static readonly DependencyProperty ItemSizeProperty =
-            DependencyProperty.Register("ItemSize", typeof(Size), typeof(HeirarhicalLocator), new PropertyMetadata(new Size(15, 15)));
+            DependencyProperty.Register("ItemSize", typeof(Size), typeof(HierarchicalLocator), new OptionPropertyMetadata(new Size(15, 15), UpdateOptions.Arrange));
 
 
 
@@ -34,7 +39,7 @@ namespace Examples.Locators {
         }
 
         public static readonly DependencyProperty BeginHeightProperty =
-            DependencyProperty.Register("BeginHeight", typeof(double), typeof(HeirarhicalLocator), new PropertyMetadata(0.0));
+            DependencyProperty.Register("BeginHeight", typeof(double), typeof(HierarchicalLocator), new OptionPropertyMetadata(0.0, UpdateOptions.Arrange));
         #endregion
 
         #region IItemsLocator
@@ -64,6 +69,7 @@ namespace Examples.Locators {
                     result = new Rect(new Point(result.X, 0), new Size(ItemSize.Width, BeginHeight + result.Bottom));
 
                 child.Arrange(result);
+                SetRebuildArrangeChild(child, RefreshArrangeElementByOffsetValue);
             }
 
             return verifySize = originalSize;
@@ -97,10 +103,14 @@ namespace Examples.Locators {
             while (resultrect.Length > 0);
             return copy;
         }
+
+        private void RefreshArrangeElementByOffsetValue(UIElement child) {
+            this.SetUpdateOption(this, UpdateOptions.Arrange);
+        }
         #endregion
 
         protected override Freezable CreateInstanceCore() {
-            return new HeirarhicalLocator();
+            return new HierarchicalLocator();
         }
     }
 }

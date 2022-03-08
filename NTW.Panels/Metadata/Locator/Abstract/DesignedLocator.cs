@@ -2,12 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using System.Windows.Media;
 
 namespace NTW.Panels {
     /// <summary>
     /// Simple Design locator
     /// </summary>
     public abstract class DesignedLocator : CustomLocator, IDesign {
+
+        public DesignedLocator() {
+            this.Designers = new DesignersCollection();
+        }
 
         #region IDesign
         /// <summary>
@@ -68,7 +73,7 @@ namespace NTW.Panels {
 
             foreach (T designer in GetDesigners<T>())
                 action(designer);
-        } 
+        }
         #endregion
     }
 }

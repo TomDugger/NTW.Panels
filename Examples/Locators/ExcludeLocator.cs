@@ -1,4 +1,5 @@
 ﻿using NTW.Panels;
+using System;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -13,7 +14,7 @@ namespace Examples.Locators {
         }
 
         public static readonly DependencyProperty OrientationProperty =
-            DependencyProperty.Register("Orientation", typeof(Orientation), typeof(ExcludeLocator), new PropertyMetadata(default(Orientation)));
+            DependencyProperty.Register("Orientation", typeof(Orientation), typeof(ExcludeLocator), new OptionPropertyMetadata(default(Orientation), UpdateOptions.Arrange));
 
 
         public Size ExcludeSize {
@@ -22,16 +23,29 @@ namespace Examples.Locators {
         }
 
         public static readonly DependencyProperty ExcludeSizeProperty =
-            DependencyProperty.Register("ExcludeSize", typeof(Size), typeof(ExcludeLocator), new PropertyMetadata(default(Size)));
+            DependencyProperty.Register("ExcludeSize", typeof(Size), typeof(ExcludeLocator), new OptionPropertyMetadata(default(Size), UpdateOptions.Arrange));
         #endregion
 
         #region IItemsLocator
         public override Size Measure(Size originalSize, params UIElement[] elements) {
+            Size panelDesiredSize = originalSize;
+
             foreach (UIElement child in elements) {
                 child.Measure(originalSize);
+                panelDesiredSize = child.DesiredSize;
             }
 
-            return originalSize;
+            switch (this.Orientation) {
+                default:
+                case Orientation.Vertical:
+                    panelDesiredSize = new Size(panelDesiredSize.Width, elements.Sum(x => x.DesiredSize.Height));
+                    break;
+                case Orientation.Horizontal:
+                    panelDesiredSize = new Size(elements.Sum(x => x.DesiredSize.Width), panelDesiredSize.Height);
+                    break;
+            }
+
+            return SizeHelper.CheckInfinity(originalSize, panelDesiredSize);
         }
 
         public override Size Arrange(Size originalSize, Vector offset, Vector itemsOffset, out Size verifySize, bool checkSize = false, params UIElement[] elements) {
@@ -47,13 +61,13 @@ namespace Examples.Locators {
 
                 switch (Orientation) {
                     case Orientation.Horizontal:
-                        childSize = new Size((originalSize.Width - ExcludeSize.Width) / count, originalSize.Height);
-                        position = new Point((originalSize.Width - ExcludeSize.Width) / count, 0);
+                        childSize = new Size(Math.Abs(originalSize.Width - ExcludeSize.Width) / count, originalSize.Height);
+                        position = new Point(Math.Abs(originalSize.Width - ExcludeSize.Width) / count, 0);
                         break;
 
                     case Orientation.Vertical:
-                        childSize = new Size(originalSize.Width, (originalSize.Height - ExcludeSize.Height) / count);
-                        position = new Point(0, (originalSize.Height - ExcludeSize.Height) / count);
+                        childSize = new Size(originalSize.Width, Math.Abs(originalSize.Height - ExcludeSize.Height) / count);
+                        position = new Point(0, Math.Abs(originalSize.Height - ExcludeSize.Height) / count);
                         break;
                 }
 
@@ -67,17 +81,17 @@ namespace Examples.Locators {
                     if (count > elements.Length && index == elements.Length - 1)
                         switch (Orientation) {
                             case Orientation.Horizontal:
-                                childSize = new Size((originalSize.Width - ExcludeSize.Width) / count * 2, originalSize.Height);
+                                childSize = new Size(Math.Abs(originalSize.Width - ExcludeSize.Width) / count * 2, originalSize.Height);
                                 break;
                             case Orientation.Vertical:
-                                childSize = new Size(originalSize.Width, (originalSize.Height - ExcludeSize.Height) / count * 2);
+                                childSize = new Size(originalSize.Width, Math.Abs(originalSize.Height - ExcludeSize.Height) / count * 2);
                                 break;
                         }
 
-                    if (position.X * index >= (originalSize.Width - ExcludeSize.Width) / 2)
+                    if (position.X * index >= Math.Abs(originalSize.Width - ExcludeSize.Width) / 2)
                         child.Arrange(new Rect(new Point(ExcludeSize.Width + position.X * index, position.Y * index), childSize));
 
-                    else if (position.Y * index > (originalSize.Height - ExcludeSize.Height) / 2)
+                    else if (position.Y * index > Math.Abs(originalSize.Height - ExcludeSize.Height) / 2)
                         child.Arrange(new Rect(new Point(position.X * index, ExcludeSize.Height + position.Y * index), childSize));
 
                     else

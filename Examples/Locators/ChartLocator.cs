@@ -11,8 +11,7 @@ namespace Examples.Locators {
 
         private TransformGroup transform;
 
-        public ChartLocator() {
-            this.Designers = new DesignersCollection();
+        public ChartLocator():base() {
 
             transform = new TransformGroup();
 
@@ -37,32 +36,6 @@ namespace Examples.Locators {
             if (sender is UIElement ui && GetRebuildArrangeChild(sender) is Action<UIElement> rebuild)
                 rebuild(ui);
         }
-
-
-
-        private static int GetChildIndex(DependencyObject obj) {
-            return (int)obj.GetValue(ChildIndexProperty);
-        }
-
-        private static void SetChildIndex(DependencyObject obj, int value) {
-            obj.SetValue(ChildIndexProperty, value);
-        }
-
-        private static readonly DependencyProperty ChildIndexProperty =
-            DependencyProperty.RegisterAttached("ChildIndex", typeof(int), typeof(ChartLocator), new PropertyMetadata(-1));
-
-
-
-        private static Action<UIElement> GetRebuildArrangeChild(DependencyObject obj) {
-            return (Action<UIElement>)obj.GetValue(RebuildArrangeChildProperty);
-        }
-
-        private static void SetRebuildArrangeChild(DependencyObject obj, Action<UIElement> value) {
-            obj.SetValue(RebuildArrangeChildProperty, value);
-        }
-
-        private static readonly DependencyProperty RebuildArrangeChildProperty =
-            DependencyProperty.RegisterAttached("RebuildArrangeChild", typeof(Action<UIElement>), typeof(ChartLocator), new PropertyMetadata(null));
         #endregion
 
         #region IDrawingPresenter

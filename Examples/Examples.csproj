@@ -52,14 +52,14 @@
     <Compile Include="Designers\ZoomDesigner.cs" />
     <Compile Include="Handlers\ChartItemMoveHandler.cs" />
     <Compile Include="Handlers\ChartTranslationHandler.cs" />
+    <Compile Include="Handlers\HierarchicalReturnOffsetHandler.cs" />
     <Compile Include="Handlers\MoveItemMouseHandler.cs" />
     <Compile Include="Handlers\SelectRangeMouseHandler.cs" />
     <Compile Include="Handlers\ShadowSelectingHandler.cs" />
-    <Compile Include="Helpers\DiagramHelper.cs" />
     <Compile Include="Locators\ChartLocator.cs" />
     <Compile Include="Locators\DiagramLocator.cs" />
     <Compile Include="Locators\ExcludeLocator.cs" />
-    <Compile Include="Locators\HeirarhicalLocator.cs" />
+    <Compile Include="Locators\HierarchicalLocator.cs" />
     <Compile Include="Locators\PathLocator.cs" />
     <Compile Include="Locators\StackLocator.cs" />
     <Compile Include="Locators\WrapLocator.cs" />

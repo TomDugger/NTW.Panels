@@ -56,5 +56,11 @@ namespace Tests.Models {
 
         private IEnumerable<Point> pointsList = Enumerable.Range(0, 100).Select(x => new Point(x % 10 * 0.1, (int)(x / 10) * 0.1));
         public IEnumerable<Point> PointsList => pointsList;
+
+        private IEnumerable<ValueElement> diagramList = Enumerable.Range(0, 10).Select(x => new ValueElement(x * 10)).ToArray();
+        public IEnumerable<ValueElement> DiagramList => diagramList;
+
+        private IEnumerable<ValueElement> hierarchicalList = Enumerable.Range(0, 10).Select(x => new ValueElement(0.2 + (double)x / 90)).ToArray();
+        public IEnumerable<ValueElement> HierarchicalList => hierarchicalList;
     }
 }

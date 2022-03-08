@@ -124,7 +124,17 @@
                 <PolyLineSegment Points="40,90 0,100" />
             </PathFigure>
         </PathGeometry>
-        
+
+        <!--Diagram template-->
+        <ControlTemplate x:Key="DiagramTemplate" TargetType="{x:Type ContentControl}">
+            <Grid>
+                <Slider Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ContentControl}}, Path=(locators:DiagramLocator.Value), Mode=TwoWay}" 
+                    Minimum="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ContentControl}}, Path=(locators:DiagramLocator.Minimum), Mode=TwoWay}" 
+                    Maximum="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ContentControl}}, Path=(locators:DiagramLocator.Maximum), Mode=TwoWay}" />
+                <Rectangle x:Name="PopupPos" HorizontalAlignment="Right" />
+            </Grid>
+        </ControlTemplate>
+
         <!--Binding resources-->
         <RelativeSource x:Key="ChartSource" Mode="FindAncestor" AncestorType="{x:Type locators:ChartLocator}" />
         <RelativeSource x:Key="PanelSource" Mode="FindAncestor" AncestorType="{x:Type CustomPanel}" />
@@ -729,6 +739,336 @@
                                     <TextBox Name="ShadowStrokeThicknessBox" Margin="15, 0, 0, 0" Text="0.0" />
                                 </StackPanel>
                             </Expander>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+            
+            <!--Diagram locator-->
+            <TabItem Header=" Diagram locator">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="Auto" MinWidth="120" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="30" />
+                        <RowDefinition />
+
+                        <RowDefinition Height="30" />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+
+                    <!--Simple presentation-->
+                    <TextBlock Text="Simple presentation" Margin="5" />
+                    <CustomPanel Grid.Row="1" Margin="3">
+                        <CustomPanel.ItemsLocator>
+                            <locators:DiagramLocator InnerRadius="{Binding ElementName=DiagramInnerRadiusBox, Path=Text, Mode=TwoWay}" 
+                                                     OuterRadius="{Binding ElementName=DiagramOuterRadiusBox, Path=Text, Mode=TwoWay}" 
+                                                     ShowMiddleLine="{Binding ElementName=DiagramShowMiddleLineBox, Path=IsChecked, Mode=TwoWay}"
+                                                     Fill="{Binding ElementName=DiagramBackgroundBox, Path=Text, Mode=TwoWay}"
+                                                     Stroke="{Binding ElementName=DiagramStrokeBox, Path=Text, Mode=TwoWay}"
+                                                     StrokeThickness="{Binding ElementName=DiagramStrokeThicknessBox, Path=Text, Mode=TwoWay}">
+                                <locators:DiagramLocator.Designers>
+                                    <designers:ElementsPathLineDesigner x:Name="DiagramElementsPath" ShowLine="{Binding ElementName=DiagramShowLineBox, Path=IsChecked, Mode=TwoWay}"
+                                                                        ClosedLine="{Binding ElementName=DiagramClosedLineBox, Path=IsChecked, Mode=TwoWay}"
+                                                                        FilledLine="{Binding ElementName=DiagramFilledLineBox, Path=IsChecked, Mode=TwoWay}"
+                                                                        LineFill="{Binding ElementName=DiagramLineFillBox, Path=Text, Mode=TwoWay}"
+                                                                        LineStroke="{Binding ElementName=DiagramLineStrokeBox, Path=Text, Mode=TwoWay}"
+                                                                        LineThickness="{Binding ElementName=DiagramLineThicknessBox, Path=Text, Mode=TwoWay}" />
+                                </locators:DiagramLocator.Designers>
+                            </locators:DiagramLocator>
+                        </CustomPanel.ItemsLocator>
+
+                        <!--Items-->
+                        <ContentControl Template="{DynamicResource DiagramTemplate}"
+                                        HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Stretch"
+                                        locators:DiagramLocator.Value="50"
+                                        locators:DiagramLocator.Minimum="0"
+                                        locators:DiagramLocator.Maximum="100"
+                                        locators:DiagramLocator.Legend="Legends" />
+                        <ContentControl Template="{DynamicResource DiagramTemplate}"
+                                        HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Stretch"
+                                        locators:DiagramLocator.Value="50"
+                                        locators:DiagramLocator.Minimum="0"
+                                        locators:DiagramLocator.Maximum="100"
+                                        locators:DiagramLocator.Legend="Legends" />
+                        <ContentControl Template="{DynamicResource DiagramTemplate}"
+                                        HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Stretch"
+                                        locators:DiagramLocator.Value="50"
+                                        locators:DiagramLocator.Minimum="0"
+                                        locators:DiagramLocator.Maximum="100"
+                                        locators:DiagramLocator.Legend="Legends" />
+                        <ContentControl Template="{DynamicResource DiagramTemplate}"
+                                        HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Stretch"
+                                        locators:DiagramLocator.Value="50"
+                                        locators:DiagramLocator.Minimum="0"
+                                        locators:DiagramLocator.Maximum="100"
+                                        locators:DiagramLocator.Legend="Legends" />
+                        <ContentControl Template="{DynamicResource DiagramTemplate}"
+                                        HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Stretch"
+                                        locators:DiagramLocator.Value="50"
+                                        locators:DiagramLocator.Minimum="0"
+                                        locators:DiagramLocator.Maximum="100"
+                                        locators:DiagramLocator.Legend="Legends" />
+                        <ContentControl Template="{DynamicResource DiagramTemplate}"
+                                        HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Stretch"
+                                        locators:DiagramLocator.Value="50"
+                                        locators:DiagramLocator.Minimum="0"
+                                        locators:DiagramLocator.Maximum="100"
+                                        locators:DiagramLocator.Legend="Legends" />
+                    </CustomPanel>
+
+                    <!--Simple ItemsControl presentation-->
+                    <TextBlock Grid.Row="2" Text="Simple ItemsControl presentation" Margin="5" />
+                    <ItemsControl Grid.Row="3" ItemsSource="{Binding Source={StaticResource DataContainer}, Path=DiagramList}" >
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate >
+                                <ContentControl Template="{DynamicResource DiagramTemplate}"
+                                                locators:DiagramLocator.Value="{Binding Path=Value, Mode=TwoWay}" 
+                                                locators:DiagramLocator.Minimum="0" 
+                                                locators:DiagramLocator.Maximum="100"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                        <ItemsControl.ItemContainerStyle>
+                            <Style>
+                                <Setter Property="locators:DiagramLocator.Value" Value="{Binding Path=Value, Mode=TwoWay}" />
+                                <Setter Property="locators:DiagramLocator.Minimum" Value="0" />
+                                <Setter Property="locators:DiagramLocator.Maximum" Value="100" />
+                                <Setter Property="locators:DiagramLocator.Legend" Value="Legends" />
+                            </Style>
+                        </ItemsControl.ItemContainerStyle>
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <CustomPanel >
+                                    <CustomPanel.ItemsLocator>
+                                        <locators:DiagramLocator InnerRadius="{Binding ElementName=DiagramInnerRadiusBox, Path=Text, Mode=TwoWay}" 
+                                                                 OuterRadius="{Binding ElementName=DiagramOuterRadiusBox, Path=Text, Mode=TwoWay}" 
+                                                                 ShowMiddleLine="{Binding ElementName=DiagramShowMiddleLineBox, Path=IsChecked, Mode=TwoWay}"
+                                                                 Fill="{Binding ElementName=DiagramBackgroundBox, Path=Text, Mode=TwoWay}"
+                                                                 Stroke="{Binding ElementName=DiagramStrokeBox, Path=Text, Mode=TwoWay}"
+                                                                 StrokeThickness="{Binding ElementName=DiagramStrokeThicknessBox, Path=Text, Mode=TwoWay}">
+                                            <locators:DiagramLocator.Designers>
+                                                <designers:ElementsPathLineDesigner ShowLine="{Binding ElementName=DiagramShowLineBox, Path=IsChecked, Mode=TwoWay}"
+                                                                                    ClosedLine="{Binding ElementName=DiagramClosedLineBox, Path=IsChecked, Mode=TwoWay}"
+                                                                                    FilledLine="{Binding ElementName=DiagramFilledLineBox, Path=IsChecked, Mode=TwoWay}"
+                                                                                    LineFill="{Binding ElementName=DiagramLineFillBox, Path=Text, Mode=TwoWay}"
+                                                                                    LineStroke="{Binding ElementName=DiagramLineStrokeBox, Path=Text, Mode=TwoWay}"
+                                                                                    LineThickness="{Binding ElementName=DiagramLineThicknessBox, Path=Text, Mode=TwoWay}" />
+                                            </locators:DiagramLocator.Designers>
+                                        </locators:DiagramLocator>
+                                    </CustomPanel.ItemsLocator>
+                                </CustomPanel>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+
+                    <!--Settings-->
+                    <ScrollViewer Grid.Column="1" Grid.RowSpan="6">
+                        <StackPanel Margin="3">
+                            <!--Diagram properties-->
+                            <Expander Header="Diagram properties">
+                                <StackPanel>
+                                    <CheckBox Name="DiagramShowMiddleLineBox" Content="Show Middle line" Margin="15, 5, 5, 5" IsChecked="False" />
+
+                                    <TextBlock Text="Inner radius" Margin="5" />
+                                    <TextBox Name="DiagramInnerRadiusBox" Margin="15, 0, 0, 0" Text="10.0" />
+
+                                    <TextBlock Text="Outer Radius" Margin="5" />
+                                    <TextBox Name="DiagramOuterRadiusBox" Margin="15, 0, 0, 0" Text="80.0" />
+
+                                    <TextBlock Text="Background" Margin="5" />
+                                    <TextBox Name="DiagramBackgroundBox" Margin="15, 0, 0, 0" Text="Yellow" />
+                                    
+                                    <TextBlock Text="Stroke" Margin="5" />
+                                    <TextBox Name="DiagramStrokeBox" Margin="15, 0, 0, 0" Text="Black" />
+
+                                    <TextBlock Text="Stroke thickness" Margin="5" />
+                                    <TextBox Name="DiagramStrokeThicknessBox" Margin="15, 0, 0, 0" Text="1.0" />
+                                </StackPanel>
+                            </Expander>
+                            <!--Elements path line designer-->
+                            <Expander Header="Elements path line designer">
+                                <StackPanel>
+                                    <CheckBox Name="DiagramShowLineBox" Content="Show line" Margin="15, 5, 5, 5" IsChecked="True" />
+                                    <CheckBox Name="DiagramClosedLineBox" Content="Closed line" Margin="15, 5, 5, 5" IsChecked="True" />
+                                    <CheckBox Name="DiagramFilledLineBox" Content="Filled line" Margin="15, 5, 5, 5" IsChecked="True" />
+
+                                    <TextBlock Text="Line fill" Margin="5" />
+                                    <TextBox Name="DiagramLineFillBox" Margin="15, 0, 0, 0" Text="#55550000" />
+
+                                    <TextBlock Text="Line stroke" Margin="5" />
+                                    <TextBox Name="DiagramLineStrokeBox" Margin="15, 0, 0, 0" Text="DarkBlue" />
+
+                                    <TextBlock Text="Line thickness" Margin="5" />
+                                    <TextBox Name="DiagramLineThicknessBox" Margin="15, 0, 0, 0" Text="1.0" />
+                                </StackPanel>
+                            </Expander>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+            
+            <!--Exclude locator-->
+            <TabItem Header="Exclude locator">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="Auto" MinWidth="120" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="30" />
+                        <RowDefinition />
+
+                        <RowDefinition Height="30" />
+                        <RowDefinition />
+
+                        <RowDefinition Height="30" />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+
+                    <!--Simple presentation-->
+                    <TextBlock Text="Simple presentation" Margin="5" />
+                    <CustomPanel Grid.Row="1" Margin="3">
+                        <CustomPanel.ItemsLocator>
+                            <locators:ExcludeLocator Orientation="{Binding ElementName=ExcludeOrientationBox, Path=Text, Mode=TwoWay}"
+                                                     ExcludeSize="{Binding ElementName=ExcludeSizeBox, Path=Text, Mode=TwoWay}" />
+                        </CustomPanel.ItemsLocator>
+
+                        <!--Items-->
+                        <TextBlock Text="Simple text" />
+                        <Button Content="Simple button" />
+                        <TextBlock Text="Simple text" />
+                    </CustomPanel>
+                    <Rectangle Grid.Row="1" Margin="3" Fill="#99ff0000" Width="100" Height="100" />
+                    <TextBlock Grid.Row="1" Margin="3" Text="Exclude area" VerticalAlignment="Center" HorizontalAlignment="Center" />
+
+                    <!--Simple ItemsControl presentation-->
+                    <TextBlock Grid.Row="2" Text="Simple ItemsControl presentation" Margin="5" />
+                    <ItemsControl Grid.Row="3" DataContext="{Binding Source={StaticResource DataContainer}}" 
+                                  ItemsSource="{Binding Path=ItemsView}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <CustomPanel >
+                                    <CustomPanel.ItemsLocator>
+                                        <locators:ExcludeLocator Orientation="{Binding ElementName=ExcludeOrientationBox, Path=Text, Mode=TwoWay}"
+                                                                 ExcludeSize="{Binding ElementName=ExcludeSizeBox, Path=Text, Mode=TwoWay}" />
+                                    </CustomPanel.ItemsLocator>
+                                </CustomPanel>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+                    <Rectangle Grid.Row="3" Margin="3" Fill="#99ff0000" Width="100" Height="100" />
+                    <TextBlock Grid.Row="3" Margin="3" Text="Exclude area" VerticalAlignment="Center" HorizontalAlignment="Center" />
+
+                    <!--Group ItemsControl presentation-->
+                    <TextBlock Grid.Row="4" Text="Group ItemsControl presentation" Margin="5" />
+                    <ItemsControl Grid.Row="5" ItemsSource="{Binding Source={StaticResource ItemsView}}">
+                        <ItemsControl.GroupStyle>
+                            <GroupStyle>
+                                <GroupStyle.ContainerStyle>
+                                    <Style TargetType="{x:Type GroupItem}">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate>
+                                                    <Expander IsExpanded="False" >
+                                                        <Expander.Header>
+                                                            <TextBlock Text="{Binding Path=Name}" Margin="5" />
+                                                        </Expander.Header>
+
+                                                        <ItemsPresenter MinHeight="100" MinWidth="100" />
+                                                    </Expander>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </GroupStyle.ContainerStyle>
+                            </GroupStyle>
+                        </ItemsControl.GroupStyle>
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <CustomPanel >
+                                    <CustomPanel.ItemsLocator>
+                                        <locators:ExcludeLocator Orientation="{Binding ElementName=ExcludeOrientationBox, Path=Text, Mode=TwoWay}"
+                                                                 ExcludeSize="{Binding ElementName=ExcludeSizeBox, Path=Text, Mode=TwoWay}" />
+                                    </CustomPanel.ItemsLocator>
+                                </CustomPanel>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+
+                    <!--Settings-->
+                    <ScrollViewer Grid.Column="1" Grid.RowSpan="6">
+                        <StackPanel Margin="3">
+                            <TextBlock Text="Orientation" Margin="3" />
+
+                            <ComboBox Name="ExcludeOrientationBox" Margin="15, 0, 0, 0" ItemsSource="{DynamicResource OrientationList}" SelectedIndex="0" />
+
+                            <TextBlock Text="Exclude size" Margin="3" />
+                            <TextBox Name="ExcludeSizeBox" Margin="15, 0, 0, 0" Text="100 100" />
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+
+            <!--Hierarchical locator-->
+            <TabItem Header="Hierarchical locator">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="Auto" MinWidth="120" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <!--Simple ItemsControl presentation-->
+                    <TextBlock Grid.Row="0" Text="Simple ItemsControl presentation" Margin="5" />
+                    <ItemsControl Grid.Row="1" Height="78" VerticalAlignment="Top" 
+                                  DataContext="{Binding Source={StaticResource DataContainer}}" ItemsSource="{Binding Path=HierarchicalList}" Background="{x:Null}" >
+                        <ItemsControl.ItemContainerStyle>
+                            <Style >
+                                <Setter Property="locators:HierarchicalLocator.Offset" Value="{Binding Path=Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            </Style>
+                        </ItemsControl.ItemContainerStyle>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Rectangle Width="2" Margin="5, 0, 5, 0" VerticalAlignment="Stretch" HorizontalAlignment="Center" Fill="Green" />
+                                    <Ellipse x:Name="point" StrokeThickness="0" Stroke="black" Width="12" Height="12" HorizontalAlignment="Center" VerticalAlignment="Bottom" Fill="Green" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <CustomPanel ClipToBounds="False" Margin="15, 0">
+                                    <CustomPanel.ItemsLocator>
+                                        <locators:HierarchicalLocator ItemSize="{Binding ElementName=HierarchicalItemSizeBox, Path=Text, Mode=TwoWay}" 
+                                                                     BeginHeight="{Binding ElementName=HierarchicalBeginHeightBox, Path=Text, Mode=TwoWay}" />
+                                    </CustomPanel.ItemsLocator>
+                                    <CustomPanel.Handlers>
+                                        <handlers:HierarchicalReturnOffsetHandler />
+                                    </CustomPanel.Handlers>
+                                </CustomPanel>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+
+                    <!--Settings-->
+                    <ScrollViewer Grid.Column="1" Grid.RowSpan="2">
+                        <StackPanel Margin="3">
+                            <TextBlock Text="Items size" Margin="3" />
+                            <TextBox Name="HierarchicalItemSizeBox" Margin="15, 0, 0, 0" Text="15 15" />
+
+                            <TextBlock Text="Begin height" Margin="3" />
+                            <TextBox Name="HierarchicalBeginHeightBox" Margin="15, 0, 0, 0" Text="10" />
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>
