@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 
 namespace NTW.Panels {
@@ -34,6 +35,7 @@ namespace NTW.Panels {
         }
 
         private void PanelUnloaded(object sender, RoutedEventArgs e) {
+
             if (upLayer != null) {
                 var adornerLayer = AdornerLayer.GetAdornerLayer(this);
 
@@ -80,6 +82,7 @@ namespace NTW.Panels {
             }
         }
 
+        #region Properties
         /// <summary>
         /// Panel items locator
         /// </summary>
@@ -100,7 +103,7 @@ namespace NTW.Panels {
                 if (e.OldValue is ICallingModifer callOld)
                     callOld.PanelCalling -= sender.PanelCalling;
 
-                if(e.OldValue is INotifyOption optionOld)
+                if (e.OldValue is INotifyOption optionOld)
                     optionOld.OptionCalling -= sender.UpdateOptionCalling;
 
 
@@ -154,9 +157,12 @@ namespace NTW.Panels {
                 }
             }
         }
+        #endregion
 
 
         protected override Size MeasureOverride(Size availableSize) {
+
+            if (!IsResizingFinished) return new Size();
 
             if (DesignerProperties.GetIsInDesignMode(this)) return new Size();
 
@@ -166,6 +172,8 @@ namespace NTW.Panels {
         }
 
         protected override Size ArrangeOverride(Size finalSize) {
+
+            if (!IsResizingFinished) return new Size();
 
             if (DesignerProperties.GetIsInDesignMode(this) || !this.IsVisible) return new Size();
 
@@ -180,6 +188,8 @@ namespace NTW.Panels {
 
 
         protected override void OnRender(DrawingContext dc) {
+
+            if (!IsResizingFinished) return;
 
             base.OnRender(dc);
 
@@ -363,8 +373,15 @@ namespace NTW.Panels {
             base.OnPreviewDrop(e);
         }
 
-        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo) {
-            base.OnRenderSizeChanged(sizeInfo);
+        protected override void ResisingBegined() {
+            upLayer?.Clear();
+
+            this.InvalidateMeasure();
+        }
+
+        protected override void ResisingFinished() {
+
+            upLayer?.Refresh();
 
             this.InvalidateMeasure();
         }

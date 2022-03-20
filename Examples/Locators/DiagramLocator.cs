@@ -294,7 +294,7 @@ namespace Examples.Locators {
                 element.RenderTransform = group;
 
                 // elementArrange designers (setting)
-                ExecuteFor<IElementArrangeDesigner>(designer => designer.AfterElementArrange(new Rect(GenerateElementPoint(element, originalSize, angle * number, DiagramLocator.GetValue(element)), new Size(1, 1)), originalSize, element));
+                ExecuteFor<IElementArrangeDesigner>(designer => designer.AfterElementArrange(new Rect(GenerateElementPoint(element, originalSize, angle * number, DiagramLocator.GetValue(element)), new Size(1, 1)), originalSize, number, element));
 
                 SetChildIndex(element, number);
 

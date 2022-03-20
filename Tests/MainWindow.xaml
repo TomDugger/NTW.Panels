@@ -8,6 +8,7 @@
         xmlns:locators="clr-namespace:Examples.Locators;assembly=Examples"
         xmlns:handlers="clr-namespace:Examples.Handlers;assembly=Examples"
         xmlns:designers="clr-namespace:Examples.Designers;assembly=Examples" 
+        xmlns:data="clr-namespace:Examples.Data;assembly=Examples"
         
         xmlns:converters="clr-namespace:Tests.Converters"
         
@@ -57,6 +58,20 @@
             <Orientation>Vertical</Orientation>
         </x:Array>
 
+        <!--StartPositions-->
+        <x:Array x:Key="StartPositionsList" Type="{x:Type data:StartPosition}">
+            <data:StartPosition>OnCenter</data:StartPosition>
+            <data:StartPosition>OnStart</data:StartPosition>
+            <data:StartPosition>OnEnd</data:StartPosition>
+        </x:Array>
+        
+        <!--RulerStretch-->
+        <x:Array x:Key="RulerStretchList" Type="{x:Type data:RulerStretch}">
+            <data:RulerStretch>OnlyOnStart</data:RulerStretch>
+            <data:RulerStretch>OnlyOnEnd</data:RulerStretch>
+            <data:RulerStretch>Duplicate</data:RulerStretch>
+        </x:Array>
+        
         <!--Models-->
         <models:DataContainer x:Key="DataContainer" />
 
@@ -140,6 +155,23 @@
         <RelativeSource x:Key="PanelSource" Mode="FindAncestor" AncestorType="{x:Type CustomPanel}" />
 
         <RectangleGeometry x:Key="SpecialShadowOfFirstElement" Rect="0, 0, 12, 12" />
+
+        <!--Ruler setting-->
+        <DataTemplate DataType="{x:Type data:RulerSetting}">
+            <StackPanel Margin="3">
+                <TextBlock Text="Tick height" Margin="5" />
+                <TextBox Name="TickHeightBox" Margin="15, 0, 0, 0" Text="{Binding Path=TickHeight, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                <TextBlock Text="Tick step" Margin="5" />
+                <TextBox Name="TickStepBox" Margin="15, 0, 0, 0" Text="{Binding Path=TickStep, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                <TextBlock Text="Middle Tick quantity" Margin="5" />
+                <TextBox Name="MiddleTickQuantityBox" Margin="15, 0, 0, 0" Text="{Binding Path=MiddleTickQuantity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                <TextBlock Text="Middle Tick height" Margin="5" />
+                <TextBox Name="MiddleTickHeightBox" Margin="15, 0, 0, 0" Text="{Binding Path=MiddleTickHeight, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            </StackPanel>
+        </DataTemplate>
     </Window.Resources>
     <Grid>
         <TabControl>
@@ -514,20 +546,17 @@
                                                                         LineThickness="{Binding ElementName=LineThicknessBox, Path=Text, Mode=TwoWay}" />
                                     <designers:RulersDesigner x:Name="Ruler" AreaDesigner="{Binding ElementName=Area, Path=.}" 
                                                               ShowVerticalRuler="{Binding ElementName=ShowVerticalRulerBox, Path=IsChecked, Mode=TwoWay}"
-                                                              MinimumVerticalRuler="{Binding ElementName=MinimumVerticalRulerBox, Path=Text, Mode=TwoWay}"
-                                                              MaximumVerticalRuler="{Binding ElementName=MaximumVerticalRulerBox, Path=Text, Mode=TwoWay}"
-                                                              FrequencyVerticalRuler="{Binding ElementName=FrequencyVerticalRulerBox, Path=Text, Mode=TwoWay}"
                                                               ShowHorizontalRuler="{Binding ElementName=ShowHorizontalRulerBox, Path=IsChecked, Mode=TwoWay}"
-                                                              MinimumHorizontalRuler="{Binding ElementName=MinimumHorizontalRulerBox, Path=Text, Mode=TwoWay}"
-                                                              MaximumHorizontalRuler="{Binding ElementName=MaximumHorizontalRulerBox, Path=Text, Mode=TwoWay}"
-                                                              FrequencyHorizontalRuler="{Binding ElementName=FrequencyHorizontalRulerBox, Path=Text, Mode=TwoWay}"
+                                                              VerticalRulerStretch="{Binding ElementName=VerticalRulerStretchBox, Path=SelectedItem, Mode=TwoWay}"
+                                                              HorizontalRulerStretch="{Binding ElementName=HorizontalRulerStretchBox, Path=SelectedItem, Mode=TwoWay}"
+                                                              StartPosition="{Binding ElementName=StartPositionBox, Path=SelectedItem, Mode=TwoWay}"
+                                                              HorizaontalRuler="{Binding ElementName=HorizontalRulerSeettingBox, Path=Content, Mode=TwoWay}"
+                                                              VerticalRuler="{Binding ElementName=VerticalRulerSeettingBox, Path=Content, Mode=TwoWay}"
+                                                              BorderThickness="{Binding ElementName=BorderThicknessBox, Path=Text, Mode=TwoWay}"
                                                               RulerFill="{Binding ElementName=RulerFillBox, Path=Text, Mode=TwoWay}"
                                                               RulerWidth="{Binding ElementName=RulerWidthBox, Path=Text, Mode=TwoWay}"
-                                                              RulerSmallHeight="{Binding ElementName=RulerSmallHeightBox, Path=Text, Mode=TwoWay}"
-                                                              RulerHeight="{Binding ElementName=RulerHeightBox, Path=Text, Mode=TwoWay}"
-                                                              RulerBigFrequency="{Binding ElementName=RulerBigFrequencyBox, Path=Text, Mode=TwoWay}"
-                                                              RulerDependsOnArea="{Binding ElementName=RulerDependsOnAreaBox, Path=IsChecked, Mode=TwoWay}"                                                              
-                                                              AreaBorderBrush="{Binding ElementName=AreaBorderBrushBox, Path=Text, Mode=TwoWay}" />
+                                                              RulersByArea="{Binding ElementName=RulersByAreaBox, Path=IsChecked, Mode=TwoWay}"                                                              
+                                                              AreaSegmentFill="{Binding ElementName=AreaSegmentFillBox, Path=Text, Mode=TwoWay}"/>
                                     <designers:ShadowsDesigner x:Name="Shadows" 
                                                                UseShadows="{Binding ElementName=UseShadowsBox, Path=IsChecked, Mode=TwoWay}"
                                                                ShadowFill="{Binding ElementName=ShadowFillBox, Path=Text, Mode=TwoWay}"
@@ -545,9 +574,13 @@
                         <!--Items-->
                         <Ellipse Style="{DynamicResource ChartEllipseStyle}" Fill="Orange" locators:ChartLocator.Position="0.0 0.0" 
                                  designers:ShadowsDesigner.ItemGeometry="{DynamicResource SpecialShadowOfFirstElement}"
-                                 designers:ShadowsDesigner.Fill="Orange" />
-                        <Ellipse Style="{DynamicResource ChartEllipseStyle}" Fill="LightGreen" locators:ChartLocator.Position="1.0 0.0" />
-                        <Ellipse Style="{DynamicResource ChartEllipseStyle}" Fill="LightBlue" locators:ChartLocator.Position="1.0 1.0" />
+                                 designers:ShadowsDesigner.Fill="Orange" 
+                                 
+                                 designers:ElementsPathLineDesigner.NotOnLine="True" />
+                        <Ellipse Style="{DynamicResource ChartEllipseStyle}" Fill="LightGreen" locators:ChartLocator.Position="1.0 0.0" 
+                                 handlers:ChartItemMoveHandler.MoveType="X" />
+                        <Ellipse Style="{DynamicResource ChartEllipseStyle}" Fill="LightBlue" locators:ChartLocator.Position="1.0 1.0"
+                                 handlers:ChartItemMoveHandler.MoveType="Y"/>
                         <Ellipse Style="{DynamicResource ChartEllipseStyle}" Fill="Pink" locators:ChartLocator.Position="0.0 1.0" />
                     </CustomPanel>
 
@@ -586,20 +619,17 @@
                                                                                     LineThickness="{Binding ElementName=LineThicknessBox, Path=Text, Mode=TwoWay}" />
                                                 <designers:RulersDesigner AreaDesigner="{Binding RelativeSource={StaticResource ChartSource}, Path=Designers[2]}"
                                                                           ShowVerticalRuler="{Binding ElementName=ShowVerticalRulerBox, Path=IsChecked, Mode=TwoWay}"
-                                                                          MinimumVerticalRuler="{Binding ElementName=MinimumVerticalRulerBox, Path=Text, Mode=TwoWay}"
-                                                                          MaximumVerticalRuler="{Binding ElementName=MaximumVerticalRulerBox, Path=Text, Mode=TwoWay}"
-                                                                          FrequencyVerticalRuler="{Binding ElementName=FrequencyVerticalRulerBox, Path=Text, Mode=TwoWay}"
                                                                           ShowHorizontalRuler="{Binding ElementName=ShowHorizontalRulerBox, Path=IsChecked, Mode=TwoWay}"
-                                                                          MinimumHorizontalRuler="{Binding ElementName=MinimumHorizontalRulerBox, Path=Text, Mode=TwoWay}"
-                                                                          MaximumHorizontalRuler="{Binding ElementName=MaximumHorizontalRulerBox, Path=Text, Mode=TwoWay}"
-                                                                          FrequencyHorizontalRuler="{Binding ElementName=FrequencyHorizontalRulerBox, Path=Text, Mode=TwoWay}"
+                                                                          VerticalRulerStretch="{Binding ElementName=VerticalRulerStretchBox, Path=SelectedItem, Mode=TwoWay}"
+                                                                          HorizontalRulerStretch="{Binding ElementName=HorizontalRulerStretchBox, Path=SelectedItem, Mode=TwoWay}"
+                                                                          StartPosition="{Binding ElementName=StartPositionBox, Path=SelectedItem, Mode=TwoWay}"
+                                                                          HorizaontalRuler="{Binding ElementName=HorizontalRulerSeettingBox, Path=Content, Mode=TwoWay}"
+                                                                          VerticalRuler="{Binding ElementName=VerticalRulerSeettingBox, Path=Content, Mode=TwoWay}"
+                                                                          BorderThickness="{Binding ElementName=BorderThicknessBox, Path=Text, Mode=TwoWay}"
                                                                           RulerFill="{Binding ElementName=RulerFillBox, Path=Text, Mode=TwoWay}"
                                                                           RulerWidth="{Binding ElementName=RulerWidthBox, Path=Text, Mode=TwoWay}"
-                                                                          RulerSmallHeight="{Binding ElementName=RulerSmallHeightBox, Path=Text, Mode=TwoWay}"
-                                                                          RulerHeight="{Binding ElementName=RulerHeightBox, Path=Text, Mode=TwoWay}"
-                                                                          RulerBigFrequency="{Binding ElementName=RulerBigFrequencyBox, Path=Text, Mode=TwoWay}"
-                                                                          RulerDependsOnArea="{Binding ElementName=RulerDependsOnAreaBox, Path=IsChecked, Mode=TwoWay}"                                                              
-                                                                          AreaBorderBrush="{Binding ElementName=AreaBorderBrushBox, Path=Text, Mode=TwoWay}"/>
+                                                                          RulersByArea="{Binding ElementName=RulersByAreaBox, Path=IsChecked, Mode=TwoWay}"                                                              
+                                                                          AreaSegmentFill="{Binding ElementName=AreaSegmentFillBox, Path=Text, Mode=TwoWay}"/>
                                                 <designers:ShadowsDesigner UseShadows="{Binding ElementName=UseShadowsBox, Path=IsChecked, Mode=TwoWay}"
                                                                            ShadowFill="{Binding ElementName=ShadowFillBox, Path=Text, Mode=TwoWay}"
                                                                            ShadowStroke="{Binding ElementName=ShadowStrokeBox, Path=Text, Mode=TwoWay}"
@@ -646,10 +676,10 @@
                                     <TextBox Name="AreaFillBox" Margin="15, 0, 0, 0" />
 
                                     <TextBlock Grid.Row="4" Text="Area border brush" Margin="5" />
-                                    <TextBox Name="AreaContainerBorderBrushBox" Margin="15, 0, 0, 0" />
+                                    <TextBox Name="AreaContainerBorderBrushBox" Margin="15, 0, 0, 0" Text="Black" />
 
                                     <TextBlock Grid.Row="4" Text="Area border thickness" Margin="5" />
-                                    <TextBox Name="AreaBorderThicknessBox" Margin="15, 0, 0, 0" />
+                                    <TextBox Name="AreaBorderThicknessBox" Margin="15, 0, 0, 0" Text="1.0" />
 
                                     <CheckBox Name="ShowAreaBox" Content="Show area" Margin="15, 5, 5, 5" IsChecked="True" />
 
@@ -678,49 +708,47 @@
                             <!--Rulers designer-->
                             <Expander Header="Rulers designer">
                                 <StackPanel>
-                                    <CheckBox Name="ShowVerticalRulerBox" Content="Show vertical ruler" Margin="15, 5, 5, 5" IsChecked="False" />
+                                    <CheckBox Name="ShowVerticalRulerBox" Content="Show vertical Ruler" Margin="15, 5, 5, 5" IsChecked="False" />
 
-                                    <TextBlock Grid.Row="4" Text="Minimum vertical ruler" Margin="5" />
-                                    <TextBox Name="MinimumVerticalRulerBox" Margin="15, 0, 0, 0" Text="0.0" />
+                                    <CheckBox Name="ShowHorizontalRulerBox" Content="Show horizontal Ruler" Margin="15, 5, 5, 5" IsChecked="False" />
 
-                                    <TextBlock Grid.Row="4" Text="Maximum vertical ruler" Margin="5" />
-                                    <TextBox Name="MaximumVerticalRulerBox" Margin="15, 0, 0, 0" Text="10.0" />
+                                    <TextBlock Text="Minimum vertical Ruler" Margin="5" />
+                                    <ComboBox Name="StartPositionBox" ItemsSource="{StaticResource StartPositionsList}" SelectedIndex="0" Margin="15, 0, 0, 0" />
 
-                                    <TextBlock Grid.Row="4" Text="Frequency vertical ruler" Margin="5" />
-                                    <TextBox Name="FrequencyVerticalRulerBox" Margin="15, 0, 0, 0" Text="1.0" />
+                                    <TextBlock Text="Vertical Ruler stretch" Margin="5" />
+                                    <ComboBox Name="VerticalRulerStretchBox" ItemsSource="{StaticResource RulerStretchList}" SelectedIndex="0" Margin="15, 0, 0, 0" />
 
-                                    
-                                    <CheckBox Name="ShowHorizontalRulerBox" Content="Show horizontal ruler" Margin="15, 5, 5, 5" IsChecked="False" />
+                                    <TextBlock Text="Horizontal Ruler stretch" Margin="5" />
+                                    <ComboBox Name="HorizontalRulerStretchBox" ItemsSource="{StaticResource RulerStretchList}" SelectedIndex="0" Margin="15, 0, 0, 0" />
 
-                                    <TextBlock Grid.Row="4" Text="Minimum horizontal ruler" Margin="5" />
-                                    <TextBox Name="MinimumHorizontalRulerBox" Margin="15, 0, 0, 0" Text="0.0" />
+                                    <CheckBox Name="RulersByAreaBox" Content="Rulers are depend on Area" Margin="15, 5, 5, 5" IsChecked="False" />
 
-                                    <TextBlock Grid.Row="4" Text="Maximum horizontal ruler" Margin="5" />
-                                    <TextBox Name="MaximumHorizontalRulerBox" Margin="15, 0, 0, 0" Text="10.0" />
+                                    <Expander Header="Vertical Ruler setting" Margin="3">
+                                        <ContentControl Name="VerticalRulerSeettingBox" >
+                                            <ContentControl.Content>
+                                                <data:RulerSetting />
+                                            </ContentControl.Content>
+                                        </ContentControl>
+                                    </Expander>
+                                    <Expander Header="Horizontal Ruler setting" Margin="3">
+                                        <ContentControl Name="HorizontalRulerSeettingBox" >
+                                            <ContentControl.Content>
+                                                <data:RulerSetting />
+                                            </ContentControl.Content>
+                                        </ContentControl>
+                                    </Expander>
 
-                                    <TextBlock Grid.Row="4" Text="Frequency horizontal ruler" Margin="5" />
-                                    <TextBox Name="FrequencyHorizontalRulerBox" Margin="15, 0, 0, 0" Text="1.0" />
+                                    <TextBlock Text="Border thickness" Margin="5" />
+                                    <TextBox Name="BorderThicknessBox" Margin="15, 0, 0, 0" Text="0.0" />
 
-
-                                    <TextBlock Grid.Row="4" Text="Ruler fill" Margin="5" />
+                                    <TextBlock Text="Ruler fill" Margin="5" />
                                     <TextBox Name="RulerFillBox" Margin="15, 0, 0, 0" Text="Black" />
 
-                                    <TextBlock Grid.Row="4" Text="Ruler width" Margin="5" />
+                                    <TextBlock Text="Area border brush" Margin="5" />
+                                    <TextBox Name="AreaSegmentFillBox" Margin="15, 0, 0, 0" Text="Violet" />
+                                    
+                                    <TextBlock Text="Ruler width" Margin="5" />
                                     <TextBox Name="RulerWidthBox" Margin="15, 0, 0, 0" Text="2.0" />
-
-                                    <TextBlock Grid.Row="4" Text="Ruler small height" Margin="5" />
-                                    <TextBox Name="RulerSmallHeightBox" Margin="15, 0, 0, 0" Text="5.0" />
-
-                                    <TextBlock Grid.Row="4" Text="Ruler height" Margin="5" />
-                                    <TextBox Name="RulerHeightBox" Margin="15, 0, 0, 0" Text="10.0" />
-
-                                    <TextBlock Grid.Row="4" Text="Ruler big frequency" Margin="5" />
-                                    <TextBox Name="RulerBigFrequencyBox" Margin="15, 0, 0, 0" Text="2" />
-
-                                    <CheckBox Name="RulerDependsOnAreaBox" Content="Ruler depends on area" Margin="15, 5, 5, 5" IsChecked="False" />
-
-                                    <TextBlock Grid.Row="4" Text="Area border brush" Margin="5" />
-                                    <TextBox Name="AreaBorderBrushBox" Margin="15, 0, 0, 0" Text="Black" />
                                 </StackPanel>
                             </Expander>
 

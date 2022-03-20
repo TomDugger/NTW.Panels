@@ -20,5 +20,9 @@ namespace Tests {
         public MainWindow() {
             InitializeComponent();
         }
+
+        private void ClearOffsetClick(object sender, RoutedEventArgs e) {
+
+        }
     }
 }

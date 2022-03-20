@@ -181,7 +181,7 @@ namespace Examples.Designers {
         #endregion
 
         #region IElementArrangeDesigner
-        public void AfterElementArrange(Rect elementRect, Size containerSize, UIElement element, Transform global = null) {
+        public void AfterElementArrange(Rect elementRect, Size containerSize, int index, UIElement element, Transform global = null) {
             BuildShadowOfElement(containerSize, elementRect, element);
         }
 

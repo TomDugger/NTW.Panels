@@ -15,5 +15,10 @@ namespace NTW.Panels {
         /// Allow to get/set special child area
         /// </summary>
         Size ChildArea { get; set; }
+
+        /// <summary>
+        /// Allow to get first step bounds of area
+        /// </summary>
+        Rect Bounds { get; }
     }
 }

@@ -8,6 +8,8 @@ namespace NTW.Panels {
     /// </summary>
     internal class AdornerDrawingPresenter: Adorner {
 
+        private bool CanRendering = true;
+
         public AdornerDrawingPresenter(CustomPanel adornedElement)
             : base(adornedElement) {
 
@@ -17,6 +19,9 @@ namespace NTW.Panels {
         private CustomPanel Owner => this.AdornedElement as CustomPanel;
 
         protected override void OnRender(DrawingContext dc) {
+
+            if (!CanRendering) return;
+
             if (this.Owner.ItemsLocator is IDrawingPresenter dp && dp.FrontDrawing != null)
                 dc.DrawDrawing(dp.FrontDrawing);
 
@@ -28,7 +33,16 @@ namespace NTW.Panels {
         /// Begin to refresh front drawing layer
         /// </summary>
         public void Refresh() {
+            CanRendering = true;
             this.InvalidateVisual();
+        }
+
+        /// <summary>
+        /// Allow to clear all. To begin need to use Refresh() method
+        /// </summary>
+        public void Clear() {
+            CanRendering = false;
+            this.InvalidateMeasure();
         }
     }
 }

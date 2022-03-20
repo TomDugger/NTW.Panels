@@ -10,7 +10,7 @@ namespace Examples.Designers {
         private PathFigure lineFigure;
         private GeometryDrawing lineDrawing;
 
-        List<Point> linePoints = new List<Point>();
+        Dictionary<int, Point> linePoints;
 
         public ElementsPathLineDesigner() {
             PathGeometry pathGeometry = new PathGeometry();
@@ -20,6 +20,8 @@ namespace Examples.Designers {
             lineDrawing = new GeometryDrawing { Brush = LineFill, Pen = new Pen(LineStroke, LineThickness), Geometry = pathGeometry };
 
             backDrawing.Children.Add(lineDrawing);
+
+            linePoints = new Dictionary<int, Point>();
         }
 
         #region Properties
@@ -114,25 +116,45 @@ namespace Examples.Designers {
 
         #endregion
 
+        #region Attached properties
+        public static bool GetNotOnLine(DependencyObject obj) {
+            return (bool)obj.GetValue(NotOnLineProperty);
+        }
+
+        public static void SetNotOnLine(DependencyObject obj, bool value) {
+            obj.SetValue(NotOnLineProperty, value);
+        }
+
+        public static readonly DependencyProperty NotOnLineProperty =
+            DependencyProperty.RegisterAttached("NotOnLine", typeof(bool), typeof(ElementsPathLineDesigner), new PropertyMetadata(false));
+
+
+        #endregion
+
         #region IElementArrangeDesigner
-        public void AfterElementArrange(Rect elementRect, Size containerSize, UIElement element, Transform global = null) {
+        public void AfterElementArrange(Rect elementRect, Size containerSize, int index, UIElement element, Transform global = null) {
+
+            if (GetNotOnLine(element)) return;
+
             // calculate the points
             var x = elementRect.X + elementRect.Width / 2;
             var y = elementRect.Y + elementRect.Height / 2;
 
-            linePoints.Add(new Point(x, y));
+            linePoints[index] = new Point(x, y);
         }
 
         public void UpdateElementArrage(Rect elementRect, Size containerSize, int index, UIElement element, Transform global = null) {
+
+            if (GetNotOnLine(element)) return;
+
             var x = elementRect.X + elementRect.Width / 2;
             var y = elementRect.Y + elementRect.Height / 2;
 
-            if (index >= 0 && index < linePoints.Count)
-                linePoints[index] = new Point(x, y);
+            linePoints[index] = new Point(x, y);
 
             lineFigure.Segments.Clear();
-            lineFigure.Segments.Add(new PolyLineSegment { Points = new PointCollection(linePoints) });
-            lineFigure.StartPoint = linePoints.FirstOrDefault();
+            lineFigure.Segments.Add(new PolyLineSegment { Points = new PointCollection(linePoints.Values) });
+            lineFigure.StartPoint = linePoints.FirstOrDefault().Value;
         }
         #endregion
 
@@ -146,8 +168,8 @@ namespace Examples.Designers {
             // build the line
             lineFigure.Segments.Clear();
 
-            lineFigure.Segments.Add(new PolyLineSegment { Points = new PointCollection(linePoints) });
-            lineFigure.StartPoint = linePoints.FirstOrDefault();
+            lineFigure.Segments.Add(new PolyLineSegment { Points = new PointCollection(linePoints.Values) });
+            lineFigure.StartPoint = linePoints.FirstOrDefault().Value;
             lineFigure.IsClosed = ClosedLine;
             lineFigure.IsFilled = FilledLine;
         }

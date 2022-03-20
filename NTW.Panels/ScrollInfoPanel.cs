@@ -8,7 +8,7 @@ namespace NTW.Panels {
     /// <summary>
     /// Base panel with scrollInfo Implementation 
     /// </summary>
-    public abstract class ScrollPanel : Panel, IScrollInfo {
+    public abstract class ScrollPanel : ResizedPanel, IScrollInfo {
 
         protected const double lineSize = 16;
         protected const double wheelSize = 3 * lineSize;

@@ -89,6 +89,16 @@ namespace Examples.Designers {
 
         public static readonly DependencyProperty ClipMainAreaProperty =
             DependencyProperty.Register("ClipMainArea", typeof(bool), typeof(AreaDesigner), new PropertyMetadata(true));
+
+
+
+        public Rect Bounds {
+            get { return (Rect)GetValue(BoundsPropertyKey.DependencyProperty); }
+            private set { SetValue(BoundsPropertyKey, value); }
+        }
+
+        private static readonly DependencyPropertyKey BoundsPropertyKey =
+            DependencyProperty.RegisterReadOnly("Bounds", typeof(Rect), typeof(AreaDesigner), new PropertyMetadata(default(Rect)));
         #endregion
 
         #region IArrangeDesigner
@@ -187,6 +197,10 @@ namespace Examples.Designers {
 
             transformation = transformation ?? Transform.Identity;
 
+            var bounds = new Rect((containerSize.Width - this.Area.Width) / 2, (containerSize.Height - this.Area.Height) / 2, this.Area.Width, this.Area.Height);
+
+            Bounds = transformation.TransformBounds(bounds);
+
             if (!ShowArea) {
                 areaDrawing.Geometry = null;
                 return;
@@ -195,11 +209,8 @@ namespace Examples.Designers {
             areaDrawing.Brush = AreaFill;
             areaDrawing.Pen = new Pen(AreaBorderBrush, AreaBorderThickness);
 
-            Rect result = new Rect((containerSize.Width - this.Area.Width) / 2, (containerSize.Height - this.Area.Height) / 2, this.Area.Width, this.Area.Height);
-
             GeometryGroup areaGeometry = new GeometryGroup();
-
-            areaGeometry.Children.Add(new RectangleGeometry(transformation.TransformBounds(result)));
+            areaGeometry.Children.Add(new RectangleGeometry(Bounds));
             areaDrawing.Geometry = areaGeometry;
         }
         #endregion

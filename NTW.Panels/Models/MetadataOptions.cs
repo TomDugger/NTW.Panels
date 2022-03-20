@@ -5,6 +5,7 @@ namespace NTW.Panels {
         Measure,
         Arrange,
         ParentMeasure,
-        ParentArrange
+        ParentArrange,
+        ParentUpdate
     }
 }

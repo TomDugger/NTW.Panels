@@ -1,4 +1,5 @@
-﻿using NTW.Panels;
+﻿using Examples.Data;
+using NTW.Panels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,16 +9,36 @@ using System.Windows.Media;
 namespace Examples.Designers {
     public class RulersDesigner : CustomDesigner, IArrangeDesigner, IDrawingPresenter {
 
+        private readonly RulerSetting DefaultRulerSettings;
+
         private Size containerSize;
         private Transform global;
 
         private DrawingGroup verticalRulerDrawing;
         private DrawingGroup horizontalRulerDrawing;
 
-        public RulersDesigner() {
-            verticalRulerDrawing = new DrawingGroup();
+        private GeometryDrawing borderDrawing;
 
+        private List<GeometryDrawing> horizontalRulersGroup;
+        private List<GeometryDrawing> horizontalAreaGroup;
+
+        private List<GeometryDrawing> verticalRulersGroup;
+        private List<GeometryDrawing> verticalAreaGroup;
+
+        public RulersDesigner() {
+            DefaultRulerSettings = new RulerSetting();
+
+            horizontalRulersGroup = new List<GeometryDrawing>();
+            horizontalAreaGroup = new List<GeometryDrawing>();
+
+            verticalRulersGroup = new List<GeometryDrawing>();
+            verticalAreaGroup = new List<GeometryDrawing>();
+
+            verticalRulerDrawing = new DrawingGroup();
             horizontalRulerDrawing = new DrawingGroup();
+
+            borderDrawing = new GeometryDrawing(null, new Pen(this.RulerFill, this.BorderThickness), Geometry.Empty);
+            this.frontDrawing.Children.Add(borderDrawing);
         }
 
         #region Properties
@@ -32,42 +53,12 @@ namespace Examples.Designers {
         private static void ShowVerticalRulerChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
             if (sender is RulersDesigner designer)
                 if (e.NewValue is bool visibility)
-                    if (visibility)
+                    if (visibility) {
                         designer.frontDrawing.Children.Add(designer.verticalRulerDrawing);
-                    else
+                        designer.BuildVerticalRuler();
+                        designer.BuildHorizontalRuler();
+                    } else
                         designer.frontDrawing.Children.Remove(designer.verticalRulerDrawing);
-        }
-
-
-        public double MinimumVerticalRuler {
-            get { return (double)GetValue(MinimumVerticalRulerProperty); }
-            set { SetValue(MinimumVerticalRulerProperty, value); }
-        }
-
-        public static readonly DependencyProperty MinimumVerticalRulerProperty =
-            DependencyProperty.Register("MinimumVerticalRuler", typeof(double), typeof(RulersDesigner), new PropertyMetadata(0.0, UpdateVerticalRuler));
-
-
-        public double MaximumVerticalRuler {
-            get { return (double)GetValue(MaximumVerticalRulerProperty); }
-            set { SetValue(MaximumVerticalRulerProperty, value); }
-        }
-
-        public static readonly DependencyProperty MaximumVerticalRulerProperty =
-            DependencyProperty.Register("MaximumVerticalRuler", typeof(double), typeof(RulersDesigner), new PropertyMetadata(10.0, UpdateVerticalRuler));
-
-
-        public double FrequencyVerticalRuler {
-            get { return (double)GetValue(FrequencyVerticalRulerProperty); }
-            set { SetValue(FrequencyVerticalRulerProperty, value); }
-        }
-
-        public static readonly DependencyProperty FrequencyVerticalRulerProperty =
-            DependencyProperty.Register("FrequencyVerticalRuler", typeof(double), typeof(RulersDesigner), new PropertyMetadata(1.0, UpdateVerticalRuler));
-
-        private static void UpdateVerticalRuler(DependencyObject a, DependencyPropertyChangedEventArgs e) {
-            if (a is RulersDesigner designer)
-                designer.BuildVerticalRuler();
         }
 
 
@@ -82,42 +73,138 @@ namespace Examples.Designers {
         private static void ShowHorizontalRulerChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
             if (sender is RulersDesigner designer)
                 if (e.NewValue is bool visibility)
-                    if (visibility)
+                    if (visibility) {
                         designer.frontDrawing.Children.Add(designer.horizontalRulerDrawing);
-                    else
+                        designer.BuildHorizontalRuler();
+                        designer.BuildVerticalRuler();
+                    } else
                         designer.frontDrawing.Children.Remove(designer.horizontalRulerDrawing);
         }
 
 
-        public double MinimumHorizontalRuler {
-            get { return (double)GetValue(MinimumHorizontalRulerProperty); }
-            set { SetValue(MinimumHorizontalRulerProperty, value); }
+        public RulerStretch VerticalRulerStretch {
+            get { return (RulerStretch)GetValue(VerticalRulerStretchProperty); }
+            set { SetValue(VerticalRulerStretchProperty, value); }
         }
 
-        public static readonly DependencyProperty MinimumHorizontalRulerProperty =
-            DependencyProperty.Register("MinimumHorizontalRuler", typeof(double), typeof(RulersDesigner), new PropertyMetadata(0.0, UpdateHorizontalRuler));
+        public static readonly DependencyProperty VerticalRulerStretchProperty =
+            DependencyProperty.Register("VerticalRulerStretch", typeof(RulerStretch), typeof(RulersDesigner), new PropertyMetadata(RulerStretch.OnlyOnStart, VerticalRulerStretchChanged));
 
-
-        public double MaximumHorizontalRuler {
-            get { return (double)GetValue(MaximumHorizontalRulerProperty); }
-            set { SetValue(MaximumHorizontalRulerProperty, value); }
-        }
-
-        public static readonly DependencyProperty MaximumHorizontalRulerProperty =
-            DependencyProperty.Register("MaximumHorizontalRuler", typeof(double), typeof(RulersDesigner), new PropertyMetadata(10.0, UpdateHorizontalRuler));
-
-
-        public double FrequencyHorizontalRuler {
-            get { return (double)GetValue(FrequencyHorizontalRulerProperty); }
-            set { SetValue(FrequencyHorizontalRulerProperty, value); }
-        }
-
-        public static readonly DependencyProperty FrequencyHorizontalRulerProperty =
-            DependencyProperty.Register("FrequencyHorizontalRuler", typeof(double), typeof(RulersDesigner), new PropertyMetadata(1.0, UpdateHorizontalRuler));
-
-        private static void UpdateHorizontalRuler(DependencyObject a, DependencyPropertyChangedEventArgs e) {
-            if (a is RulersDesigner designer)
+        private static void VerticalRulerStretchChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
+            if (sender is RulersDesigner designer) {
+                designer.verticalRulerDrawing.Children.Clear();
+                designer.BuildVerticalRuler();
                 designer.BuildHorizontalRuler();
+            }
+        }
+
+
+        public RulerStretch HorizontalRulerStretch {
+            get { return (RulerStretch)GetValue(HorizontalRulerStretchProperty); }
+            set { SetValue(HorizontalRulerStretchProperty, value); }
+        }
+
+        public static readonly DependencyProperty HorizontalRulerStretchProperty =
+            DependencyProperty.Register("HorizontalRulerStretch", typeof(RulerStretch), typeof(RulersDesigner), new PropertyMetadata(RulerStretch.OnlyOnStart, HorizontalRulerStretchChanged));
+
+        private static void HorizontalRulerStretchChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
+            if (sender is RulersDesigner designer) {
+                designer.horizontalRulerDrawing.Children.Clear();
+                designer.BuildHorizontalRuler();
+                designer.BuildVerticalRuler();
+            }
+        }
+
+
+        public RulerSetting VerticalRuler {
+            get { return (RulerSetting)GetValue(VerticalRulerProperty); }
+            set { SetValue(VerticalRulerProperty, value); }
+        }
+
+        public static readonly DependencyProperty VerticalRulerProperty =
+            DependencyProperty.Register("VerticalRuler", typeof(RulerSetting), typeof(RulersDesigner), new PropertyMetadata(null, VerticalRulerChanged));
+
+        private static void VerticalRulerChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
+            if (sender is RulersDesigner designer) {
+                designer.verticalRulerDrawing.Children.Clear();
+                designer.BuildVerticalRuler();
+
+                if (e.OldValue is RulerSetting oldSetting)
+                    oldSetting.OptionCalling -= designer.VerticalUpdateOptionCalling;
+
+                if(e.NewValue is RulerSetting newSetting)
+                    newSetting.OptionCalling += designer.VerticalUpdateOptionCalling;
+            }
+        }
+
+        private void VerticalUpdateOptionCalling(CustomObject sender, UpdateOptions option) {
+            if (option == UpdateOptions.ParentUpdate) {
+                verticalRulerDrawing.Children.Clear();
+                BuildVerticalRuler();
+            }
+        }
+
+
+        public RulerSetting HorizaontalRuler {
+            get { return (RulerSetting)GetValue(HorizaontalRulerProperty); }
+            set { SetValue(HorizaontalRulerProperty, value); }
+        }
+
+        public static readonly DependencyProperty HorizaontalRulerProperty =
+            DependencyProperty.Register("HorizaontalRuler", typeof(RulerSetting), typeof(RulersDesigner), new PropertyMetadata(null, HorizaontalRulerChanged));
+
+        private static void HorizaontalRulerChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
+            if (sender is RulersDesigner designer) {
+                designer.horizontalRulerDrawing.Children.Clear();
+                designer.BuildHorizontalRuler();
+
+                if (e.OldValue is RulerSetting oldSetting)
+                    oldSetting.OptionCalling -= designer.HorizaontalUpdateOptionCalling;
+
+                if (e.NewValue is RulerSetting newSetting)
+                    newSetting.OptionCalling += designer.HorizaontalUpdateOptionCalling;
+            }
+        }
+
+        private void HorizaontalUpdateOptionCalling(CustomObject sender, UpdateOptions option) {
+            if (option == UpdateOptions.ParentUpdate) {
+                horizontalRulerDrawing.Children.Clear();
+                BuildHorizontalRuler();
+            }
+        }
+
+
+        public StartPosition StartPosition {
+            get { return (StartPosition)GetValue(StartPositionProperty); }
+            set { SetValue(StartPositionProperty, value); }
+        }
+
+        public static readonly DependencyProperty StartPositionProperty =
+            DependencyProperty.Register("StartPosition", typeof(StartPosition), typeof(RulersDesigner), new PropertyMetadata(StartPosition.OnCenter, StartPositionChanged));
+
+        private static void StartPositionChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
+            if (sender is RulersDesigner designer) {
+                // update only brush and thickness
+                designer.verticalRulerDrawing.Children.Clear();
+                designer.horizontalRulerDrawing.Children.Clear();
+
+                designer.BuildVerticalRuler();
+                designer.BuildHorizontalRuler();
+            }
+        }
+
+
+        public double BorderThickness {
+            get { return (double)GetValue(BorderThicknessProperty); }
+            set { SetValue(BorderThicknessProperty, value); }
+        }
+
+        public static readonly DependencyProperty BorderThicknessProperty =
+            DependencyProperty.Register("BorderThickness", typeof(double), typeof(RulersDesigner), new PropertyMetadata(0.0, BorderThicknessChanged));
+
+        private static void BorderThicknessChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
+            if (sender is RulersDesigner designer)
+                designer.borderDrawing.Pen.Thickness = (double)e.NewValue;
         }
 
 
@@ -127,7 +214,20 @@ namespace Examples.Designers {
         }
 
         public static readonly DependencyProperty RulerFillProperty =
-            DependencyProperty.Register("RulerFill", typeof(Brush), typeof(RulersDesigner), new PropertyMetadata(Brushes.Black, UpdateRulers));
+            DependencyProperty.Register("RulerFill", typeof(Brush), typeof(RulersDesigner), new PropertyMetadata(Brushes.Black, RulerFillUpdate));
+
+        private static void RulerFillUpdate(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
+            if (sender is RulersDesigner designer) {
+
+                foreach (var drawing in designer.horizontalRulersGroup)
+                    drawing.Pen.Brush = (Brush)e.NewValue;
+
+                foreach (var drawing in designer.verticalRulersGroup)
+                    drawing.Pen.Brush = (Brush)e.NewValue;
+
+                designer.borderDrawing.Pen.Brush = (Brush)e.NewValue;
+            }
+        }
 
 
         public double RulerWidth {
@@ -136,51 +236,43 @@ namespace Examples.Designers {
         }
 
         public static readonly DependencyProperty RulerWidthProperty =
-            DependencyProperty.Register("RulerWidth", typeof(double), typeof(RulersDesigner), new PropertyMetadata(2.0, UpdateRulers));
+            DependencyProperty.Register("RulerWidth", typeof(double), typeof(RulersDesigner), new PropertyMetadata(1.0, RulerWidthChanged));
 
-        private static void UpdateRulers(DependencyObject a, DependencyPropertyChangedEventArgs e) {
-            if (a is RulersDesigner designer) {
-                // update onlu brush and thickness
+        private static void RulerWidthChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
+            if (sender is RulersDesigner designer) {
+
+                foreach (var drawing in designer.horizontalRulersGroup)
+                    drawing.Pen.Thickness = (double)e.NewValue;
+
+                foreach (var drawing in designer.verticalRulersGroup)
+                    drawing.Pen.Thickness = (double)e.NewValue;
+
+                foreach (var drawing in designer.horizontalAreaGroup)
+                    drawing.Pen.Thickness = (double)e.NewValue;
+
+                foreach (var drawing in designer.verticalAreaGroup)
+                    drawing.Pen.Thickness = (double)e.NewValue;
+            }
+        }
+
+
+        public bool RulersByArea {
+            get { return (bool)GetValue(RulersByAreaProperty); }
+            set { SetValue(RulersByAreaProperty, value); }
+        }
+
+        public static readonly DependencyProperty RulersByAreaProperty =
+            DependencyProperty.Register("RulersByArea", typeof(bool), typeof(RulersDesigner), new PropertyMetadata(false, RulersByAreaChanged));
+
+        private static void RulersByAreaChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
+            if (sender is RulersDesigner designer) {
+                designer.verticalRulerDrawing.Children.Clear();
+                designer.horizontalRulerDrawing.Children.Clear();
+
                 designer.BuildVerticalRuler();
                 designer.BuildHorizontalRuler();
             }
         }
-
-        public double RulerSmallHeight {
-            get { return (double)GetValue(RulerSmallHeightProperty); }
-            set { SetValue(RulerSmallHeightProperty, value); }
-        }
-
-        public static readonly DependencyProperty RulerSmallHeightProperty =
-            DependencyProperty.Register("RulerSmallHeight", typeof(double), typeof(RulersDesigner), new PropertyMetadata(5.0, UpdateArea));
-
-
-        public double RulerHeight {
-            get { return (double)GetValue(RulerHeightProperty); }
-            set { SetValue(RulerHeightProperty, value); }
-        }
-
-        public static readonly DependencyProperty RulerHeightProperty =
-            DependencyProperty.Register("RulerHeight", typeof(double), typeof(RulersDesigner), new PropertyMetadata(10.0, UpdateArea));
-
-
-        public int RulerBigFrequency {
-            get { return (int)GetValue(RulerBigFrequencyProperty); }
-            set { SetValue(RulerBigFrequencyProperty, value); }
-        }
-
-        public static readonly DependencyProperty RulerBigFrequencyProperty =
-            DependencyProperty.Register("RulerBigFrequency", typeof(int), typeof(RulersDesigner), new PropertyMetadata(2, UpdateArea));
-
-
-        public bool RulerDependsOnArea {
-            get { return (bool)GetValue(RulerDependsOnAreaProperty); }
-            set { SetValue(RulerDependsOnAreaProperty, value); }
-        }
-
-        public static readonly DependencyProperty RulerDependsOnAreaProperty =
-            DependencyProperty.Register("RulerDependsOnArea", typeof(bool), typeof(RulersDesigner), new PropertyMetadata(false, UpdateArea));
-
 
         public IAreaDesigner AreaDesigner {
             get { return (IAreaDesigner)GetValue(AreaDesignerProperty); }
@@ -188,22 +280,34 @@ namespace Examples.Designers {
         }
 
         public static readonly DependencyProperty AreaDesignerProperty =
-            DependencyProperty.Register("AreaDesigner", typeof(IAreaDesigner), typeof(RulersDesigner), new PropertyMetadata(null, UpdateArea));
+            DependencyProperty.Register("AreaDesigner", typeof(IAreaDesigner), typeof(RulersDesigner), new PropertyMetadata(null, AreaDesignerChanged));
 
-
-        public Brush AreaBorderBrush {
-            get { return (Brush)GetValue(AreaBorderBrushProperty); }
-            set { SetValue(AreaBorderBrushProperty, value); }
-        }
-
-        public static readonly DependencyProperty AreaBorderBrushProperty =
-            DependencyProperty.Register("AreaBorderBrush", typeof(Brush), typeof(RulersDesigner), new PropertyMetadata(Brushes.Black, UpdateArea));
-
-        private static void UpdateArea(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
+        private static void AreaDesignerChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
             if (sender is RulersDesigner designer) {
+                designer.verticalRulerDrawing.Children.Clear();
+                designer.horizontalRulerDrawing.Children.Clear();
 
                 designer.BuildVerticalRuler();
                 designer.BuildHorizontalRuler();
+            }
+        }
+
+
+        public Brush AreaSegmentFill {
+            get { return (Brush)GetValue(AreaSegmentFillProperty); }
+            set { SetValue(AreaSegmentFillProperty, value); }
+        }
+
+        public static readonly DependencyProperty AreaSegmentFillProperty =
+            DependencyProperty.Register("AreaSegmentFill", typeof(Brush), typeof(RulersDesigner), new PropertyMetadata(Brushes.Violet, AreaBorderBrushChanged));
+
+        private static void AreaBorderBrushChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
+            if (sender is RulersDesigner designer) {
+                foreach (var drawing in designer.horizontalAreaGroup)
+                    drawing.Pen.Brush = (Brush)e.NewValue;
+
+                foreach (var drawing in designer.verticalAreaGroup)
+                    drawing.Pen.Brush = (Brush)e.NewValue;
             }
         }
         #endregion
@@ -218,13 +322,19 @@ namespace Examples.Designers {
 
         #region IArrangeDesigner
         public void BeginElementArrange(Size containerSize, Transform global = null) {
-            verticalRulerDrawing.Children.Clear();
-            horizontalRulerDrawing.Children.Clear();
+            horizontalRulersGroup.Clear();
+            horizontalAreaGroup.Clear();
+
+            verticalRulersGroup.Clear();
+            verticalAreaGroup.Clear();
         }
 
         public void EndElementArrange(Size containerSize, Transform global = null) {
             this.containerSize = containerSize;
             this.global = global;
+
+            borderDrawing.Geometry = new RectangleGeometry(new Rect(containerSize));
+            this.frontDrawing.ClipGeometry = borderDrawing.Geometry;
 
             this.BuildVerticalRuler();
             this.BuildHorizontalRuler();
@@ -234,199 +344,207 @@ namespace Examples.Designers {
         #region Helps
         private void BuildVerticalRuler() {
 
-            if (RulerDependsOnArea && AreaDesigner != null)
-                BuildVerticalRulerByArea(containerSize);
-            else
-                BuildVerticalRulerStandart(containerSize);
-        }
+            verticalRulersGroup.Clear();
+            verticalAreaGroup.Clear();
 
-        private void BuildVerticalRulerStandart(Size originalSize) {
+            if (containerSize == default(Size)) return;
 
-            verticalRulerDrawing.Children.Clear();
+            this.verticalRulerDrawing.Children.Clear();
 
-            double ScaleY = GetScale().Height;
-            double TranslateY = GetTranslate().Y;
+            Rect areaRect = default(Rect);
 
-            var ticksCount = (Math.Abs(MaximumVerticalRuler) + Math.Abs(MinimumVerticalRuler)) / Math.Abs(FrequencyVerticalRuler) / ScaleY;
+            // get indent by other ruler (it we have them) 
+            Vector indent = GetIndentOfRuller(ShowHorizontalRuler, HorizaontalRuler, HorizontalRulerStretch, VerticalRulerStretch);
 
-            var height = originalSize.Height - FrequencyVerticalRuler * 2;
+            double indentation = this.RulerWidth / 2;
 
-            var step = height / ticksCount;
+            // get transform parameters
+            double scaleY = GetScale().Height;
+            double translate = GetTranslate().Y;
+            double start = translate + GetStartPosition(indent, HorizontalRulerStretch, translate).Y - indentation;
 
-            double i = TranslateY;
-            int index = 0;
+            // generate ruler brush
+            var brush = GenerateVerticalBrush(this.VerticalRuler, scaleY, start, this.RulerFill, this.RulerWidth);
 
-            if (TranslateY > 0) {
-                i = TranslateY % step;
-                index = -(int)(TranslateY / step);
-            }
+            // get height of ruler
+            double height = (this.VerticalRuler ?? DefaultRulerSettings).TickHeight;
 
-            while (i <= height) {
-                if (i >= 0) {
+            // check if need area presenting
+            if (RulersByArea && AreaDesigner is IAreaDesigner areaDesigner)
+                areaRect = new Rect(0, areaDesigner.Bounds.Y - indentation, height, areaDesigner.Bounds.Height + this.RulerWidth + indentation);
 
-                    var endPoint = new Point(RulerHeight, FrequencyVerticalRuler + i);
-                    if (index % RulerBigFrequency != 0)
-                        endPoint = new Point(RulerSmallHeight, FrequencyVerticalRuler + i);
+            AddRuler(verticalRulerDrawing, VerticalRulerStretch,
+                new Rect(0, indent.X, height, this.containerSize.Height - indent.Y),
+                brush,
+                verticalRulersGroup,
+                0, this.containerSize.Width,
+                areaRect);
 
-                    verticalRulerDrawing.Children.Add(CreateLine(new Point(0, FrequencyVerticalRuler + i), endPoint, RulerFill, RulerWidth));
-                }
+            if (areaRect != default(Rect)) {
+                var areaBrush = GenerateVerticalBrush(this.VerticalRuler, scaleY, start, this.AreaSegmentFill, this.RulerWidth);
 
-                i += step;
-                index++;
-            }
-        }
-
-        private void BuildVerticalRulerByArea(Size originalSize) {
-
-            verticalRulerDrawing.Children.Clear();
-
-            TransformGroup scale = new TransformGroup();
-            foreach (var sc in RecursiveFinder<ScaleTransform>(global))
-                scale.Children.Add(sc);
-
-            double ScaleY = GetScale().Height;
-            double TranslateY = GetTranslate().Y;
-
-            var area = new Rect((originalSize.Width - this.AreaDesigner.Area.Width) / 2, (originalSize.Height - this.AreaDesigner.Area.Height) / 2, this.AreaDesigner.Area.Width, this.AreaDesigner.Area.Height);
-
-            var scaledArea = scale.TransformBounds(area);
-
-            var ticksCount = (Math.Abs(MaximumVerticalRuler) + Math.Abs(MinimumVerticalRuler)) / Math.Abs(FrequencyVerticalRuler) / ScaleY;
-
-            var height = originalSize.Height - FrequencyVerticalRuler * 2;
-
-            var step = area.Height / ticksCount;
-
-            double i = TranslateY;
-            int index = 0;
-
-            if (TranslateY > 0) {
-                i = TranslateY % step;
-                index = -(int)(TranslateY / step);
-            }
-
-            if (area.Y > 0) {
-                i += area.Y % step;
-                index += -(int)(area.Y / step);
-            }
-
-            while (i <= height) {
-                if (i >= 0) {
-
-                    var endPoint = new Point(RulerHeight, FrequencyVerticalRuler + i);
-                    if (index % RulerBigFrequency != 0)
-                        endPoint = new Point(RulerSmallHeight, FrequencyVerticalRuler + i);
-
-                    Brush stroke = RulerFill;
-                    if (i >= scaledArea.Y + TranslateY && i <= scaledArea.Y + scaledArea.Height + TranslateY)
-                        stroke = AreaBorderBrush;
-
-                    verticalRulerDrawing.Children.Add(CreateLine(new Point(0, FrequencyVerticalRuler + i), endPoint, stroke, RulerWidth));
-                }
-
-                i += step;
-                index++;
+                AddRuler(verticalRulerDrawing, VerticalRulerStretch,
+                    areaRect,
+                    areaBrush,
+                    verticalAreaGroup,
+                    0, this.containerSize.Width);
             }
         }
-
 
         private void BuildHorizontalRuler() {
 
-            if (RulerDependsOnArea && AreaDesigner != null)
-                BuildHorizontalRulerByArea(containerSize);
-            else
-                BuildHorizontalRulerStandart(containerSize);
+            horizontalRulersGroup.Clear();
+            horizontalAreaGroup.Clear();
 
+            if (containerSize == default(Size)) return;
+
+            this.horizontalRulerDrawing.Children.Clear();
+
+            Rect areaRect = default(Rect);
+
+            // get indent
+            Vector indent = GetIndentOfRuller(ShowVerticalRuler, VerticalRuler, VerticalRulerStretch, HorizontalRulerStretch);
+
+            double indentation = this.RulerWidth / 2;
+
+            // get transform parameters
+            double scaleX = GetScale().Width;
+            double translate = GetTranslate().X;
+            double start = translate + GetStartPosition(indent, VerticalRulerStretch, translate).X - indentation;
+
+            // generate ruler brush
+            var brush = GenerateHorizontalBrush(this.HorizaontalRuler, scaleX, start, this.RulerFill, this.RulerWidth);
+
+            // get height of ruler
+            double height = (this.HorizaontalRuler ?? DefaultRulerSettings).TickHeight;
+
+            // check if need area presenting
+            if (RulersByArea && AreaDesigner is IAreaDesigner areaDesigner) 
+                areaRect = new Rect(areaDesigner.Bounds.X - indentation, 0, areaDesigner.Bounds.Width + this.RulerWidth + indentation, height);
+
+            AddRuler(horizontalRulerDrawing, HorizontalRulerStretch,
+                new Rect(indent.X, 0, this.containerSize.Width - indent.Y, height),
+                brush,
+                horizontalRulersGroup,
+                this.containerSize.Height, 0, 
+                areaRect);
+
+            if (areaRect != default(Rect)) {
+                var areaBrush = GenerateHorizontalBrush(this.HorizaontalRuler, scaleX, start, this.AreaSegmentFill, this.RulerWidth);
+
+                AddRuler(horizontalRulerDrawing, HorizontalRulerStretch,
+                    areaRect,
+                    areaBrush,
+                    horizontalAreaGroup,
+                    this.containerSize.Height);
+            }
         }
 
-        private void BuildHorizontalRulerStandart(Size originalSize) {
+        private DrawingBrush GenerateHorizontalBrush(RulerSetting setting, double scale, double indent, Brush brush, double thickness) {
+            return (setting ?? DefaultRulerSettings).GetAsHorizontalBrush(scale, indent, brush, thickness);
+        }
 
-            horizontalRulerDrawing.Children.Clear();
+        private DrawingBrush GenerateVerticalBrush(RulerSetting setting, double scale, double indent, Brush brush, double thickness) {
+            return (setting ?? DefaultRulerSettings).GetAsVerticalBrush(scale, indent, brush, thickness);
+        }
 
-            double ScaleX = GetScale().Width;
-            double TranslateX = GetTranslate().X;
+        private void AddRuler(DrawingGroup group, 
+            RulerStretch stretch,
+            Rect place,
+            Brush brush,
+            IList<GeometryDrawing> rulerGeometriesGroup,
+            double indentY = 0, double indentX = 0, params Rect[] masks) {
 
-            var ticksCount = (Math.Abs(MaximumHorizontalRuler) + Math.Abs(MinimumHorizontalRuler)) / Math.Abs(FrequencyHorizontalRuler) / ScaleX;
+            if (stretch == RulerStretch.OnlyOnStart || stretch == RulerStretch.Duplicate)
+                group.Children.Add(GetRulerDrawing(place, brush, rulerGeometriesGroup,0, 0, masks));
 
-            var width = originalSize.Width - FrequencyHorizontalRuler * 2;
+            if(stretch == RulerStretch.OnlyOnEnd || stretch == RulerStretch.Duplicate)
+                group.Children.Add(GetRulerDrawing(GetInversBounds(place), brush, rulerGeometriesGroup, indentY, indentX, masks.Select(mask => GetInversBounds(mask)).ToArray()));
+        }
 
-            var step = width / ticksCount;
+        private Drawing GetRulerDrawing(Rect place,
+            Brush brush, 
+            IList<GeometryDrawing> rulerGeometriesGroup,
+            double indentY = 0, double indentX = 0, params Rect[] masks) {
 
-            double i = TranslateX;
-            int index = 0;
+            DrawingGroup result = new DrawingGroup();
 
-            if (TranslateX > 0) {
-                i = TranslateX % step;
-                index = -(int)(TranslateX / step);
+            // all the time clone main brush
+            var resultBrush = (DrawingBrush)brush.Clone();
+            
+            // add copied drawing
+            rulerGeometriesGroup.Add((GeometryDrawing)resultBrush.Drawing);
+
+            // duplicate
+            resultBrush.Viewport = Rect.Offset(resultBrush.Viewport, indentX, indentY);
+
+            Geometry resultGeometry = new RectangleGeometry(place);
+
+            foreach(var mask in masks)
+                resultGeometry = Geometry.Combine(resultGeometry, new RectangleGeometry(mask), GeometryCombineMode.Exclude, null);
+
+            result.Children.Add(new GeometryDrawing(resultBrush, null, resultGeometry));
+
+            return result;
+        }
+
+        private Rect GetInversBounds(Rect bounds) {
+            var transform = new ScaleTransform(bounds.X == 0 ? -1 : 1, bounds.Y == 0 ? -1: 1, this.containerSize.Width / 2, this.containerSize.Height / 2);
+
+            return transform.TransformBounds(bounds);
+        }
+
+
+        private Vector GetStartPosition(Vector indent, RulerStretch otherStretch, double translate) {
+            switch (this.StartPosition) {
+                default:
+                case StartPosition.OnCenter:
+                    return new Vector(this.containerSize.Width / 2, this.containerSize.Height / 2);
+                case StartPosition.OnStart:
+                    return RulersByArea && AreaDesigner is IAreaDesigner areaStart ?
+                        new Vector(areaStart.Bounds.Left - translate, areaStart.Bounds.Top - translate)
+                        : new Vector(indent.X, indent.X);
+                case StartPosition.OnEnd:
+                    double spec = 0;
+                    switch (otherStretch) {
+                        case RulerStretch.OnlyOnEnd:
+                            spec = indent.Y;
+                            break;
+                        case RulerStretch.Duplicate:
+                            spec = indent.Y;
+                            break;
+                    }
+
+                    return RulersByArea && AreaDesigner is IAreaDesigner areaEnd ?
+                        new Vector(areaEnd.Bounds.Right - translate, areaEnd.Bounds.Bottom - translate)
+                        : new Vector(this.containerSize.Width - spec, this.containerSize.Height - spec);
             }
+        }
 
-            while (i <= width) {
-                if (i >= 0) {
+        private Vector GetIndentOfRuller(bool otherVisibility, RulerSetting otherRuler, RulerStretch otherStretch, RulerStretch currentStretch) {
+            if (otherVisibility && otherRuler is RulerSetting setting) {
+                double start = 0;
+                double end = 0;
 
-                    var endPoint = new Point(FrequencyHorizontalRuler + i, RulerHeight);
-                    if (index % RulerBigFrequency != 0)
-                        endPoint = new Point(FrequencyHorizontalRuler + i, RulerSmallHeight);
-
-                    horizontalRulerDrawing.Children.Add(CreateLine(new Point(FrequencyHorizontalRuler + i, 0), endPoint, RulerFill, RulerWidth));
+                switch (otherStretch) {
+                    case RulerStretch.OnlyOnStart:
+                        start = setting.TickHeight;
+                        end = setting.TickHeight;
+                        break;
+                    case RulerStretch.OnlyOnEnd:
+                        start = 0.0000001; // needs for system
+                        end = setting.TickHeight;
+                        break;
+                    case RulerStretch.Duplicate:
+                        start = setting.TickHeight;
+                        end = setting.TickHeight * 2;
+                        break;
                 }
 
-                i += step;
-                index++;
-            }
+                return new Vector(start, end);
+            } else return default(Vector);
         }
 
-        private void BuildHorizontalRulerByArea(Size originalSize) {
-
-            horizontalRulerDrawing.Children.Clear();
-
-            TransformGroup scale = new TransformGroup();
-            foreach (var sc in RecursiveFinder<ScaleTransform>(global))
-                scale.Children.Add(sc);
-
-            double ScaleX = GetScale().Width;
-            double TranslateX = GetTranslate().X;
-
-            var area = new Rect((originalSize.Width - this.AreaDesigner.Area.Width) / 2, (originalSize.Height - this.AreaDesigner.Area.Height) / 2, this.AreaDesigner.Area.Width, this.AreaDesigner.Area.Height);
-
-            var scaledArea = scale.TransformBounds(area);
-
-            var ticksCount = (Math.Abs(MaximumHorizontalRuler) + Math.Abs(MinimumHorizontalRuler)) / Math.Abs(FrequencyHorizontalRuler) / ScaleX;
-
-            var width = originalSize.Width - FrequencyHorizontalRuler * 2;
-
-            var step = area.Width / ticksCount;
-
-            double i = TranslateX;
-            int index = 0;
-
-            if (TranslateX > 0) {
-                i = TranslateX % step;
-                index = -(int)(TranslateX / step);
-            }
-
-            if (area.X > 0) {
-                i += area.X % step;
-                index += -(int)(area.X / step);
-            }
-
-            while (i <= width) {
-                if (i >= 0) {
-
-                    var endPoint = new Point(FrequencyHorizontalRuler + i, RulerHeight);
-                    if (index % RulerBigFrequency != 0)
-                        endPoint = new Point(FrequencyHorizontalRuler + i, RulerSmallHeight);
-
-                    Brush stroke = RulerFill;
-                    if (i >= scaledArea.X + TranslateX && i <= scaledArea.X + scaledArea.Width + TranslateX)
-                        stroke = AreaBorderBrush;
-
-                    horizontalRulerDrawing.Children.Add(CreateLine(new Point(FrequencyHorizontalRuler + i, 0), endPoint, stroke, RulerWidth));
-                }
-
-                i += step;
-                index++;
-            }
-        }
 
         private Point GetTranslate() {
             if (global == null || global == Transform.Identity) return default(Point);
@@ -452,6 +570,7 @@ namespace Examples.Designers {
             return result;
         }
 
+
         private IEnumerable<T> RecursiveFinder<T>(Transform transform) where T : Transform {
 
             List<T> result = new List<T>();
@@ -463,12 +582,6 @@ namespace Examples.Designers {
                     result.AddRange(RecursiveFinder<T>(inner));
             }
 
-            return result;
-        }
-
-        private GeometryDrawing CreateLine(Point start, Point end, Brush stroke, double thickness) {
-            GeometryDrawing result = new GeometryDrawing { Pen = new Pen(stroke, thickness) };
-            result.Geometry = new LineGeometry(start, end);
             return result;
         }
         #endregion

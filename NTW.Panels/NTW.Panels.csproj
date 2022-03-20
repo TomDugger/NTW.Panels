@@ -90,6 +90,7 @@
     <Compile Include="Models\MetadataOptions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MetadataProperties\OptionPropertyMetadata.cs" />
+    <Compile Include="ResizedPanel.cs" />
     <Compile Include="ScrollInfoPanel.cs" />
   </ItemGroup>
   <ItemGroup />

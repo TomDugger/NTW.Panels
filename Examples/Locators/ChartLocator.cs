@@ -66,10 +66,11 @@ namespace Examples.Locators {
             ExecuteFor<IArrangeDesigner>(designer => designer.BeginElementArrange(originalSize, this.transform));
 
             int index = -1;
-            foreach (UIElement child in elements) { 
-                ArrangeChild(child);
+            foreach (UIElement child in elements) {
 
                 SetChildIndex(child, ++index);
+
+                ArrangeChild(child);
 
                 SetRebuildArrangeChild(child, ArrageChildWithCallingElementDesigners);
             }
@@ -149,7 +150,7 @@ namespace Examples.Locators {
             child.Arrange(childRect);
 
             // elementArrange designers (setting)
-            ExecuteFor<IElementArrangeDesigner>(designer => designer.AfterElementArrange(childRect, size, child, this.transform));
+            ExecuteFor<IElementArrangeDesigner>(designer => designer.AfterElementArrange(childRect, size, GetChildIndex(child), child, this.transform));
         }
 
         private void ArrageChildWithCallingElementDesigners(UIElement child) {
