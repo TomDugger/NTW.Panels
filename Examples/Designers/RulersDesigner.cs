@@ -319,7 +319,6 @@ namespace Examples.Designers {
         public Drawing FrontDrawing => frontDrawing;
         #endregion
 
-
         #region IArrangeDesigner
         public void BeginElementArrange(Size containerSize, Transform global = null) {
             horizontalRulersGroup.Clear();
@@ -349,7 +348,7 @@ namespace Examples.Designers {
 
             if (containerSize == default(Size)) return;
 
-            this.verticalRulerDrawing.Children.Clear();
+            verticalRulerDrawing.Children.Clear();
 
             Rect areaRect = default(Rect);
 
@@ -380,6 +379,9 @@ namespace Examples.Designers {
                 0, this.containerSize.Width,
                 areaRect);
 
+            // vertical clip geometry
+            verticalRulerDrawing.ClipGeometry = new RectangleGeometry(new Rect(0, indent.X, this.containerSize.Width, this.containerSize.Height - indent.Y));
+
             if (areaRect != default(Rect)) {
                 var areaBrush = GenerateVerticalBrush(this.VerticalRuler, scaleY, start, this.AreaSegmentFill, this.RulerWidth);
 
@@ -398,7 +400,7 @@ namespace Examples.Designers {
 
             if (containerSize == default(Size)) return;
 
-            this.horizontalRulerDrawing.Children.Clear();
+            horizontalRulerDrawing.Children.Clear();
 
             Rect areaRect = default(Rect);
 
@@ -428,6 +430,9 @@ namespace Examples.Designers {
                 horizontalRulersGroup,
                 this.containerSize.Height, 0, 
                 areaRect);
+
+            // horizontal clip geometry
+            horizontalRulerDrawing.ClipGeometry = new RectangleGeometry(new Rect(indent.X, 0, this.containerSize.Width - indent.Y, this.containerSize.Height));
 
             if (areaRect != default(Rect)) {
                 var areaBrush = GenerateHorizontalBrush(this.HorizaontalRuler, scaleX, start, this.AreaSegmentFill, this.RulerWidth);
