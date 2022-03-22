@@ -3,16 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
+using Examples.Data;
 
 namespace Examples.Designers {
-    public class ElementsPathLineDesigner : CustomDesigner, IElementArrangeDesigner, IArrangeDesigner, IDrawingPresenter {
+    public class ElementsPathDesigner : CustomDesigner, IElementArrangeDesigner, IArrangeDesigner, IDrawingPresenter {
 
         private PathFigure lineFigure;
         private GeometryDrawing lineDrawing;
 
         Dictionary<int, Point> linePoints;
 
-        public ElementsPathLineDesigner() {
+        public ElementsPathDesigner() {
             PathGeometry pathGeometry = new PathGeometry();
             lineFigure = new PathFigure();
             pathGeometry.Figures.Add(lineFigure);
@@ -31,10 +32,10 @@ namespace Examples.Designers {
         }
 
         public static readonly DependencyProperty ShowLineProperty =
-            DependencyProperty.Register("ShowLine", typeof(bool), typeof(ElementsPathLineDesigner), new PropertyMetadata(true, ShowLineChanged));
+            DependencyProperty.Register("ShowLine", typeof(bool), typeof(ElementsPathDesigner), new PropertyMetadata(true, ShowLineChanged));
 
         private static void ShowLineChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
-            if (sender is ElementsPathLineDesigner designer)
+            if (sender is ElementsPathDesigner designer)
                 if (e.NewValue is bool visiblity)
                     if (visiblity)
                         designer.backDrawing.Children.Add(designer.lineDrawing);
@@ -48,11 +49,11 @@ namespace Examples.Designers {
         }
 
         public static readonly DependencyProperty ClosedLineProperty =
-            DependencyProperty.Register("ClosedLine", typeof(bool), typeof(ElementsPathLineDesigner), new PropertyMetadata(false, ClosedLineChanged));
+            DependencyProperty.Register("ClosedLine", typeof(bool), typeof(ElementsPathDesigner), new PropertyMetadata(false, ClosedLineChanged));
 
         private static void ClosedLineChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
-            if (sender is ElementsPathLineDesigner designer)
-                if(e.NewValue is bool isClosed)
+            if (sender is ElementsPathDesigner designer)
+                if (e.NewValue is bool isClosed)
                     designer.lineFigure.IsClosed = isClosed;
         }
 
@@ -63,12 +64,26 @@ namespace Examples.Designers {
         }
 
         public static readonly DependencyProperty FilledLineProperty =
-            DependencyProperty.Register("FilledLine", typeof(bool), typeof(ElementsPathLineDesigner), new PropertyMetadata(false, FilledLineChanged));
+            DependencyProperty.Register("FilledLine", typeof(bool), typeof(ElementsPathDesigner), new PropertyMetadata(false, FilledLineChanged));
 
         private static void FilledLineChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
-            if (sender is ElementsPathLineDesigner designer)
+            if (sender is ElementsPathDesigner designer)
                 if (e.NewValue is bool isFilled)
                     designer.lineFigure.IsFilled = isFilled;
+        }
+
+
+        public SegmentTypes SegmentType {
+            get { return (SegmentTypes)GetValue(SegmentTypeProperty); }
+            set { SetValue(SegmentTypeProperty, value); }
+        }
+
+        public static readonly DependencyProperty SegmentTypeProperty =
+            DependencyProperty.Register("SegmentType", typeof(SegmentTypes), typeof(ElementsPathDesigner), new PropertyMetadata(SegmentTypes.Line, SegmentTypeChanged));
+
+        private static void SegmentTypeChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
+            if (sender is ElementsPathDesigner designer)
+                designer.RebuildPath();
         }
 
         #region Visual properties
@@ -78,10 +93,10 @@ namespace Examples.Designers {
         }
 
         public static readonly DependencyProperty LineFillProperty =
-            DependencyProperty.Register("LineFill", typeof(Brush), typeof(ElementsPathLineDesigner), new PropertyMetadata(Brushes.DodgerBlue, LineFillChanged));
+            DependencyProperty.Register("LineFill", typeof(Brush), typeof(ElementsPathDesigner), new PropertyMetadata(Brushes.DodgerBlue, LineFillChanged));
 
         private static void LineFillChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
-            if (sender is ElementsPathLineDesigner designer)
+            if (sender is ElementsPathDesigner designer)
                 designer.lineDrawing.Brush = (Brush)e.NewValue;
         }
 
@@ -92,10 +107,10 @@ namespace Examples.Designers {
         }
 
         public static readonly DependencyProperty LineStrokeProperty =
-            DependencyProperty.Register("LineStroke", typeof(Brush), typeof(ElementsPathLineDesigner), new PropertyMetadata(Brushes.DarkBlue, LineStrokeChanged));
+            DependencyProperty.Register("LineStroke", typeof(Brush), typeof(ElementsPathDesigner), new PropertyMetadata(Brushes.DarkBlue, LineStrokeChanged));
 
         private static void LineStrokeChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
-            if (sender is ElementsPathLineDesigner designer)
+            if (sender is ElementsPathDesigner designer)
                 designer.lineDrawing.Pen.Brush = (Brush)e.NewValue;
         }
 
@@ -106,10 +121,10 @@ namespace Examples.Designers {
         }
 
         public static readonly DependencyProperty LineThicknessProperty =
-            DependencyProperty.Register("LineThickness", typeof(double), typeof(ElementsPathLineDesigner), new PropertyMetadata(1.0, LineThicknessChanged));
+            DependencyProperty.Register("LineThickness", typeof(double), typeof(ElementsPathDesigner), new PropertyMetadata(1.0, LineThicknessChanged));
 
         private static void LineThicknessChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
-            if (sender is ElementsPathLineDesigner designer)
+            if (sender is ElementsPathDesigner designer)
                 designer.lineDrawing.Pen.Thickness = (double)e.NewValue;
         }
         #endregion
@@ -126,7 +141,7 @@ namespace Examples.Designers {
         }
 
         public static readonly DependencyProperty NotOnLineProperty =
-            DependencyProperty.RegisterAttached("NotOnLine", typeof(bool), typeof(ElementsPathLineDesigner), new PropertyMetadata(false));
+            DependencyProperty.RegisterAttached("NotOnLine", typeof(bool), typeof(ElementsPathDesigner), new PropertyMetadata(false));
 
 
         #endregion
@@ -153,7 +168,7 @@ namespace Examples.Designers {
             linePoints[index] = new Point(x, y);
 
             lineFigure.Segments.Clear();
-            lineFigure.Segments.Add(new PolyLineSegment { Points = new PointCollection(linePoints.Values) });
+            lineFigure.Segments.Add(GetPolyLine());
             lineFigure.StartPoint = linePoints.FirstOrDefault().Value;
         }
         #endregion
@@ -166,12 +181,7 @@ namespace Examples.Designers {
 
         public void EndElementArrange(Size containerSize, Transform global = null) {
             // build the line
-            lineFigure.Segments.Clear();
-
-            lineFigure.Segments.Add(new PolyLineSegment { Points = new PointCollection(linePoints.Values) });
-            lineFigure.StartPoint = linePoints.FirstOrDefault().Value;
-            lineFigure.IsClosed = ClosedLine;
-            lineFigure.IsFilled = FilledLine;
+            RebuildPath();
         }
         #endregion
 
@@ -182,8 +192,62 @@ namespace Examples.Designers {
         public Drawing FrontDrawing { get; }
         #endregion
 
-        protected override Freezable CreateInstanceCore() {
-            return new ElementsPathLineDesigner();
+        #region Helps
+        private void RebuildPath() {
+            lineFigure.Segments.Clear();
+
+            lineFigure.Segments.Add(GetPolyLine());
+            lineFigure.StartPoint = linePoints.FirstOrDefault().Value;
+            lineFigure.IsClosed = ClosedLine;
+            lineFigure.IsFilled = FilledLine;
         }
+
+        private PathSegment GetPolyLine() {
+            PathSegment result = null;
+
+            switch (SegmentType) {
+                case SegmentTypes.Line:
+                    result = new PolyLineSegment { Points = new PointCollection(linePoints.Values) };
+                    break;
+                case SegmentTypes.QuadraticBezier:
+
+
+                    result = new PolyQuadraticBezierSegment { Points = new PointCollection(linePoints.Values.WithPrevious().SelectMany((x, i) => new Point[] { new Point(x.Current.X, x.Previous.Y), x.Current })) };
+                    break;
+                case SegmentTypes.Bezier:
+                    result = new PolyBezierSegment { Points = new PointCollection(linePoints.Values.WithPrevious().SelectMany((x, i) => new Point[] { new Point(x.Current.X, x.Previous.Y), new Point(x.Previous.X, x.Current.Y), x.Current })) };
+                    break;
+            }
+
+            return result;
+        }
+        #endregion
+
+        protected override Freezable CreateInstanceCore() {
+            return new ElementsPathDesigner();
+        }
+    }
+
+    public static class EnumerableEx {
+        public static IEnumerable<Pair<T>> WithPrevious<T>(this IEnumerable<T> source) {
+            T previous = default;
+
+            foreach (var item in source) {
+                if (!previous.Equals(default(T)))
+                    yield return new Pair<T>(item, previous);
+                previous = item;
+            }
+        }
+    }
+
+    public struct Pair<T> {
+
+        public Pair(T current, T previous) {
+            this.Current = current;
+            this.Previous = previous;
+        }
+
+        public T Current { get; }
+        public T Previous { get; }
     }
 }

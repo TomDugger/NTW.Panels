@@ -46,10 +46,11 @@
   <ItemGroup>
     <Compile Include="Data\RullerStretch.cs" />
     <Compile Include="Data\RullerSetting.cs" />
+    <Compile Include="Data\SegmentTypes.cs" />
     <Compile Include="Data\StartPosition.cs" />
     <Compile Include="Designers\AreaDesigner.cs" />
     <Compile Include="Designers\CanvasOffsetDesigner.cs" />
-    <Compile Include="Designers\ElementsPathLineDesigner.cs" />
+    <Compile Include="Designers\ElementsPathDesigner.cs" />
     <Compile Include="Designers\RulersDesigner.cs" />
     <Compile Include="Designers\ShadowsDesigner.cs" />
     <Compile Include="Designers\ZoomDesigner.cs" />

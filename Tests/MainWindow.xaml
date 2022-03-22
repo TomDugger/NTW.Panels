@@ -72,6 +72,13 @@
             <data:RulerStretch>Duplicate</data:RulerStretch>
         </x:Array>
         
+        <!--SegmentTypes-->
+        <x:Array x:Key="SegmentTypesList" Type="{x:Type data:SegmentTypes}">
+            <data:SegmentTypes>Line</data:SegmentTypes>
+            <data:SegmentTypes>QuadraticBezier</data:SegmentTypes>
+            <data:SegmentTypes>Bezier</data:SegmentTypes>
+        </x:Array>
+        
         <!--Models-->
         <models:DataContainer x:Key="DataContainer" />
 
@@ -538,12 +545,13 @@
                                                             AreaBorderThickness="{Binding ElementName=AreaBorderThicknessBox, Path=Text, Mode=TwoWay}"
                                                             ShowArea="{Binding ElementName=ShowAreaBox, Path=IsChecked, Mode=TwoWay}"
                                                             ClipMainArea="{Binding ElementName=ClipMainAreaBox, Path=IsChecked, Mode=TwoWay}" />
-                                    <designers:ElementsPathLineDesigner x:Name="ElementsPath" ShowLine="{Binding ElementName=ShowLineBox, Path=IsChecked, Mode=TwoWay}"
+                                    <designers:ElementsPathDesigner x:Name="ElementsPath" ShowLine="{Binding ElementName=ShowLineBox, Path=IsChecked, Mode=TwoWay}"
                                                                         ClosedLine="{Binding ElementName=ClosedLineBox, Path=IsChecked, Mode=TwoWay}"
                                                                         FilledLine="{Binding ElementName=FilledLineBox, Path=IsChecked, Mode=TwoWay}"
                                                                         LineFill="{Binding ElementName=LineFillBox, Path=Text, Mode=TwoWay}"
                                                                         LineStroke="{Binding ElementName=LineStrokeBox, Path=Text, Mode=TwoWay}"
-                                                                        LineThickness="{Binding ElementName=LineThicknessBox, Path=Text, Mode=TwoWay}" />
+                                                                        LineThickness="{Binding ElementName=LineThicknessBox, Path=Text, Mode=TwoWay}"
+                                                                        SegmentType="{Binding ElementName=SegmentTypeBox, Path=SelectedItem, Mode=TwoWay}"/>
                                     <designers:RulersDesigner x:Name="Ruler" AreaDesigner="{Binding ElementName=Area, Path=.}" 
                                                               ShowVerticalRuler="{Binding ElementName=ShowVerticalRulerBox, Path=IsChecked, Mode=TwoWay}"
                                                               ShowHorizontalRuler="{Binding ElementName=ShowHorizontalRulerBox, Path=IsChecked, Mode=TwoWay}"
@@ -576,7 +584,7 @@
                                  designers:ShadowsDesigner.ItemGeometry="{DynamicResource SpecialShadowOfFirstElement}"
                                  designers:ShadowsDesigner.Fill="Orange" 
                                  
-                                 designers:ElementsPathLineDesigner.NotOnLine="True" />
+                                 designers:ElementsPathDesigner.NotOnLine="True" />
                         <Ellipse Style="{DynamicResource ChartEllipseStyle}" Fill="LightGreen" locators:ChartLocator.Position="1.0 0.0" 
                                  handlers:ChartItemMoveHandler.MoveType="X" />
                         <Ellipse Style="{DynamicResource ChartEllipseStyle}" Fill="LightBlue" locators:ChartLocator.Position="1.0 1.0"
@@ -611,12 +619,13 @@
                                                                         AreaBorderThickness="{Binding ElementName=AreaBorderThicknessBox, Path=Text, Mode=TwoWay}"
                                                                         ShowArea="{Binding ElementName=ShowAreaBox, Path=IsChecked, Mode=TwoWay}"
                                                                         ClipMainArea="{Binding ElementName=ClipMainAreaBox, Path=IsChecked, Mode=TwoWay}" />
-                                                <designers:ElementsPathLineDesigner ShowLine="{Binding ElementName=ShowLineBox, Path=IsChecked, Mode=TwoWay}"
+                                                <designers:ElementsPathDesigner ShowLine="{Binding ElementName=ShowLineBox, Path=IsChecked, Mode=TwoWay}"
                                                                                     ClosedLine="{Binding ElementName=ClosedLineBox, Path=IsChecked, Mode=TwoWay}"
                                                                                     FilledLine="{Binding ElementName=FilledLineBox, Path=IsChecked, Mode=TwoWay}"
                                                                                     LineFill="{Binding ElementName=LineFillBox, Path=Text, Mode=TwoWay}"
                                                                                     LineStroke="{Binding ElementName=LineStrokeBox, Path=Text, Mode=TwoWay}"
-                                                                                    LineThickness="{Binding ElementName=LineThicknessBox, Path=Text, Mode=TwoWay}" />
+                                                                                    LineThickness="{Binding ElementName=LineThicknessBox, Path=Text, Mode=TwoWay}" 
+                                                                                    SegmentType="{Binding ElementName=SegmentTypeBox, Path=SelectedItem, Mode=TwoWay}" />
                                                 <designers:RulersDesigner AreaDesigner="{Binding RelativeSource={StaticResource ChartSource}, Path=Designers[2]}"
                                                                           ShowVerticalRuler="{Binding ElementName=ShowVerticalRulerBox, Path=IsChecked, Mode=TwoWay}"
                                                                           ShowHorizontalRuler="{Binding ElementName=ShowHorizontalRulerBox, Path=IsChecked, Mode=TwoWay}"
@@ -702,6 +711,9 @@
 
                                     <TextBlock Grid.Row="4" Text="Line thickness" Margin="5" />
                                     <TextBox Name="LineThicknessBox" Margin="15, 0, 0, 0" Text="1.0" />
+
+                                    <TextBlock Text="Segment type" Margin="5" />
+                                    <ComboBox Name="SegmentTypeBox" ItemsSource="{StaticResource SegmentTypesList}" SelectedIndex="0" Margin="15, 0, 0, 0" />
                                 </StackPanel>
                             </Expander>
 
@@ -773,7 +785,7 @@
             </TabItem>
             
             <!--Diagram locator-->
-            <TabItem Header=" Diagram locator">
+            <TabItem Header="Diagram locator">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition />
@@ -798,12 +810,13 @@
                                                      Stroke="{Binding ElementName=DiagramStrokeBox, Path=Text, Mode=TwoWay}"
                                                      StrokeThickness="{Binding ElementName=DiagramStrokeThicknessBox, Path=Text, Mode=TwoWay}">
                                 <locators:DiagramLocator.Designers>
-                                    <designers:ElementsPathLineDesigner x:Name="DiagramElementsPath" ShowLine="{Binding ElementName=DiagramShowLineBox, Path=IsChecked, Mode=TwoWay}"
+                                    <designers:ElementsPathDesigner x:Name="DiagramElementsPath" ShowLine="{Binding ElementName=DiagramShowLineBox, Path=IsChecked, Mode=TwoWay}"
                                                                         ClosedLine="{Binding ElementName=DiagramClosedLineBox, Path=IsChecked, Mode=TwoWay}"
                                                                         FilledLine="{Binding ElementName=DiagramFilledLineBox, Path=IsChecked, Mode=TwoWay}"
                                                                         LineFill="{Binding ElementName=DiagramLineFillBox, Path=Text, Mode=TwoWay}"
                                                                         LineStroke="{Binding ElementName=DiagramLineStrokeBox, Path=Text, Mode=TwoWay}"
-                                                                        LineThickness="{Binding ElementName=DiagramLineThicknessBox, Path=Text, Mode=TwoWay}" />
+                                                                        LineThickness="{Binding ElementName=DiagramLineThicknessBox, Path=Text, Mode=TwoWay}" 
+                                                                        SegmentType="{Binding ElementName=DiagramSegmentTypeBox, Path=SelectedItem, Mode=TwoWay}" />
                                 </locators:DiagramLocator.Designers>
                             </locators:DiagramLocator>
                         </CustomPanel.ItemsLocator>
@@ -883,12 +896,13 @@
                                                                  Stroke="{Binding ElementName=DiagramStrokeBox, Path=Text, Mode=TwoWay}"
                                                                  StrokeThickness="{Binding ElementName=DiagramStrokeThicknessBox, Path=Text, Mode=TwoWay}">
                                             <locators:DiagramLocator.Designers>
-                                                <designers:ElementsPathLineDesigner ShowLine="{Binding ElementName=DiagramShowLineBox, Path=IsChecked, Mode=TwoWay}"
+                                                <designers:ElementsPathDesigner ShowLine="{Binding ElementName=DiagramShowLineBox, Path=IsChecked, Mode=TwoWay}"
                                                                                     ClosedLine="{Binding ElementName=DiagramClosedLineBox, Path=IsChecked, Mode=TwoWay}"
                                                                                     FilledLine="{Binding ElementName=DiagramFilledLineBox, Path=IsChecked, Mode=TwoWay}"
                                                                                     LineFill="{Binding ElementName=DiagramLineFillBox, Path=Text, Mode=TwoWay}"
                                                                                     LineStroke="{Binding ElementName=DiagramLineStrokeBox, Path=Text, Mode=TwoWay}"
-                                                                                    LineThickness="{Binding ElementName=DiagramLineThicknessBox, Path=Text, Mode=TwoWay}" />
+                                                                                    LineThickness="{Binding ElementName=DiagramLineThicknessBox, Path=Text, Mode=TwoWay}"
+                                                                                    SegmentType="{Binding ElementName=DiagramSegmentTypeBox, Path=SelectedItem, Mode=TwoWay}" />
                                             </locators:DiagramLocator.Designers>
                                         </locators:DiagramLocator>
                                     </CustomPanel.ItemsLocator>
@@ -936,6 +950,9 @@
 
                                     <TextBlock Text="Line thickness" Margin="5" />
                                     <TextBox Name="DiagramLineThicknessBox" Margin="15, 0, 0, 0" Text="1.0" />
+
+                                    <TextBlock Text="Segment type" Margin="5" />
+                                    <ComboBox Name="DiagramSegmentTypeBox" ItemsSource="{StaticResource SegmentTypesList}" SelectedIndex="0" Margin="15, 0, 0, 0" />
                                 </StackPanel>
                             </Expander>
                         </StackPanel>
