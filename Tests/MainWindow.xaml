@@ -77,8 +77,8 @@
             <x:Static MemberType="{x:Type data:SegmentSetting}" Member="Line" />
             <x:Static MemberType="{x:Type data:SegmentSetting}" Member="ToCenterQuadraticBezier" />
             <x:Static MemberType="{x:Type data:SegmentSetting}" Member="FromCenterQuadraticBezier" />
-            <x:Static MemberType="{x:Type data:SegmentSetting}" Member="CounterclockwiseBezier" />
-            <x:Static MemberType="{x:Type data:SegmentSetting}" Member="ClockwiseBesier" />
+            <x:Static MemberType="{x:Type data:SegmentSetting}" Member="VerticalBezier" />
+            <x:Static MemberType="{x:Type data:SegmentSetting}" Member="HorizontalBesier" />
         </x:Array>
         
         <!--Models-->

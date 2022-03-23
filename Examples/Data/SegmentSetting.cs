@@ -35,7 +35,7 @@ namespace Examples.Data {
         public static SegmentSetting ToCenterQuadraticBezier => new SegmentSetting(SegmentTypes.QuadraticBezier, false, true);
         public static SegmentSetting FromCenterQuadraticBezier => new SegmentSetting(SegmentTypes.QuadraticBezier, false, false);
 
-        public static SegmentSetting CounterclockwiseBezier => new SegmentSetting(SegmentTypes.Bezier, false, false);
-        public static SegmentSetting ClockwiseBesier => new SegmentSetting(SegmentTypes.Bezier, true, false);
+        public static SegmentSetting VerticalBezier => new SegmentSetting(SegmentTypes.Bezier, false, false);
+        public static SegmentSetting HorizontalBesier => new SegmentSetting(SegmentTypes.Bezier, true, false);
     }
 }

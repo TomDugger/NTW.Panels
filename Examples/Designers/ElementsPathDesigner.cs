@@ -54,9 +54,12 @@ namespace Examples.Designers {
             DependencyProperty.Register("ClosedLine", typeof(bool), typeof(ElementsPathDesigner), new PropertyMetadata(false, ClosedLineChanged));
 
         private static void ClosedLineChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
-            if (sender is ElementsPathDesigner designer)
+            if (sender is ElementsPathDesigner designer) {
                 if (e.NewValue is bool isClosed)
                     designer.lineFigure.IsClosed = isClosed;
+
+                designer.RebuildPath();
+            }
         }
 
 
