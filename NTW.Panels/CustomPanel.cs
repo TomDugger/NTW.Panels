@@ -373,13 +373,13 @@ namespace NTW.Panels {
             base.OnPreviewDrop(e);
         }
 
-        protected override void ResisingBegined() {
+        protected override void ResizingStart() {
             upLayer?.Clear();
 
             this.InvalidateMeasure();
         }
 
-        protected override void ResisingFinished() {
+        protected override void ResizingFinished() {
 
             upLayer?.Refresh();
 

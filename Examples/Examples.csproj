@@ -46,6 +46,7 @@
   <ItemGroup>
     <Compile Include="Data\RullerStretch.cs" />
     <Compile Include="Data\RullerSetting.cs" />
+    <Compile Include="Data\SegmentSetting.cs" />
     <Compile Include="Data\SegmentTypes.cs" />
     <Compile Include="Data\StartPosition.cs" />
     <Compile Include="Designers\AreaDesigner.cs" />
@@ -54,6 +55,8 @@
     <Compile Include="Designers\RulersDesigner.cs" />
     <Compile Include="Designers\ShadowsDesigner.cs" />
     <Compile Include="Designers\ZoomDesigner.cs" />
+    <Compile Include="Expanse\Data\Pair.cs" />
+    <Compile Include="Expanse\EnumerableHelper.cs" />
     <Compile Include="Handlers\ChartItemMoveHandler.cs" />
     <Compile Include="Handlers\ChartTranslationHandler.cs" />
     <Compile Include="Handlers\HierarchicalReturnOffsetHandler.cs" />

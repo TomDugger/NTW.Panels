@@ -83,7 +83,7 @@ namespace NTW.Panels {
                             IsResizingFinished = false;
 
                             if (lastState)
-                                ResisingBegined();
+                                ResizingStart();
                         }
                         break;
                     }
@@ -94,7 +94,7 @@ namespace NTW.Panels {
                         IsResizingFinished = true;
 
                         if (!lastState)
-                            ResisingFinished();
+                            ResizingFinished();
                         break;
                     }
             }
@@ -105,11 +105,11 @@ namespace NTW.Panels {
         /// <summary>
         /// Special virtual method witch execution of resizing size on start
         /// </summary>
-        protected virtual void ResisingBegined() { }
+        protected virtual void ResizingStart() { }
 
         /// <summary>
         /// Special virtual method witch execution of resizing size on finish
         /// </summary>
-        protected virtual void ResisingFinished() { }
+        protected virtual void ResizingFinished() { }
     }
 }

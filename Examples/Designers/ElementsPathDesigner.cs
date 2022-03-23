@@ -4,6 +4,8 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using Examples.Data;
+using Examples.Expanse;
+using System;
 
 namespace Examples.Designers {
     public class ElementsPathDesigner : CustomDesigner, IElementArrangeDesigner, IArrangeDesigner, IDrawingPresenter {
@@ -73,15 +75,15 @@ namespace Examples.Designers {
         }
 
 
-        public SegmentTypes SegmentType {
-            get { return (SegmentTypes)GetValue(SegmentTypeProperty); }
-            set { SetValue(SegmentTypeProperty, value); }
+        public SegmentSetting SegmentSetting {
+            get { return (SegmentSetting)GetValue(SegmentSettingProperty); }
+            set { SetValue(SegmentSettingProperty, value); }
         }
 
-        public static readonly DependencyProperty SegmentTypeProperty =
-            DependencyProperty.Register("SegmentType", typeof(SegmentTypes), typeof(ElementsPathDesigner), new PropertyMetadata(SegmentTypes.Line, SegmentTypeChanged));
+        public static readonly DependencyProperty SegmentSettingProperty =
+            DependencyProperty.Register("SegmentSetting", typeof(SegmentSetting), typeof(ElementsPathDesigner), new PropertyMetadata(SegmentSetting.Line, SegmentSettingChanged));
 
-        private static void SegmentTypeChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
+        private static void SegmentSettingChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
             if (sender is ElementsPathDesigner designer)
                 designer.RebuildPath();
         }
@@ -205,49 +207,73 @@ namespace Examples.Designers {
         private PathSegment GetPolyLine() {
             PathSegment result = null;
 
-            switch (SegmentType) {
+            switch (SegmentSetting.Type) {
                 case SegmentTypes.Line:
                     result = new PolyLineSegment { Points = new PointCollection(linePoints.Values) };
                     break;
                 case SegmentTypes.QuadraticBezier:
 
+                    Point centerOfPoints = new Point(linePoints.Values.Sum(x => x.X) / linePoints.Values.Count, linePoints.Values.Sum(x => x.Y) / linePoints.Values.Count);
 
-                    result = new PolyQuadraticBezierSegment { Points = new PointCollection(linePoints.Values.WithPrevious().SelectMany((x, i) => new Point[] { new Point(x.Current.X, x.Previous.Y), x.Current })) };
+                    List<Point> quadraticBezierPoints = linePoints.Values.WithPrevious().SelectMany((x, i) => GetQuadraticBezierPointsByCenter(centerOfPoints, x.Current, x.Previous)).ToList();
+
+                    // if closed, add two last points
+                    if (ClosedLine)
+                        quadraticBezierPoints.AddRange(GetQuadraticBezierPointsByCenter(centerOfPoints, linePoints.Values.FirstOrDefault(), linePoints.Values.LastOrDefault()));
+
+                    result = new PolyQuadraticBezierSegment { Points = new PointCollection(quadraticBezierPoints) };
                     break;
                 case SegmentTypes.Bezier:
-                    result = new PolyBezierSegment { Points = new PointCollection(linePoints.Values.WithPrevious().SelectMany((x, i) => new Point[] { new Point(x.Current.X, x.Previous.Y), new Point(x.Previous.X, x.Current.Y), x.Current })) };
+
+                    List<Point> bezierPoints = linePoints.Values.WithPrevious().SelectMany((x, i) => GetBezierPointsByCenter(x.Current, x.Previous)).ToList();
+
+                    if (ClosedLine)
+                        bezierPoints.AddRange(GetBezierPointsByCenter(linePoints.Values.FirstOrDefault(), linePoints.Values.LastOrDefault()));
+
+                    result = new PolyBezierSegment { Points = new PointCollection(bezierPoints) };
                     break;
             }
 
             return result;
         }
+
+        private IEnumerable<Point> GetQuadraticBezierPointsByCenter(Point center, Point current, Point previous) {
+
+            Point point = default(Point);
+
+            var fPoint = new Point(current.X, previous.Y);
+            var sPoint = new Point(previous.X, current.Y);
+
+            double fDistance = GetDistance(center, fPoint);
+            double sDistance = GetDistance(center, sPoint);
+
+            if (SegmentSetting.ToCenter) {
+                if (fDistance < sDistance)
+                    point = fPoint;
+                else
+                    point = sPoint;
+            } else {
+                if (fDistance > sDistance)
+                    point = fPoint;
+                else
+                    point = sPoint;
+            }
+
+            return new Point[] { point, current };
+        }
+
+        private IEnumerable<Point> GetBezierPointsByCenter(Point current, Point previous) {
+            if (SegmentSetting.Horizontal)
+                return new Point[] { new Point(current.X, previous.Y), new Point(previous.X, current.Y), current };
+            else
+                return new Point[] { new Point(previous.X, current.Y), new Point(current.X, previous.Y), current };
+        }
+
+        private double GetDistance(Point fPoint, Point sPoint) => Math.Abs(Math.Sqrt(Math.Pow(sPoint.X - fPoint.X, 2) + Math.Pow(sPoint.Y - fPoint.Y, 2)));
         #endregion
 
         protected override Freezable CreateInstanceCore() {
             return new ElementsPathDesigner();
         }
-    }
-
-    public static class EnumerableEx {
-        public static IEnumerable<Pair<T>> WithPrevious<T>(this IEnumerable<T> source) {
-            T previous = default;
-
-            foreach (var item in source) {
-                if (!previous.Equals(default(T)))
-                    yield return new Pair<T>(item, previous);
-                previous = item;
-            }
-        }
-    }
-
-    public struct Pair<T> {
-
-        public Pair(T current, T previous) {
-            this.Current = current;
-            this.Previous = previous;
-        }
-
-        public T Current { get; }
-        public T Previous { get; }
     }
 }
