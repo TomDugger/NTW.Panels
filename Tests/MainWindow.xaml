@@ -547,13 +547,16 @@
                                                             AreaBorderThickness="{Binding ElementName=AreaBorderThicknessBox, Path=Text, Mode=TwoWay}"
                                                             ShowArea="{Binding ElementName=ShowAreaBox, Path=IsChecked, Mode=TwoWay}"
                                                             ClipMainArea="{Binding ElementName=ClipMainAreaBox, Path=IsChecked, Mode=TwoWay}" />
-                                    <designers:ElementsPathDesigner x:Name="ElementsPath" ShowLine="{Binding ElementName=ShowLineBox, Path=IsChecked, Mode=TwoWay}"
-                                                                        ClosedLine="{Binding ElementName=ClosedLineBox, Path=IsChecked, Mode=TwoWay}"
-                                                                        FilledLine="{Binding ElementName=FilledLineBox, Path=IsChecked, Mode=TwoWay}"
-                                                                        LineFill="{Binding ElementName=LineFillBox, Path=Text, Mode=TwoWay}"
-                                                                        LineStroke="{Binding ElementName=LineStrokeBox, Path=Text, Mode=TwoWay}"
-                                                                        LineThickness="{Binding ElementName=LineThicknessBox, Path=Text, Mode=TwoWay}"
-                                                                        SegmentSetting="{Binding ElementName=SegmentSettingsBox, Path=SelectedItem, Mode=TwoWay}"/>
+                                    <designers:ElementsPathDesigner >
+                                        <data:LineGroupSetting Name="Line1" 
+                                                               ShowLine="{Binding ElementName=ShowLineBox, Path=IsChecked, Mode=TwoWay}"
+                                                               ClosedLine="{Binding ElementName=ClosedLineBox, Path=IsChecked, Mode=TwoWay}"
+                                                               FilledLine="{Binding ElementName=FilledLineBox, Path=IsChecked, Mode=TwoWay}"
+                                                               LineFill="{Binding ElementName=LineFillBox, Path=Text, Mode=TwoWay}"
+                                                               LineStroke="{Binding ElementName=LineStrokeBox, Path=Text, Mode=TwoWay}"
+                                                               LineThickness="{Binding ElementName=LineThicknessBox, Path=Text, Mode=TwoWay}"
+                                                               SegmentSetting="{Binding ElementName=SegmentSettingsBox, Path=SelectedItem, Mode=TwoWay}"/>
+                                    </designers:ElementsPathDesigner>
                                     <designers:RulersDesigner x:Name="Ruler" AreaDesigner="{Binding ElementName=Area, Path=.}" 
                                                               ShowVerticalRuler="{Binding ElementName=ShowVerticalRulerBox, Path=IsChecked, Mode=TwoWay}"
                                                               ShowHorizontalRuler="{Binding ElementName=ShowHorizontalRulerBox, Path=IsChecked, Mode=TwoWay}"
@@ -582,16 +585,20 @@
                         </CustomPanel.Handlers>
 
                         <!--Items-->
+                        <Ellipse Style="{DynamicResource ChartEllipseStyle}" Fill="LightGreen" locators:ChartLocator.Position="1.0 0.0" 
+                                 handlers:ChartItemMoveHandler.MoveType="X"
+                                 
+                                 designers:ElementsPathDesigner.LineGroupNames=".,Line1"/>
+                        <Ellipse Style="{DynamicResource ChartEllipseStyle}" Fill="LightBlue" locators:ChartLocator.Position="1.0 1.0"
+                                 handlers:ChartItemMoveHandler.MoveType="Y" />
+                        <Ellipse Style="{DynamicResource ChartEllipseStyle}" Fill="Pink" locators:ChartLocator.Position="0.0 1.0"
+                                 designers:ElementsPathDesigner.LineGroupNames=".,Line1" />
+
                         <Ellipse Style="{DynamicResource ChartEllipseStyle}" Fill="Orange" locators:ChartLocator.Position="0.0 0.0" 
                                  designers:ShadowsDesigner.ItemGeometry="{DynamicResource SpecialShadowOfFirstElement}"
                                  designers:ShadowsDesigner.Fill="Orange" 
                                  
-                                 designers:ElementsPathDesigner.NotOnLine="True" />
-                        <Ellipse Style="{DynamicResource ChartEllipseStyle}" Fill="LightGreen" locators:ChartLocator.Position="1.0 0.0" 
-                                 handlers:ChartItemMoveHandler.MoveType="X" />
-                        <Ellipse Style="{DynamicResource ChartEllipseStyle}" Fill="LightBlue" locators:ChartLocator.Position="1.0 1.0"
-                                 handlers:ChartItemMoveHandler.MoveType="Y"/>
-                        <Ellipse Style="{DynamicResource ChartEllipseStyle}" Fill="Pink" locators:ChartLocator.Position="0.0 1.0" />
+                                 designers:ElementsPathDesigner.LineGroupNames="Line1" />
                     </CustomPanel>
 
                     <!--Simple ItemsControl presentation-->
@@ -605,6 +612,7 @@
                         <ItemsControl.ItemContainerStyle>
                             <Style>
                                 <Setter Property="locators:ChartLocator.Position" Value="{Binding Path=.}" />
+                                <Setter Property="designers:ElementsPathDesigner.LineGroupNames" Value="Line1" />
                             </Style>
                         </ItemsControl.ItemContainerStyle>
                         <ItemsControl.ItemsPanel>
@@ -621,13 +629,16 @@
                                                                         AreaBorderThickness="{Binding ElementName=AreaBorderThicknessBox, Path=Text, Mode=TwoWay}"
                                                                         ShowArea="{Binding ElementName=ShowAreaBox, Path=IsChecked, Mode=TwoWay}"
                                                                         ClipMainArea="{Binding ElementName=ClipMainAreaBox, Path=IsChecked, Mode=TwoWay}" />
-                                                <designers:ElementsPathDesigner ShowLine="{Binding ElementName=ShowLineBox, Path=IsChecked, Mode=TwoWay}"
-                                                                                    ClosedLine="{Binding ElementName=ClosedLineBox, Path=IsChecked, Mode=TwoWay}"
-                                                                                    FilledLine="{Binding ElementName=FilledLineBox, Path=IsChecked, Mode=TwoWay}"
-                                                                                    LineFill="{Binding ElementName=LineFillBox, Path=Text, Mode=TwoWay}"
-                                                                                    LineStroke="{Binding ElementName=LineStrokeBox, Path=Text, Mode=TwoWay}"
-                                                                                    LineThickness="{Binding ElementName=LineThicknessBox, Path=Text, Mode=TwoWay}" 
-                                                                                    SegmentSetting="{Binding ElementName=SegmentSettingsBox, Path=SelectedItem, Mode=TwoWay}" />
+                                                <designers:ElementsPathDesigner >
+                                                    <data:LineGroupSetting Name="Line1" 
+                                                                           ShowLine="{Binding ElementName=ShowLineBox, Path=IsChecked, Mode=TwoWay}"
+                                                                           ClosedLine="{Binding ElementName=ClosedLineBox, Path=IsChecked, Mode=TwoWay}"
+                                                                           FilledLine="{Binding ElementName=FilledLineBox, Path=IsChecked, Mode=TwoWay}"
+                                                                           LineFill="{Binding ElementName=LineFillBox, Path=Text, Mode=TwoWay}"
+                                                                           LineStroke="{Binding ElementName=LineStrokeBox, Path=Text, Mode=TwoWay}"
+                                                                           LineThickness="{Binding ElementName=LineThicknessBox, Path=Text, Mode=TwoWay}"
+                                                                           SegmentSetting="{Binding ElementName=SegmentSettingsBox, Path=SelectedItem, Mode=TwoWay}"/>
+                                                </designers:ElementsPathDesigner>
                                                 <designers:RulersDesigner AreaDesigner="{Binding RelativeSource={StaticResource ChartSource}, Path=Designers[2]}"
                                                                           ShowVerticalRuler="{Binding ElementName=ShowVerticalRulerBox, Path=IsChecked, Mode=TwoWay}"
                                                                           ShowHorizontalRuler="{Binding ElementName=ShowHorizontalRulerBox, Path=IsChecked, Mode=TwoWay}"
@@ -812,13 +823,16 @@
                                                      Stroke="{Binding ElementName=DiagramStrokeBox, Path=Text, Mode=TwoWay}"
                                                      StrokeThickness="{Binding ElementName=DiagramStrokeThicknessBox, Path=Text, Mode=TwoWay}">
                                 <locators:DiagramLocator.Designers>
-                                    <designers:ElementsPathDesigner x:Name="DiagramElementsPath" ShowLine="{Binding ElementName=DiagramShowLineBox, Path=IsChecked, Mode=TwoWay}"
-                                                                        ClosedLine="{Binding ElementName=DiagramClosedLineBox, Path=IsChecked, Mode=TwoWay}"
-                                                                        FilledLine="{Binding ElementName=DiagramFilledLineBox, Path=IsChecked, Mode=TwoWay}"
-                                                                        LineFill="{Binding ElementName=DiagramLineFillBox, Path=Text, Mode=TwoWay}"
-                                                                        LineStroke="{Binding ElementName=DiagramLineStrokeBox, Path=Text, Mode=TwoWay}"
-                                                                        LineThickness="{Binding ElementName=DiagramLineThicknessBox, Path=Text, Mode=TwoWay}" 
-                                                                        SegmentSetting="{Binding ElementName=DiagramSegmentSettingsBox, Path=SelectedItem, Mode=TwoWay}" />
+                                    <designers:ElementsPathDesigner x:Name="DiagramElementsPath" >
+                                        <data:LineGroupSetting Name="Line1" 
+                                                               ShowLine="{Binding ElementName=DiagramShowLineBox, Path=IsChecked, Mode=TwoWay}"
+                                                               ClosedLine="{Binding ElementName=DiagramClosedLineBox, Path=IsChecked, Mode=TwoWay}"
+                                                               FilledLine="{Binding ElementName=DiagramFilledLineBox, Path=IsChecked, Mode=TwoWay}"
+                                                               LineFill="{Binding ElementName=DiagramLineFillBox, Path=Text, Mode=TwoWay}"
+                                                               LineStroke="{Binding ElementName=DiagramLineStrokeBox, Path=Text, Mode=TwoWay}"
+                                                               LineThickness="{Binding ElementName=DiagramLineThicknessBox, Path=Text, Mode=TwoWay}" 
+                                                               SegmentSetting="{Binding ElementName=DiagramSegmentSettingsBox, Path=SelectedItem, Mode=TwoWay}"/>
+                                    </designers:ElementsPathDesigner>
                                 </locators:DiagramLocator.Designers>
                             </locators:DiagramLocator>
                         </CustomPanel.ItemsLocator>
@@ -830,42 +844,54 @@
                                         locators:DiagramLocator.Value="50"
                                         locators:DiagramLocator.Minimum="0"
                                         locators:DiagramLocator.Maximum="100"
-                                        locators:DiagramLocator.Legend="Legends" />
+                                        locators:DiagramLocator.Legend="Legends"
+                                        
+                                        designers:ElementsPathDesigner.LineGroupNames="Line1"/>
                         <ContentControl Template="{DynamicResource DiagramTemplate}"
                                         HorizontalAlignment="Stretch"
                                         VerticalAlignment="Stretch"
                                         locators:DiagramLocator.Value="50"
                                         locators:DiagramLocator.Minimum="0"
                                         locators:DiagramLocator.Maximum="100"
-                                        locators:DiagramLocator.Legend="Legends" />
+                                        locators:DiagramLocator.Legend="Legends" 
+                                        
+                                        designers:ElementsPathDesigner.LineGroupNames="Line1" />
                         <ContentControl Template="{DynamicResource DiagramTemplate}"
                                         HorizontalAlignment="Stretch"
                                         VerticalAlignment="Stretch"
                                         locators:DiagramLocator.Value="50"
                                         locators:DiagramLocator.Minimum="0"
                                         locators:DiagramLocator.Maximum="100"
-                                        locators:DiagramLocator.Legend="Legends" />
+                                        locators:DiagramLocator.Legend="Legends" 
+                                        
+                                        designers:ElementsPathDesigner.LineGroupNames="Line1" />
                         <ContentControl Template="{DynamicResource DiagramTemplate}"
                                         HorizontalAlignment="Stretch"
                                         VerticalAlignment="Stretch"
                                         locators:DiagramLocator.Value="50"
                                         locators:DiagramLocator.Minimum="0"
                                         locators:DiagramLocator.Maximum="100"
-                                        locators:DiagramLocator.Legend="Legends" />
+                                        locators:DiagramLocator.Legend="Legends" 
+                                        
+                                        designers:ElementsPathDesigner.LineGroupNames="Line1" />
                         <ContentControl Template="{DynamicResource DiagramTemplate}"
                                         HorizontalAlignment="Stretch"
                                         VerticalAlignment="Stretch"
                                         locators:DiagramLocator.Value="50"
                                         locators:DiagramLocator.Minimum="0"
                                         locators:DiagramLocator.Maximum="100"
-                                        locators:DiagramLocator.Legend="Legends" />
+                                        locators:DiagramLocator.Legend="Legends" 
+                                        
+                                        designers:ElementsPathDesigner.LineGroupNames="Line1" />
                         <ContentControl Template="{DynamicResource DiagramTemplate}"
                                         HorizontalAlignment="Stretch"
                                         VerticalAlignment="Stretch"
                                         locators:DiagramLocator.Value="50"
                                         locators:DiagramLocator.Minimum="0"
                                         locators:DiagramLocator.Maximum="100"
-                                        locators:DiagramLocator.Legend="Legends" />
+                                        locators:DiagramLocator.Legend="Legends" 
+                                        
+                                        designers:ElementsPathDesigner.LineGroupNames="Line1" />
                     </CustomPanel>
 
                     <!--Simple ItemsControl presentation-->
@@ -885,6 +911,7 @@
                                 <Setter Property="locators:DiagramLocator.Minimum" Value="0" />
                                 <Setter Property="locators:DiagramLocator.Maximum" Value="100" />
                                 <Setter Property="locators:DiagramLocator.Legend" Value="Legends" />
+                                <Setter Property="designers:ElementsPathDesigner.LineGroupNames" Value="Line1" />
                             </Style>
                         </ItemsControl.ItemContainerStyle>
                         <ItemsControl.ItemsPanel>
@@ -898,13 +925,16 @@
                                                                  Stroke="{Binding ElementName=DiagramStrokeBox, Path=Text, Mode=TwoWay}"
                                                                  StrokeThickness="{Binding ElementName=DiagramStrokeThicknessBox, Path=Text, Mode=TwoWay}">
                                             <locators:DiagramLocator.Designers>
-                                                <designers:ElementsPathDesigner ShowLine="{Binding ElementName=DiagramShowLineBox, Path=IsChecked, Mode=TwoWay}"
-                                                                                    ClosedLine="{Binding ElementName=DiagramClosedLineBox, Path=IsChecked, Mode=TwoWay}"
-                                                                                    FilledLine="{Binding ElementName=DiagramFilledLineBox, Path=IsChecked, Mode=TwoWay}"
-                                                                                    LineFill="{Binding ElementName=DiagramLineFillBox, Path=Text, Mode=TwoWay}"
-                                                                                    LineStroke="{Binding ElementName=DiagramLineStrokeBox, Path=Text, Mode=TwoWay}"
-                                                                                    LineThickness="{Binding ElementName=DiagramLineThicknessBox, Path=Text, Mode=TwoWay}"
-                                                                                    SegmentSetting="{Binding ElementName=DiagramSegmentSettingsBox, Path=SelectedItem, Mode=TwoWay}" />
+                                                <designers:ElementsPathDesigner >
+                                                    <data:LineGroupSetting Name="Line1" 
+                                                               ShowLine="{Binding ElementName=DiagramShowLineBox, Path=IsChecked, Mode=TwoWay}"
+                                                               ClosedLine="{Binding ElementName=DiagramClosedLineBox, Path=IsChecked, Mode=TwoWay}"
+                                                               FilledLine="{Binding ElementName=DiagramFilledLineBox, Path=IsChecked, Mode=TwoWay}"
+                                                               LineFill="{Binding ElementName=DiagramLineFillBox, Path=Text, Mode=TwoWay}"
+                                                               LineStroke="{Binding ElementName=DiagramLineStrokeBox, Path=Text, Mode=TwoWay}"
+                                                               LineThickness="{Binding ElementName=DiagramLineThicknessBox, Path=Text, Mode=TwoWay}" 
+                                                               SegmentSetting="{Binding ElementName=DiagramSegmentSettingsBox, Path=SelectedItem, Mode=TwoWay}"/>
+                                                </designers:ElementsPathDesigner>
                                             </locators:DiagramLocator.Designers>
                                         </locators:DiagramLocator>
                                     </CustomPanel.ItemsLocator>

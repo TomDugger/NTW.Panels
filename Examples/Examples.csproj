@@ -44,6 +44,8 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\Collection\LineGroupsCollection.cs" />
+    <Compile Include="Data\LineGroupSetting.cs" />
     <Compile Include="Data\RullerStretch.cs" />
     <Compile Include="Data\RullerSetting.cs" />
     <Compile Include="Data\SegmentSetting.cs" />
