@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using System.Windows.Data;
 
 namespace NTW.Panels {
     /// <summary>
@@ -33,9 +34,10 @@ namespace NTW.Panels {
         /// Needs to use when the system needs to call Measure, Arrange and other in the Parent CustomPane
         /// </summary>
         /// <param name="option">Update option</param>
-        protected void SetUpdateOption(CustomObject sender, UpdateOptions option) => OptionCalling?.Invoke(sender ?? this, option);
+        protected virtual void SetUpdateOption(CustomObject sender, UpdateOptions option) => OptionCalling?.Invoke(sender ?? this, option);
         #endregion
 
+        #region Helps
         protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e) {
             base.OnPropertyChanged(e);
 
@@ -43,5 +45,10 @@ namespace NTW.Panels {
             if (e.Property.GetMetadata(this.GetType()) is OptionPropertyMetadata optionPropertyMetadata)
                 this.SetUpdateOption(this, optionPropertyMetadata.Option);
         }
+
+        protected void SetDepending(DependencyObject target, DependencyProperty targetProperty, DependencyObject source, DependencyProperty sourceProperty) {
+            BindingOperations.SetBinding(target, targetProperty, new Binding { Source = source, Path = new PropertyPath(sourceProperty) });
+        }
+        #endregion
     }
 }

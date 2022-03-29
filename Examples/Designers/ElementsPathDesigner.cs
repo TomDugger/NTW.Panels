@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
-using Examples.Data;
-using Examples.Expanse;
-using System;
 using Examples.Data.Collection;
 using System.ComponentModel;
 using System.Windows.Markup;
@@ -15,8 +12,16 @@ namespace Examples.Designers {
     [DefaultProperty("LineGroups")]
     public class ElementsPathDesigner : CustomDesigner, IElementArrangeDesigner, IArrangeDesigner, IDrawingPresenter {
 
+        #region Members
+        Dictionary<int, string[]> groupsByIndex;
+        Dictionary<int, Point> pointsByIndex;
+        #endregion
+
         public ElementsPathDesigner() {
-            LineGroups = new LineGroupsCollection().SetDrawingGroup(backDrawing);
+            groupsByIndex = new Dictionary<int, string[]>();
+            pointsByIndex = new Dictionary<int, Point>();
+
+            LineGroups = new LineGroupsCollection();
         }
 
         #region Dependency properties
@@ -26,7 +31,7 @@ namespace Examples.Designers {
         }
 
         public static readonly DependencyProperty LineGroupsProperty =
-            DependencyProperty.Register("LineGroups", typeof(LineGroupsCollection), typeof(ElementsPathDesigner), new PropertyMetadata(null, LineGroupsChanged));
+            DependencyProperty.Register("LineGroups", typeof(LineGroupsCollection), typeof(ElementsPathDesigner), new OptionPropertyMetadata(null, UpdateOptions.Arrange, LineGroupsChanged));
 
         private static void LineGroupsChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
             if (sender is ElementsPathDesigner designer) {
@@ -36,7 +41,7 @@ namespace Examples.Designers {
                 if (e.NewValue is LineGroupsCollection newC)
                     newC.OptionCalling += designer.SetUpdateOption;
                 else
-                    designer.LineGroups = new LineGroupsCollection().SetDrawingGroup(designer.backDrawing);
+                    designer.LineGroups = new LineGroupsCollection();
             }
         }
         #endregion
@@ -75,7 +80,8 @@ namespace Examples.Designers {
             var x = elementRect.X + elementRect.Width / 2;
             var y = elementRect.Y + elementRect.Height / 2;
 
-            LineGroups.UpdateLinePoint(element, index, new Point(x, y), false);
+            groupsByIndex[index] = GetGroupNames(element);
+            pointsByIndex[index] = new Point(x, y);
         }
 
         public void UpdateElementArrage(Rect elementRect, Size containerSize, int index, UIElement element, Transform global = null) {
@@ -85,19 +91,27 @@ namespace Examples.Designers {
             var x = elementRect.X + elementRect.Width / 2;
             var y = elementRect.Y + elementRect.Height / 2;
 
-            LineGroups.UpdateLinePoint(element, index, new Point(x, y));
+            pointsByIndex[index] = new Point(x, y);
+
+            // calling upate drawing
+            backDrawing.Children.Clear();
+            backDrawing.Children.Add(LineGroups.GetDrawing(groupsByIndex, pointsByIndex));
         }
         #endregion
 
         #region IElementArrangeDesigner
         public void BeginElementArrange(Size containerSize, Transform global = null) {
             // clear the path
-            LineGroups.ClearLines();
+            groupsByIndex.Clear();
+            pointsByIndex.Clear();
+
+            backDrawing.Children.Clear();
         }
 
         public void EndElementArrange(Size containerSize, Transform global = null) {
             // build the line
-            LineGroups.RefreshLines();
+            backDrawing.Children.Clear();
+            backDrawing.Children.Add(LineGroups.GetDrawing(groupsByIndex, pointsByIndex));
         }
         #endregion
 
@@ -107,6 +121,28 @@ namespace Examples.Designers {
 
         public Drawing FrontDrawing { get; }
         #endregion
+
+        protected override void SetUpdateOption(CustomObject sender, UpdateOptions option) {
+
+            if (option == UpdateOptions.ParentUpdate) {
+                backDrawing.Children.Clear();
+                backDrawing.Children.Add(LineGroups.GetDrawing(groupsByIndex, pointsByIndex));
+            } else
+                base.SetUpdateOption(sender, option);
+        }
+
+        private string[] GetGroupNames(UIElement element) {
+            List<string> result = new List<string>();
+
+            string names = ElementsPathDesigner.GetLineGroupNames(element);
+
+            if (names == null)
+                result.Add(".");
+            else
+                result.AddRange(names.Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries));
+
+            return result.ToArray();
+        }
 
         protected override Freezable CreateInstanceCore() {
             return new ElementsPathDesigner();
