@@ -21,6 +21,7 @@ namespace Examples.Data {
             SetDepending(lineDrawing, GeometryDrawing.BrushProperty, this, FillProperty);
             SetDepending(lineDrawing.Pen, Pen.BrushProperty, this, StrokeProperty);
             SetDepending(lineDrawing.Pen, Pen.ThicknessProperty, this, ThicknessProperty);
+
         }
 
         #region Dependency properties
@@ -42,13 +43,24 @@ namespace Examples.Data {
             DependencyProperty.Register("ShowLine", typeof(bool), typeof(LineGroupSetting), new PropertyMetadata(true, ShowLineChanged));
 
         private static void ShowLineChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e) {
-            //if (sender is LineGroupSetting setting)
-            //    if (e.NewValue is bool visiblity)
-            //        if (visiblity)
-            //            setting.drawing.Children.Add(setting.lineDrawing);
-            //        else
-            //            setting.drawing.Children.Remove(setting.lineDrawing);
+            if (sender is LineGroupSetting setting)
+                if (e.NewValue is bool visiblity)
+                    if (visiblity)
+                        setting.Opacity = 1.0;
+                    else
+                        setting.Opacity = 0.0;
         }
+
+
+        private double Opacity {
+            get { return (double)GetValue(OpacityProperty); }
+            set { SetValue(OpacityProperty, value); }
+        }
+
+        private static readonly DependencyProperty OpacityProperty =
+            DependencyProperty.Register("Opacity", typeof(double), typeof(LineGroupSetting), new PropertyMetadata(1.0));
+
+
 
         public bool ClosedLine {
             get { return (bool)GetValue(ClosedLineProperty); }
@@ -107,13 +119,18 @@ namespace Examples.Data {
 
         #region Helps
         public Drawing GetDrawing(IEnumerable<Point> points) {
+            DrawingGroup result = new DrawingGroup();
+            SetDepending(result, DrawingGroup.OpacityProperty, this, OpacityProperty);
+
             var copy = this.lineDrawing.Clone();
 
             PathGeometry pathGeometry = new PathGeometry();
             pathGeometry.Figures.Add(GetLineFigure(points));
             copy.Geometry = pathGeometry;
 
-            return copy;
+            result.Children.Add(copy);
+
+            return result;
         }
 
         private PathFigure GetLineFigure(IEnumerable<Point> points) {
