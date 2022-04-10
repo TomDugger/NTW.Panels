@@ -21,6 +21,9 @@
         <!--Converters-->
         <converters:LastSimbolConverter x:Key="LastSimbolConverter" />
 
+        <!--Models-->
+        <models:DataContainer x:Key="DataContainer" />
+        
         <!--Scrolling style for ItemsControl-->
         <Style TargetType="{x:Type ItemsControl}">
             <Setter Property="OverridesDefaultStyle" Value="True" />
@@ -81,9 +84,23 @@
             <x:Static MemberType="{x:Type data:SegmentSetting}" Member="VerticalBezier" />
             <x:Static MemberType="{x:Type data:SegmentSetting}" Member="HorizontalBesier" />
         </x:Array>
-        
-        <!--Models-->
-        <models:DataContainer x:Key="DataContainer" />
+
+        <!--Hierarchical items panel-->
+        <ItemsPanelTemplate x:Key="HierarchicalItemsPanel">
+            <CustomPanel >
+                <CustomPanel.ItemsLocator>
+                    <locators:StackLocator Orientation="{Binding ElementName=HierarchicalOrientationBox, Path=SelectedItem, Mode=TwoWay}" />
+                </CustomPanel.ItemsLocator>
+                <CustomPanel.Handlers>
+                    <handlers:HierarchicalMoveItemMouseHandler HierarchicalMoveUp="{Binding Source={StaticResource DataContainer}, Path=HierarchicalMoveUpItems}"/>
+                </CustomPanel.Handlers>
+            </CustomPanel>
+        </ItemsPanelTemplate>
+
+        <!--TreeViewItem style with custom panel-->
+        <Style x:Key="TreeViewItemWithCustomPanel" TargetType="{x:Type TreeViewItem}">
+            <Setter Property="ItemsPanel" Value="{StaticResource HierarchicalItemsPanel}" />
+        </Style>
 
         <!--Model template-->
         <DataTemplate DataType="{x:Type models:DataItem}">
@@ -99,7 +116,11 @@
                 </Trigger>
             </DataTemplate.Triggers>
         </DataTemplate>
-        
+
+        <HierarchicalDataTemplate DataType="{x:Type models:HierarchicalDataItem}" ItemsSource="{Binding Path=ItemsView}">
+            <TextBlock Text="{Binding Path=Content}" Margin="3" />
+        </HierarchicalDataTemplate>
+
         <!--Items list-->
         <x:Array x:Key="ItemsList" Type="{x:Type s:String}">
             <s:String>Item 0</s:String>
@@ -206,7 +227,7 @@
         
         <!--Line settings-->
         <datac:LineGroupsCollection x:Key="LineSettingsCollection">
-            <data:LineGroupSetting Name="Line1" />
+            <data:LineGroupSetting Name="Line1" Stroke="Green" />
         </datac:LineGroupsCollection>
     </Window.Resources>
     <Grid>
@@ -255,8 +276,7 @@
                                     <CustomPanel.Handlers>
                                         <handlers:SelectRangeMouseHandler Selecting="{Binding Path=SelectingItems}"
                                                                           Contains="{Binding ElementName=StackContinsRectBox, Path=IsChecked, Mode=TwoWay}" />
-                                        <handlers:MoveItemMouseHandler MoveUp="{Binding Path=MoveUpItems}" 
-                                                                       StopOnMouseLeave="{Binding ElementName=StackStopMoveLeave, Path=IsChecked, Mode=TwoWay}" />
+                                        <handlers:MoveItemMouseHandler MoveUp="{Binding Path=MoveUpItems}"  />
                                     </CustomPanel.Handlers>
                                 </CustomPanel>
                             </ItemsPanelTemplate>
@@ -365,8 +385,7 @@
                                     <CustomPanel.Handlers>
                                         <handlers:SelectRangeMouseHandler Selecting="{Binding Path=SelectingItems}"
                                                                           Contains="{Binding ElementName=WrapContinsRectBox, Path=IsChecked, Mode=TwoWay}" />
-                                        <handlers:MoveItemMouseHandler MoveUp="{Binding Path=MoveUpItems}" 
-                                                                       StopOnMouseLeave="{Binding ElementName=WrapStopMoveLeave, Path=IsChecked, Mode=TwoWay}" />
+                                        <handlers:MoveItemMouseHandler MoveUp="{Binding Path=MoveUpItems}" />
                                     </CustomPanel.Handlers>
                                 </CustomPanel>
                             </ItemsPanelTemplate>
@@ -477,8 +496,7 @@
                                     <CustomPanel.Handlers>
                                         <handlers:SelectRangeMouseHandler Selecting="{Binding Path=SelectingItems}"
                                                                           Contains="{Binding ElementName=PathContinsRectBox, Path=IsChecked, Mode=TwoWay}" />
-                                        <handlers:MoveItemMouseHandler MoveUp="{Binding Path=MoveUpItems}" 
-                                                                       StopOnMouseLeave="{Binding ElementName=PathStopMoveLeave, Path=IsChecked, Mode=TwoWay}" />
+                                        <handlers:MoveItemMouseHandler MoveUp="{Binding Path=MoveUpItems}" />
                                     </CustomPanel.Handlers>
                                 </CustomPanel>
                             </ItemsPanelTemplate>
@@ -1147,6 +1165,41 @@
 
                             <TextBlock Text="Begin height" Margin="3" />
                             <TextBox Name="HierarchicalBeginHeightBox" Margin="15, 0, 0, 0" Text="10" />
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+            
+            <!--Hierarchical Move handler-->
+            <TabItem Header="Hierarchical Move handler">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="Auto" MinWidth="120" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="30" />
+                        <RowDefinition />
+
+                        <RowDefinition Height="30" />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+
+                    <!--Simple ItemsControl presentation-->
+                    <TextBlock Grid.Row="2" Text="Simple ItemsControl presentation" Margin="5" />
+                    <TreeView Grid.Row="3" DataContext="{Binding Source={StaticResource DataContainer}}" 
+                              ItemsSource="{Binding Path=HierarchicalItemsView}"
+                              ItemsPanel="{StaticResource HierarchicalItemsPanel}" 
+                              ItemContainerStyle="{StaticResource TreeViewItemWithCustomPanel}"/>
+
+                    <!--Settings-->
+                    <ScrollViewer Grid.Column="1" Grid.RowSpan="4">
+                        <StackPanel Margin="3">
+                            <TextBlock Text="Orientation" Margin="3" />
+
+                            <ComboBox Name="HierarchicalOrientationBox" Margin="15, 0, 0, 0" ItemsSource="{DynamicResource OrientationList}" SelectedIndex="1" />
+
+                            <!--Handlers-->
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>

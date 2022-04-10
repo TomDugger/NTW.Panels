@@ -19,26 +19,51 @@ namespace NTW.Panels {
         private void MouseHandlerCollection_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
             switch (e.Action) {
                 case NotifyCollectionChangedAction.Add:
-                    foreach (ICallingModifer calling in e.NewItems?.Cast<CustomHandler>().Where(x => x is ICallingModifer))
-                        calling.PanelCalling += owner.PanelCalling;
+                    foreach (CustomHandler item in e.NewItems?.Cast<CustomHandler>()) {
+                        if (item is ICallingModifer calling)
+                            calling.PanelCalling += owner.PanelCalling;
+
+                        if (item is INotifyOption notify)
+                            notify.OptionCalling += owner.UpdateOptionCalling;
+                    }
 
                     break;
                 case NotifyCollectionChangedAction.Remove:
-                    foreach (ICallingModifer calling in e.OldItems?.Cast<CustomHandler>().Where(x => x is ICallingModifer))
-                        calling.PanelCalling -= owner.PanelCalling;
+                    foreach (CustomHandler item in e.OldItems?.Cast<CustomHandler>()) {
+                        if (item is ICallingModifer calling)
+                            calling.PanelCalling -= owner.PanelCalling;
+
+                        if (item is INotifyOption notify)
+                            notify.OptionCalling -= owner.UpdateOptionCalling;
+                    }
 
                     break;
                 case NotifyCollectionChangedAction.Reset:
-                    foreach (ICallingModifer calling in this?.Cast<CustomHandler>().Where(x => x is ICallingModifer))
-                        calling.PanelCalling -= owner.PanelCalling;
+                    foreach (CustomHandler item in this?.Cast<CustomHandler>()) {
+                        if (item is ICallingModifer calling)
+                            calling.PanelCalling -= owner.PanelCalling;
+
+                        if (item is INotifyOption notify)
+                            notify.OptionCalling -= owner.UpdateOptionCalling;
+                    }
 
                     break;
                 case NotifyCollectionChangedAction.Replace:
-                    foreach (ICallingModifer calling in e.OldItems?.Cast<CustomHandler>().Where(x => x is ICallingModifer))
-                        calling.PanelCalling -= owner.PanelCalling;
+                    foreach (CustomHandler item in e.OldItems?.Cast<CustomHandler>()) {
+                        if (item is ICallingModifer calling)
+                            calling.PanelCalling -= owner.PanelCalling;
 
-                    foreach (ICallingModifer calling in e.NewItems?.Cast<CustomHandler>().Where(x => x is ICallingModifer))
-                        calling.PanelCalling += owner.PanelCalling;
+                        if (item is INotifyOption notify)
+                            notify.OptionCalling -= owner.UpdateOptionCalling;
+                    }
+
+                    foreach (CustomHandler item in e.NewItems?.Cast<CustomHandler>()) {
+                        if (item is ICallingModifer calling)
+                            calling.PanelCalling += owner.PanelCalling;
+
+                        if (item is INotifyOption notify)
+                            notify.OptionCalling += owner.UpdateOptionCalling;
+                    }
 
                     break;
             }

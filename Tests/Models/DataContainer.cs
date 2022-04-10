@@ -16,6 +16,12 @@ namespace Tests.Models {
 
             this.itemsViewSource = new CollectionViewSource { Source = ItemsList };
 
+            this.hierarchicalItemList = new ObservableCollection<DataItem>(
+                Enumerable.Range(0, 5).Select(i => 
+                new HierarchicalDataItem($"Item {i}", new DataItem($"Item {i * 10}"), new DataItem($"Item {i * 10 + 1}"), new DataItem($"Item {i * 10 + 2}"))));
+
+            hierarchicalItemsViewSource = new CollectionViewSource { Source = HierarchicalItemList };
+
             MoveUpItems = (current, to) => {
 
                 int cIndex = itemsList.IndexOf((DataItem)current);
@@ -37,21 +43,50 @@ namespace Tests.Models {
                 foreach (DataItem sel in selected)
                     sel.IsSelected = !sel.IsSelected;
             };
+
+            HierarchicalMoveUpItems = (cParent, current, tParent, to) => {
+
+                if (cParent is HierarchicalDataItem cp) {
+                    cp.Items.Remove((DataItem)current);
+                    cp.ItemsView.Refresh();
+                } else
+                    this.HierarchicalItemList.Remove((DataItem)current);
+
+                int tIndex = ((tParent as HierarchicalDataItem)?.Items ?? this.HierarchicalItemList).IndexOf((DataItem)to) + 1;
+
+                if (tParent is HierarchicalDataItem tp) {
+                    tp.Items.Insert(tIndex, (DataItem)current);
+                    tp.ItemsView.Refresh();
+                } else
+                    this.HierarchicalItemList.Insert(tIndex, (DataItem)current);
+            };
         }
 
         #region Data items
+        #region Single
         private ObservableCollection<DataItem> itemsList;
         public ObservableCollection<DataItem> ItemsList => itemsList;
 
         private CollectionViewSource itemsViewSource;
         public ICollectionView ItemsView => itemsViewSource.View;
+        #endregion
 
+
+        #region Hierarchical
+        private ObservableCollection<DataItem> hierarchicalItemList;
+        public ObservableCollection<DataItem> HierarchicalItemList => hierarchicalItemList;
+
+        private CollectionViewSource hierarchicalItemsViewSource;
+        public ICollectionView HierarchicalItemsView => hierarchicalItemsViewSource.View; 
+        #endregion
 
         #region Activities
         public Action<object, object> MoveUpItems { get; }
 
         public Action<IEnumerable<object>> SelectingItems { get; }
-        #endregion 
+
+        public Action<object, object, object, object> HierarchicalMoveUpItems { get; }
+        #endregion
         #endregion
 
         private IEnumerable<Point> pointsList = Enumerable.Range(0, 100).Select(x => new Point(x % 10 * 0.1, (int)(x / 10) * 0.1));

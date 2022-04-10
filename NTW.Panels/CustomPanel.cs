@@ -23,7 +23,7 @@ namespace NTW.Panels {
 
         public CustomPanel() : base() {
 
-            this.ClipToBounds = true;
+            //this.ClipToBounds = true;
 
             this.Focusable = true;
 

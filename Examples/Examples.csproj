@@ -61,6 +61,7 @@
     <Compile Include="Expanse\EnumerableHelper.cs" />
     <Compile Include="Handlers\ChartItemMoveHandler.cs" />
     <Compile Include="Handlers\ChartTranslationHandler.cs" />
+    <Compile Include="Handlers\HierarchicalMoveItemMouseHandler.cs" />
     <Compile Include="Handlers\HierarchicalReturnOffsetHandler.cs" />
     <Compile Include="Handlers\MoveItemMouseHandler.cs" />
     <Compile Include="Handlers\SelectRangeMouseHandler.cs" />
